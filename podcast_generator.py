@@ -6,6 +6,10 @@ import shutil
 from datetime import datetime
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
+from dotenv import load_dotenv
+
+# 環境変数をロード
+load_dotenv()
 
 # 設定
 PORT = 8000
