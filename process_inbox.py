@@ -6,6 +6,8 @@ from pydantic import BaseModel, Field
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
+import json
+from notion_helper import is_notion_configured
 
 # 環境変数の読み込み
 load_dotenv()
