@@ -107,15 +107,21 @@ def generate_podcast_rss():
     for mp3_path in mp3_files:
         filename = os.path.basename(mp3_path)
         file_size = os.path.getsize(mp3_path)
-        pub_date = get_rfc2822_date(mp3_path)
         
         # ファイル名から日付をパースして表示用にする (例: podcast_20260619_104300.mp3 -> 2026年06月19日のAIラジオ)
         match = re.search(r"podcast_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})", filename)
         if match:
             year, month, day, hour, minute, second = match.groups()
             ep_title = f"{year}年{month}月{day}日 {hour}:{minute} のAI学習ラジオ"
+            # ファイル名から日付オブジェクトを作成し、RFC 2822フォーマットにする
+            try:
+                dt = datetime(int(year), int(month), int(day), int(hour), int(minute), int(second))
+                pub_date = dt.strftime("%a, %d %b %Y %H:%M:%S +0900")
+            except Exception:
+                pub_date = get_rfc2822_date(mp3_path)
         else:
             ep_title = f"AI学習ラジオ ({filename})"
+            pub_date = get_rfc2822_date(mp3_path)
             
         item = ET.SubElement(channel, "item")
         ET.SubElement(item, "title").text = ep_title

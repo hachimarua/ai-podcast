@@ -19,8 +19,8 @@ async def generate_line_audio(text, voice, output_path):
     if not sanitized_text.endswith(("。", "！", "？", "!", "?")):
         sanitized_text += "。"
         
-    # 音声合成の実行
-    communicate = edge_tts.Communicate(sanitized_text, voice)
+    # 音声合成の実行 (話速を1.1倍速相当の +10% にスピードアップ設定)
+    communicate = edge_tts.Communicate(sanitized_text, voice, rate="+10%")
     await communicate.save(output_path)
     return True
 

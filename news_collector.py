@@ -91,13 +91,64 @@ def fetch_feed_entries(feed_name, feed_url, max_entries=5):
         print(f"[Error] Failed to fetch feed {feed_name}: {e}")
         return []
 
+def filter_business_noise(news_list):
+    """
+    タイトルや本文にビジネス・融資関連のノイズワードが含まれるニュースを除外する。
+    """
+    # 英語のノイズワード（単語境界を考慮するため正規表現パターンを作成）
+    english_noise_words = [
+        r'\bseed\s+round\b', r'\bseries\s+[a-z]\b', r'\bfunding\b', r'\bvaluation\b', 
+        r'\bacquisition\b', r'\bacquire\b', r'\bmerger\b', r'\bmerged\b', r'\bvc\b', 
+        r'\bventure\s+capital\b', r'\bipo\b', r'\binvestment\b', r'\binvest\b', 
+        r'\braise\s+money\b', r'\braised\s+(?:\$\d+|\d+\s*million|\d+\s*billion)\b'
+    ]
+    english_patterns = [re.compile(pattern, re.IGNORECASE) for pattern in english_noise_words]
+    
+    # 日本語のノイズワード（部分一致で検出）
+    japanese_noise_words = [
+        "資金調達", "買収", "合併", "融資", "評価額", "子会社", "株式取得", 
+        "資本業務提携", "ベンチャーキャピタル", "投資ラウンド", "出資"
+    ]
+    
+    filtered_news = []
+    removed_count = 0
+    
+    for news in news_list:
+        text_to_check = f"{news['title']}\n{news['content']}"
+        
+        # 英語のパターンマッチ確認
+        is_noise = False
+        for pattern in english_patterns:
+            if pattern.search(text_to_check):
+                is_noise = True
+                break
+                
+        # 日本語のキーワードマッチ確認
+        if not is_noise:
+            for word in japanese_noise_words:
+                if word in text_to_check:
+                    is_noise = True
+                    break
+                    
+        if is_noise:
+            removed_count += 1
+            print(f" -> [Filtered Business Noise] Removed: {news['title']}")
+        else:
+            filtered_news.append(news)
+            
+    print(f"Business Noise Filtering: Removed {removed_count} entries. {len(filtered_news)} entries remaining.")
+    return filtered_news
+
 def collect_latest_news(max_entries_per_feed=5):
-    """ホワイトリストの全フィードから最新ニュースを収集"""
+    """ホワイトリストの全フィードから最新ニュースを収集し、ビジネスノイズをフィルタリング"""
     all_news = []
     for name, url in WHITELIST_FEEDS.items():
         entries = fetch_feed_entries(name, url, max_entries_per_feed)
         all_news.extend(entries)
-    return all_news
+    
+    # ビジネスノイズを除外
+    filtered_news = filter_business_noise(all_news)
+    return filtered_news
 
 def match_news_with_words(news_list, words):
     """収集したニュースとNotionから抽出した単語（words）をマッチング"""

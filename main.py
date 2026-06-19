@@ -66,14 +66,17 @@ async def async_main():
         print("[Error] 音声合成に失敗しました。パイプラインを中断します。")
         sys.exit(1)
         
-    # 6. ポッドキャストXML(RSSフィード)の生成とアーカイブ保存
+    # 6. ポッドキャストXML(RSSフィード)の生成とアーカイブ保存 (GitHub Actions上でのみ本番アーカイブを更新)
     print("\n[Step 6] ポッドキャストRSSフィードを生成し、アーカイブを更新しています...")
-    archived_filename = archive_today_podcast()
-    if archived_filename:
-        generate_podcast_rss()
+    if os.getenv("GITHUB_ACTIONS") == "true":
+        archived_filename = archive_today_podcast()
+        if archived_filename:
+            generate_podcast_rss()
+        else:
+            print("[Error] 音声ファイルのアーカイブに失敗しました。")
+            sys.exit(1)
     else:
-        print("[Error] 音声ファイルのアーカイブに失敗しました。")
-        sys.exit(1)
+        print("ローカル環境での実行を検知しました。配信RSSとepisodes/へのアーカイブは更新せず、todays_podcast.mp3 の生成のみに留めます。")
     
     # 7. Notion側の復習履歴をアップデート (すべてのステップが成功した後にのみ更新)
     print("\n[Step 7] Notion DBの復習回数と日付を更新しています...")
