@@ -1,7 +1,7 @@
 import os
 import random
 import json
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import requests
 from dotenv import load_dotenv
 
@@ -149,7 +149,8 @@ def select_terms_for_review(count=3):
 
 def update_term_review_status(page_id, current_count):
     """新データベースのページプロパティ（復習回数、最終復習日）を書き換える"""
-    today_str = datetime.today().strftime('%Y-%m-%d')
+    JST = timezone(timedelta(hours=9))
+    today_str = datetime.now(JST).strftime('%Y-%m-%d')
     new_count = current_count + 1
     
     if not is_notion_configured() or page_id.startswith("mock-"):

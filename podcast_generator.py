@@ -3,7 +3,7 @@ import re
 import glob
 import socket
 import shutil
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 from dotenv import load_dotenv
@@ -37,9 +37,9 @@ def get_local_ip():
 def get_rfc2822_date(filepath):
     """ファイルの作成日時をポッドキャスト規格(RFC 2822)の日付文字列に変換"""
     mtime = os.path.getmtime(filepath)
-    dt = datetime.fromtimestamp(mtime)
+    JST = timezone(timedelta(hours=9))
+    dt = datetime.fromtimestamp(mtime, JST)
     # RFC 2822フォーマット: Mon, 02 Jan 2006 15:04:05 -0700
-    # 日本時間 (UTC+9) としてフォーマット
     return dt.strftime("%a, %d %b %Y %H:%M:%S +0900")
 
 def archive_today_podcast():
@@ -54,8 +54,9 @@ def archive_today_podcast():
     episodes_path = os.path.join(base_dir, EPISODES_DIR)
     os.makedirs(episodes_path, exist_ok=True)
     
-    # 日付付きのファイル名を作成 (例: episodes/podcast_20260619_073000.mp3)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    # 日本時間 (JST) で日付付きのファイル名を作成 (例: episodes/podcast_20260619_073000.mp3)
+    JST = timezone(timedelta(hours=9))
+    timestamp = datetime.now(JST).strftime("%Y%m%d_%H%M%S")
     dest_filename = f"podcast_{timestamp}.mp3"
     dest_path = os.path.join(episodes_path, dest_filename)
     

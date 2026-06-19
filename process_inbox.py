@@ -1,7 +1,7 @@
 import os
 import sys
 import requests
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel, Field
 from google import genai
 from google.genai import types
@@ -193,9 +193,10 @@ def process_inbox():
             study_summary = result_json.get("summary")
             study_date_str = result_json.get("study_date")
             
-            # 日付のフォールバック
+            # 日付のフォールバック (日本時間 JST で取得)
             if not study_date_str or study_date_str == "today":
-                study_date_str = datetime.today().strftime('%Y-%m-%d')
+                JST = timezone(timedelta(hours=9))
+                study_date_str = datetime.now(JST).strftime('%Y-%m-%d')
                 
             print(f" -> AIによる抽出結果:\n    [用語名]: {study_title}\n    [日付]: {study_date_str}")
             
