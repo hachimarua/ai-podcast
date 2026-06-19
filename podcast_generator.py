@@ -104,6 +104,10 @@ def generate_podcast_rss():
     # itunes:categoryを追加
     category = ET.SubElement(channel, "itunes:category", {"text": "Technology"})
     
+    # itunes:imageを追加 (カバーアートジャケット)
+    image_url = f"{base_url}/cover.png"
+    ET.SubElement(channel, "itunes:image", {"href": image_url})
+    
     # エピソードの追加
     for mp3_path in mp3_files:
         filename = os.path.basename(mp3_path)

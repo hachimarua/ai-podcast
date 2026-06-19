@@ -8,6 +8,7 @@
     <itunes:author>Antigravity Agent</itunes:author>
     <itunes:summary>Notionに蓄積したAI用語の復習と、ホワイトリストソースから収集した最新AIニュースを掛け合わせた、毎朝の自律学習ポッドキャストです。</itunes:summary>
     <itunes:category text="Technology"/>
+    <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
       <title>2026年06月20日 07:29 のAI学習ラジオ</title>
       <description>本日の復習用語を交えた最新AIニュースの要約解説です。</description>
