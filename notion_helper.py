@@ -9,128 +9,124 @@ from dotenv import load_dotenv
 load_dotenv()
 
 NOTION_API_KEY = os.getenv("NOTION_API_KEY")
-NOTION_DATABASE_ID = os.getenv("NOTION_DATABASE_ID")
+# データベースIDの位置に、親ページのID (35d142da197280b3ae74f921ac365125) が設定されている前提で動かします
+NOTION_PARENT_PAGE_ID = os.getenv("NOTION_DATABASE_ID")
 
-# Notion API Headers
 HEADERS = {
     "Authorization": f"Bearer {NOTION_API_KEY}",
     "Content-Type": "application/json",
     "Notion-Version": "2022-06-28"
 }
 
-# ローカルモック用ファイルパス
 MOCK_FILE_PATH = os.path.join(os.path.dirname(__file__), "notion_mock_db.json")
 
 def create_mock_data_if_not_exists():
-    """Notion APIキーが設定されていない場合に使用するダミーデータを作成"""
     if not os.path.exists(MOCK_FILE_PATH):
         dummy_data = [
-            {"id": "mock-1", "name": "RAG (Retrieval-Augmented Generation)", "review_count": 0, "last_reviewed": None},
-            {"id": "mock-2", "name": "MCP (Model Context Protocol)", "review_count": 0, "last_reviewed": None},
-            {"id": "mock-3", "name": "LLM Context Window", "review_count": 0, "last_reviewed": None},
-            {"id": "mock-4", "name": "Prompt Injection", "review_count": 0, "last_reviewed": None},
-            {"id": "mock-5", "name": "Fine-Tuning", "review_count": 0, "last_reviewed": None},
-            {"id": "mock-6", "name": "Vector Database", "review_count": 0, "last_reviewed": None},
-            {"id": "mock-7", "name": "Agentic Workflow", "review_count": 0, "last_reviewed": None}
+            {"id": "mock-1", "name": "20260511 (RAGの勉強)", "content": "RAGについて学習した。外部知識をLLMに検索・注入する技術である。", "review_count": 0, "last_reviewed": None},
+            {"id": "mock-2", "name": "20260512 (MCPの勉強)", "content": "Model Context ProtocolはLLMとPC内のリソースを繋ぐ規格である。", "review_count": 0, "last_reviewed": None},
+            {"id": "mock-3", "name": "20260514 (Context Window)", "content": "Context Windowが大きくなると、本1冊分のテキストを丸ごと処理できる。", "review_count": 0, "last_reviewed": None},
+            {"id": "mock-4", "name": "20260515 (インジェクション対策)", "content": "プロンプトインジェクションは、悪意ある命令を入力してAIを暴走させる攻撃である。", "review_count": 0, "last_reviewed": None}
         ]
         with open(MOCK_FILE_PATH, "w", encoding="utf-8") as f:
             json.dump(dummy_data, f, indent=4, ensure_ascii=False)
-        print(f"Created local mock database at {MOCK_FILE_PATH}")
 
 def is_notion_configured():
-    """Notion APIが設定されているか確認"""
-    return NOTION_API_KEY and NOTION_DATABASE_ID and "YOUR_" not in NOTION_API_KEY
+    return NOTION_API_KEY and NOTION_PARENT_PAGE_ID and "YOUR_" not in NOTION_API_KEY
 
-def get_title_property_name(properties):
-    """NotionのTitleプロパティ名（'Name', '名前', 'タイトル' など）を自動検出"""
-    for prop_name, prop_val in properties.items():
-        if prop_val.get("type") == "title":
-            return prop_name
-    return "Name"
+def fetch_page_text_content(page_id):
+    """子ページの中身（テキストブロック）を結合して取得"""
+    url = f"https://api.notion.com/v1/blocks/{page_id}/children"
+    try:
+        response = requests.get(url, headers=HEADERS)
+        if response.status_code != 200:
+            return ""
+            
+        data = response.json()
+        texts = []
+        review_count = 0
+        last_reviewed = None
+        
+        # 本文ブロックをパース
+        for block in data.get("results", []):
+            block_type = block.get("type")
+            text_element = None
+            
+            # テキストが含まれる代表的なブロックタイプ
+            if block_type in ["paragraph", "bulleted_list_item", "numbered_list_item", "heading_1", "heading_2", "heading_3"]:
+                text_element = block.get(block_type, {}).get("rich_text", [])
+                
+            if text_element:
+                plain_text = "".join([t.get("plain_text", "") for t in text_element])
+                texts.append(plain_text)
+                
+                # 過去の「📝 復習履歴」という追記テキストがあれば復習回数と日付をパースする
+                # フォーマット例: "📝 復習履歴: 2回目 (最終: 2026-06-19)"
+                match = re.search(r"📝\s*復習履歴:\s*(\d+)回目\s*\(最終:\s*([\d-]+)\)", plain_text)
+                if match:
+                    review_count = max(review_count, int(match.group(1)))
+                    last_reviewed = match.group(2)
+                    
+        return "\n".join(texts), review_count, last_reviewed
+    except Exception as e:
+        print(f"[Warning] Failed to fetch page content: {e}")
+        return "", 0, None
+
+import re # reモジュールが必要なのでインポート
 
 def fetch_notion_terms():
-    """NotionまたはモックDBから全用語を取得"""
+    """親ページ配下の子ページ（日記ログ）の一覧を取得"""
     if not is_notion_configured():
         create_mock_data_if_not_exists()
         with open(MOCK_FILE_PATH, "r", encoding="utf-8") as f:
             return json.load(f)
             
-    # 実環境でのNotion APIクエリ
-    url = f"https://api.notion.com/v1/databases/{NOTION_DATABASE_ID}/query"
-    terms = []
-    has_more = True
-    start_cursor = None
+    # 親ページのブロックの子要素（＝子ページ）を取得
+    url = f"https://api.notion.com/v1/blocks/{NOTION_PARENT_PAGE_ID}/children"
+    response = requests.get(url, headers=HEADERS)
     
-    while has_more:
-        payload = {}
-        if start_cursor:
-            payload["start_cursor"] = start_cursor
+    if response.status_code != 200:
+        print(f"[Warning] Notion page children fetch failed: {response.text}")
+        print("Falling back to local mock data...")
+        create_mock_data_if_not_exists()
+        with open(MOCK_FILE_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
             
-        response = requests.post(url, headers=HEADERS, json=payload)
-        if response.status_code != 200:
-            print(f"[Warning] Notion API query failed: {response.text}")
-            print("Falling back to local mock data...")
-            # エラー時はモックにフォールバック
-            create_mock_data_if_not_exists()
-            with open(MOCK_FILE_PATH, "r", encoding="utf-8") as f:
-                return json.load(f)
-                
-        data = response.json()
-        for page in data.get("results", []):
-            props = page.get("properties", {})
-            title_prop = get_title_property_name(props)
+    data = response.json()
+    terms = []
+    
+    for block in data.get("results", []):
+        if block.get("type") == "child_page":
+            page_id = block.get("id")
+            title = block.get("child_page", {}).get("title", "無題")
             
-            # 用語名の抽出
-            title_list = props.get(title_prop, {}).get("title", [])
-            name = title_list[0].get("plain_text", "") if title_list else "無題"
+            # 子ページの中身テキストと、過去の復習回数を取得
+            content, review_count, last_reviewed = fetch_page_text_content(page_id)
             
-            # 復習回数プロパティ (Review Count / 復習回数) の抽出
-            # カラム名候補: 'Review Count' または '復習回数'
-            review_count = 0
-            for col in ["Review Count", "復習回数"]:
-                if col in props and props[col].get("type") == "number":
-                    review_count = props[col].get("number") or 0
-                    break
-                    
-            # 最終復習日 (Last Reviewed / 最終復習日) の抽出
-            last_reviewed = None
-            for col in ["Last Reviewed", "最終復習日"]:
-                if col in props and props[col].get("type") == "date":
-                    date_val = props[col].get("date")
-                    if date_val:
-                        last_reviewed = date_val.get("start")
-                    break
-            
+            # ページタイトルまたは本文の最初の1行からキーワード(学習テーマ)を推測
+            # 本文全体が渡されるため、Gemini側でより深い文脈が理解できます
             terms.append({
-                "id": page.get("id"),
-                "name": name,
+                "id": page_id,
+                "name": title,          # タイトル (例: '20260511')
+                "content": content,      # ページ本文
                 "review_count": review_count,
                 "last_reviewed": last_reviewed
             })
             
-        has_more = data.get("has_more", False)
-        start_cursor = data.get("next_cursor")
-        
     return terms
 
 def select_terms_for_review(count=3):
-    """復習回数が少ない単語を優先してランダムに抽出 (案C改)"""
+    """復習回数が少ない日記（子ページ）を優先してランダムに抽出"""
     terms = fetch_notion_terms()
     if not terms:
         return []
         
-    # 復習回数でソート (昇順)
     terms.sort(key=lambda x: x["review_count"])
-    
-    # 復習回数が最小のグループを特定する
     min_count = terms[0]["review_count"]
-    # 復習回数が最小値に近いものをプール（最小値 + 1回までの単語を候補とする）
     candidates = [t for t in terms if t["review_count"] <= min_count + 1]
     
-    # プール内からランダムに指定数選ぶ
     selected = random.sample(candidates, min(len(candidates), count))
     
-    # 足りない場合は全体の順位が低い順に補填
     if len(selected) < count:
         for t in terms:
             if t not in selected:
@@ -140,69 +136,66 @@ def select_terms_for_review(count=3):
                     
     return selected
 
-def update_term_review_status(term_id, current_count):
-    """用語の復習回数を+1し、最終復習日を今日に更新"""
+def update_term_review_status(page_id, current_count):
+    """日記ページの末尾に「📝 復習履歴」のブロックを追記更新する"""
     today_str = datetime.today().strftime('%Y-%m-%d')
     new_count = current_count + 1
+    record_text = f"📝 復習履歴: {new_count}回目 (最終: {today_str})"
     
-    if not is_notion_configured() or term_id.startswith("mock-"):
-        # ローカルモックデータの更新
+    if not is_notion_configured() or page_id.startswith("mock-"):
+        # モックの更新
         if os.path.exists(MOCK_FILE_PATH):
             with open(MOCK_FILE_PATH, "r", encoding="utf-8") as f:
                 data = json.load(f)
             for item in data:
-                if item["id"] == term_id:
+                if item["id"] == page_id:
                     item["review_count"] = new_count
                     item["last_reviewed"] = today_str
                     break
             with open(MOCK_FILE_PATH, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=4, ensure_ascii=False)
-            print(f"[Mock] Updated {term_id}: count={new_count}, date={today_str}")
+            print(f"[Mock] Updated {page_id}: count={new_count}, date={today_str}")
         return True
         
-    # 実環境でのNotion API更新
-    url = f"https://api.notion.com/v1/pages/{term_id}"
+    # 日記子ページの末尾に段落ブロックとして復習履歴を追記
+    url = f"https://api.notion.com/v1/blocks/{page_id}/children"
+    payload = {
+        "children": [
+            {
+                "object": "block",
+                "type": "paragraph",
+                "paragraph": {
+                    "rich_text": [
+                        {
+                            "type": "text",
+                            "text": {
+                                "content": f"\n{record_text}"
+                            },
+                            "annotations": {
+                                "bold": True,
+                                "italic": False,
+                                "color": "purple"  # 目立つように紫に設定
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
     
-    # カラム名が 'Review Count' または '復習回数' のどちらで定義されているか判定
-    # ※PATCHリクエスト時には、対象となるプロパティのみを指定して送信可能
-    # ここでは一般的な英語・日本語のペアで両方アップデートを試みます。
-    # 存在しないプロパティを送るとエラーになるため、事前にデータベーススキーマのプロパティ一覧を取得するか、
-    # 汎用的に動くよう properties を構成します。
-    
-    properties_to_update = {}
-    
-    # fetch_notion_terms()で検知されたプロパティ名に合わせるため、
-    # 共通化のために Notion DB の情報を再度簡易的に参照するか、一般的なデフォルト値をセットします。
-    # ユーザーのDBスキーマに合わせるため、一般的なカラムを更新対象にします。
-    properties_to_update["Review Count"] = {"number": new_count}
-    properties_to_update["Last Reviewed"] = {"date": {"start": today_str}}
-    
-    # もしエラーが出た場合は日本語版カラム（復習回数、最終復習日）でも再試行できるようにします。
-    payload = {"properties": properties_to_update}
     response = requests.patch(url, headers=HEADERS, json=payload)
-    
-    if response.status_code != 200:
-        # 日本語カラム名で再試行
-        properties_to_update = {
-            "復習回数": {"number": new_count},
-            "最終復習日": {"date": {"start": today_str}}
-        }
-        payload = {"properties": properties_to_update}
-        response = requests.patch(url, headers=HEADERS, json=payload)
-        
     if response.status_code == 200:
-        print(f"[Notion] Updated page {term_id}: count={new_count}, date={today_str}")
+        print(f"[Notion Page] Appended review stamp to page {page_id}: {record_text}")
         return True
     else:
-        print(f"[Error] Failed to update Notion page {term_id}: {response.text}")
+        print(f"[Error] Failed to append review stamp to Notion page {page_id}: {response.text}")
         return False
 
-# 簡易動作テスト用
+# 動作テスト用
 if __name__ == "__main__":
-    print("Notion Helper Test Running...")
+    print("Notion Helper (Page-based) Test Running...")
     selected = select_terms_for_review(3)
-    print("Selected Terms:")
+    print("Selected Pages:")
     for s in selected:
-        print(f"- {s['name']} (Count: {s['review_count']}, Last: {s['last_reviewed']})")
-        # テストとして更新を実行
-        update_term_review_status(s['id'], s['review_count'])
+        print(f"- Title: {s['name']} (Count: {s['review_count']}, Last: {s['last_reviewed']})")
+        # print(f"  Content: {s['content'][:100]}...")
