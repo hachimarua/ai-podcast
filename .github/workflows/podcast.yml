@@ -4,10 +4,10 @@ on:
   schedule:
     # 毎朝 日本時間 6:00 (UTC 21:00)
     - cron: '0 21 * * *'
-  workflow_dispatch: # 手動実行用のボタンをGitHub上に配置
+  workflow_dispatch: # 手動実行用
 
 permissions:
-  contents: write # リポジトリへのコミット＆プッシュ権限を許可
+  contents: write # リポジトリへのコミット＆プッシュ権限
 
 jobs:
   build-and-publish:
@@ -17,7 +17,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0 # すべての履歴を取得
+        fetch-depth: 0
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -35,8 +35,13 @@ jobs:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
         NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        NOTION_INBOX_DATABASE_ID: ${{ secrets.NOTION_INBOX_DATABASE_ID }}
         BASE_URL: "https://hachimarua.github.io/ai-podcast"
       run: |
+        # 1. 受信箱 (Inbox) の自動要約・振り分けを先に実行
+        python process_inbox.py
+        
+        # 2. メインのポッドキャスト生成・更新を実行
         python main.py
 
     - name: Commit and Push changes
@@ -44,7 +49,7 @@ jobs:
         git config --global user.name "github-actions[bot]"
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
         
-        # 生成されたpodcast.xmlと音声ファイル（episodes内）を追加
+        # 変更されたファイルをステージング
         git add podcast.xml episodes/
         
         # 変更がある場合のみコミット＆プッシュ
