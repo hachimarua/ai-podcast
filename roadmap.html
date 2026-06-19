@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI News & Learning System - Roadmap</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(21, 27, 45, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent-primary: #6366f1; /* Indigo */
+            --accent-secondary: #a855f7; /* Purple */
+            --accent-tertiary: #06b6d4; /* Cyan */
+            --gradient-accent: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #06b6d4 100%);
+            --shadow-neon: 0 0 20px rgba(99, 102, 241, 0.15);
+            
+            --status-completed: #10b981;
+            --status-active: #3b82f6;
+            --status-planned: #6b7280;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.6;
+            padding: 2rem 1rem;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Header Styles */
+        header {
+            text-align: center;
+            margin-bottom: 3.5rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        /* Overview Stats */
+        .overview-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--gradient-accent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: var(--shadow-neon);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .stat-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Timeline Section */
+        .timeline {
+            position: relative;
+            margin-bottom: 4rem;
+        }
+
+        /* Cards */
+        .phase-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .phase-card:hover {
+            border-color: rgba(168, 85, 247, 0.3);
+            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.05);
+        }
+
+        .phase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 1rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .phase-title-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .phase-number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            background: var(--gradient-accent);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            color: #fff;
+        }
+
+        .phase-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-badge.completed {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--status-completed);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-badge.active {
+            background-color: rgba(59, 130, 246, 0.15);
+            color: var(--status-active);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .status-badge.planned {
+            background-color: rgba(107, 114, 128, 0.15);
+            color: var(--text-muted);
+            border: 1px solid rgba(107, 114, 128, 0.3);
+        }
+
+        /* Task List */
+        .task-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: background 0.2s ease;
+        }
+
+        .task-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .checkbox-container {
+            position: relative;
+            margin-top: 0.2rem;
+            cursor: pointer;
+        }
+
+        .checkbox-container input {
+            display: none;
+        }
+
+        .checkbox-custom {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--text-muted);
+            border-radius: 4px;
+            display: inline-block;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-container input:checked + .checkbox-custom {
+            background-color: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .checkbox-container input:checked + .checkbox-custom::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+        }
+
+        .task-content {
+            flex-grow: 1;
+        }
+
+        .task-title {
+            font-weight: 500;
+            font-size: 0.95rem;
+            margin-bottom: 0.15rem;
+        }
+
+        .task-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .task-meta {
+            margin-top: 0.75rem;
+            display: flex;
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .meta-tag {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.1rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Tech Stack Tags */
+        .tech-tags {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .tech-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+
+        .tech-badge {
+            font-size: 0.75rem;
+            background: rgba(99, 102, 241, 0.08);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        /* Detail Toggle Animation */
+        .phase-body {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+        }
+
+        .phase-card.collapsed .phase-body {
+            max-height: 0;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .phase-card.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .toggle-icon {
+            transition: transform 0.3s ease;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>AI News & Notion Learning System</h1>
+        <p class="subtitle">自律情報収集＆車内カーラジオ学習システムの開発ロードマップ</p>
+    </header>
+
+    <!-- Project Status Overview -->
+    <div class="overview-cards">
+        <div class="stat-card">
+            <div class="stat-label">全体の進捗状況</div>
+            <div class="stat-value" id="overall-progress">10%</div>
+            <div class="stat-desc">フェーズ1 準備中</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">ターゲット環境</div>
+            <div class="stat-value" style="font-size: 1.5rem; margin-top: 0.4rem;">Mac M2 + CarPlay</div>
+            <div class="stat-desc">iPhone 17 Appleシステム</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">決定した抽出ルール</div>
+            <div class="stat-value" style="font-size: 1.35rem; margin-top: 0.5rem; color: #a855f7;">ランダム＋未学習</div>
+            <div class="stat-desc">復習回数カウントアップ対応</div>
+        </div>
+    </div>
+
+    <!-- Timeline Phases -->
+    <div class="timeline">
+
+        <!-- Phase 1 -->
+        <div class="phase-card" id="phase1-card">
+            <div class="phase-header" onclick="togglePhase('phase1-card')">
+                <div class="phase-title-group">
+                    <span class="phase-number">PHASE 1</span>
+                    <span class="phase-title">知識ベース構築 ＆ ニュースグラウンディング化</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span class="status-badge active">In Progress</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+            </div>
+            
+            <div class="phase-body">
+                <ul class="task-list">
+                    <li class="task-item">
+                        <label class="checkbox-container">
+                            <input type="checkbox" checked onchange="updateProgress()">
+                            <span class="checkbox-custom"></span>
+                        </label>
+                        <div class="task-content">
+                            <div class="task-title">Notion API連携スクリプトの作成</div>
+                            <div class="task-desc">Notion DBから未学習または復習回数が少ない単語をランダムに3〜5件抽出するロジックを実装。</div>
+                            <div class="task-meta">
+                                <span class="meta-tag">Python (notion-client)</span>
+                                <span class="meta-tag">重要度: 高</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="task-item">
+                        <label class="checkbox-container">
+                            <input type="checkbox" onchange="updateProgress()">
+                            <span class="checkbox-custom"></span>
+                        </label>
+                        <div class="task-content">
+                            <div class="task-title">復習回数と最終復習日のアップデート処理</div>
+                            <div class="task-desc">抽出された単語の「復習回数」プロパティを+1し、「最終復習日」に当日日付を書き込むNotion更新ロジックを実装。</div>
+                            <div class="task-meta">
+                                <span class="meta-tag">Notion API / Python</span>
+                                <span class="meta-tag">重要度: 高</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="task-item">
+                        <label class="checkbox-container">
+                            <input type="checkbox" onchange="updateProgress()">
+                            <span class="checkbox-custom"></span>
+                        </label>
+                        <div class="task-content">
+                            <div class="task-title">信頼できるホワイトリストソース(RSS)情報収集</div>
+                            <div class="task-desc">主要AIラボの公式ブログやarXiv等のRSSから、抽出した単語に関連する最新のニュース記事全文を収集する処理を実装。</div>
+                            <div class="task-meta">
+                                <span class="meta-tag">feedparser / BeautifulSoup</span>
+                                <span class="meta-tag">重要度: 高</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="task-item">
+                        <label class="checkbox-container">
+                            <input type="checkbox" onchange="updateProgress()">
+                            <span class="checkbox-custom"></span>
+                        </label>
+                        <div class="task-content">
+                            <div class="task-title">Gemini APIグラウンディング要約＆サニタイズ</div>
+                            <div class="task-desc">ハルシネーションを防ぐため、収集した記事全文をコンテキストに入力し、厳密に事実のみに基づく日本語の要約・解説を作成するプロンプトを検証。外部プロンプトのサニタイズ処理も追加。</div>
+                            <div class="task-meta">
+                                <span class="meta-tag">Gemini API (3.5 Flash / 1.5 Pro)</span>
+                                <span class="meta-tag">重要度: 極大</span>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+
+                <div class="tech-tags">
+                    <span class="tech-label">想定技術:</span>
+                    <span class="tech-badge">Python</span>
+                    <span class="tech-badge">Notion API</span>
+                    <span class="tech-badge">Gemini API</span>
+                    <span class="tech-badge">feedparser</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="phase-card collapsed" id="phase2-card">
+            <div class="phase-header" onclick="togglePhase('phase2-card')">
+                <div class="phase-title-group">
+                    <span class="phase-number">PHASE 2</span>
+                    <span class="phase-title">音声合成 ＆ プライベートポッドキャスト配信</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span class="status-badge planned">Planned</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+            </div>
+            
+            <div class="phase-body">
+                <ul class="task-list">
+                    <li class="task-item">
+                        <label class="checkbox-container">
+                            <input type="checkbox" onchange="updateProgress()">
+                            <span class="checkbox-custom"></span>
+                        </label>
+                        <div class="task-content">
+                            <div class="task-title">対話型ラジオ台本プロンプトの設計</div>
+                            <div class="task-desc">Geminiにパーソナリティ2名（例：解説のAIアシスタントとユーザーの対話、あるいはアナウンサー2人）の掛け合いによる5分程度の日本語台本を出力させるプロンプトを洗練。</div>
+                            <div class="task-meta">
+                                <span class="meta-tag">Prompt Engineering</span>
+                                <span class="meta-tag">所要時間目安: 3日</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="task-item">
+                        <label class="checkbox-container">
+                            <input type="checkbox" onchange="updateProgress()">
+                            <span class="checkbox-custom"></span>
+                        </label>
+                        <div class="task-content">
+                            <div class="task-title">Edge TTSを用いた音声ファイル(MP3)の自動生成</div>
+                            <div class="task-desc">軽量かつ高品質な日本語合成音声（男性・女性の2ボイス）を用いて、対話型台本をスムーズなオーディオファイル（MP3）に自動合成する。</div>
+                            <div class="task-meta">
+                                <span class="meta-tag">edge-tts (Python)</span>
+                                <span class="meta-tag">所要時間目安: 4日</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="task-item">
+                        <label class="checkbox-container">
+                            <input type="checkbox" onchange="updateProgress()">
+                            <span class="checkbox-custom"></span>
+                        </label>
+                        <div class="task-content">
+                            <div class="task-title">プライベートポッドキャスト配信環境の構築</div>
+                            <div class="task-desc">MP3ファイルのホスティングと、ポッドキャストに準拠したRSS（XML）を自動生成・公開する軽量サーバー/ホスティング（GitHub Pages等）を設定。</div>
+                            <div class="task-meta">
+                                <span class="meta-tag">RSS 2.0 XML</span>
+                                <span class="meta-tag">GitHub Pages / Vercel</span>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+
+                <div class="tech-tags">
+                    <span class="tech-label">想定技術:</span>
+                    <span class="tech-badge">Edge TTS</span>
+                    <span class="tech-badge">XML Generation</span>
+                    <span class="tech-badge">Static Hosting</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="phase-card collapsed" id="phase3-card">
+            <div class="phase-header" onclick="togglePhase('phase3-card')">
+                <div class="phase-title-group">
+                    <span class="phase-number">PHASE 3</span>
+                    <span class="phase-title">車内CarPlay連携 ＆ デーモン常駐化</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span class="status-badge planned">Planned</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+            </div>
+            
+            <div class="phase-body">
+                <ul class="task-list">
+                    <li class="task-item">
+                        <label class="checkbox-container">
+                            <input type="checkbox" onchange="updateProgress()">
+                            <span class="checkbox-custom"></span>
+                        </label>
+                        <div class="task-content">
+                            <div class="task-title">iPhoneポッドキャストアプリ登録と再生テスト</div>
+                            <div class="task-desc">生成されたプライベートRSS URLをiPhoneの「ポッドキャスト」アプリに登録し、バックグラウンドでの自動取得を検証。</div>
+                            <div class="task-meta">
+                                <span class="meta-tag">Apple Podcasts</span>
+                                <span class="meta-tag">CarPlay</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="task-item">
+                        <label class="checkbox-container">
+                            <input type="checkbox" onchange="updateProgress()">
+                            <span class="checkbox-custom"></span>
+                        </label>
+                        <div class="task-content">
+                            <div class="task-title">車内CarPlay連携のUX調整</div>
+                            <div class="task-desc">USB-Cで車載システムに接続した際、ポッドキャストの画面に正しく表示され、ボタン操作で再生ができるか実車環境に近いテストを行う。</div>
+                            <div class="task-meta">
+                                <span class="meta-tag">UI/UX Test</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="task-item">
+                        <label class="checkbox-container">
+                            <input type="checkbox" onchange="updateProgress()">
+                            <span class="checkbox-custom"></span>
+                        </label>
+                        <div class="task-content">
+                            <div class="task-title">OpenClaw / Cronによるスケジュール自動運転化</div>
+                            <div class="task-desc">毎朝、指定時刻（例: 朝6:00）にすべてのパイプライン（Notion抽出 → ニュース検索 → 台本化 → 音声合成 → RSS公開）が全自動で稼働するよう、Mac上のデーモンまたはCronとして設定。</div>
+                            <div class="task-meta">
+                                <span class="meta-tag">OpenClaw (Daemon)</span>
+                                <span class="meta-tag">launchd / crontab</span>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+
+                <div class="tech-tags">
+                    <span class="tech-label">想定技術:</span>
+                    <span class="tech-badge">OpenClaw Daemon</span>
+                    <span class="tech-badge">macOS crontab</span>
+                    <span class="tech-badge">CarPlay</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 AI News & Learning System Dashboard | Developed by Antigravity</p>
+    </footer>
+</div>
+
+<script>
+    function togglePhase(cardId) {
+        const card = document.getElementById(cardId);
+        card.classList.toggle('collapsed');
+    }
+
+    function updateProgress() {
+        const checkboxes = document.querySelectorAll('.task-list input[type="checkbox"]');
+        const checkedCount = document.querySelectorAll('.task-list input[type="checkbox"]:checked').length;
+        const totalCount = checkboxes.length;
+        
+        const progressPercentage = Math.round((checkedCount / totalCount) * 100);
+        
+        // Progress display update
+        const progressVal = document.getElementById('overall-progress');
+        progressVal.innerText = progressPercentage + '%';
+        
+        // Stat description change dynamically
+        const progressDesc = progressVal.nextElementSibling;
+        if (progressPercentage === 100) {
+            progressDesc.innerText = '全フェーズ完了！';
+        } else if (progressPercentage > 60) {
+            progressDesc.innerText = 'フェーズ3 進行中';
+        } else if (progressPercentage > 25) {
+            progressDesc.innerText = 'フェーズ2 進行中';
+        } else {
+            progressDesc.innerText = 'フェーズ1 進行中';
+        }
+    }
+
+    // Run progress count on load
+    window.onload = function() {
+        updateProgress();
+    };
+</script>
+
+</body>
+</html>

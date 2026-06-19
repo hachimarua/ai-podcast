@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0">
+  <channel>
+    <title>朝の5分AI学習ラジオ</title>
+    <description>Notionに蓄積したAI用語の復習と、ホワイトリストソースから収集した最新AIニュースを掛け合わせた、毎朝の自律学習ポッドキャストです。</description>
+    <link>http://192.168.10.100:8000</link>
+    <language>ja</language>
+    <itunes:author>Antigravity Agent</itunes:author>
+    <itunes:summary>Notionに蓄積したAI用語の復習と、ホワイトリストソースから収集した最新AIニュースを掛け合わせた、毎朝の自律学習ポッドキャストです。</itunes:summary>
+    <itunes:category text="Technology"/>
+    <item>
+      <title>2026年06月19日 10:45 のAI学習ラジオ</title>
+      <description>本日の復習用語を交えた最新AIニュースの要約解説です。</description>
+      <pubDate>Fri, 19 Jun 2026 10:45:33 +0900</pubDate>
+      <enclosure url="http://192.168.10.100:8000/episodes/podcast_20260619_104533.mp3" length="394128" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260619_104533.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>00:24</itunes:duration>
+    </item>
+    <item>
+      <title>2026年06月19日 10:45 のAI学習ラジオ</title>
+      <description>本日の復習用語を交えた最新AIニュースの要約解説です。</description>
+      <pubDate>Fri, 19 Jun 2026 10:45:21 +0900</pubDate>
+      <enclosure url="http://192.168.10.100:8000/episodes/podcast_20260619_104521.mp3" length="394128" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260619_104521.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>00:24</itunes:duration>
+    </item>
+  </channel>
+</rss>
