@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI News & Learning System - Roadmap (Updated)</title>
+    <title>AI News & Learning System - Concept Roadmap</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,7 +53,7 @@
 
         header {
             text-align: center;
-            margin-bottom: 3.5rem;
+            margin-bottom: 2.5rem;
             animation: fadeIn 0.8s ease-out;
         }
 
@@ -72,6 +72,32 @@
             font-size: 1.1rem;
             color: var(--text-muted);
             font-weight: 300;
+        }
+
+        /* Metaphor Banner */
+        .metaphor-section {
+            background: rgba(99, 102, 241, 0.05);
+            border: 1px dashed rgba(99, 102, 241, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 3rem;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .metaphor-emoji {
+            font-size: 2rem;
+            line-height: 1;
+        }
+
+        .metaphor-content h3 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            color: #a5b4fc;
+            margin-bottom: 0.25rem;
         }
 
         .overview-cards {
@@ -176,7 +202,7 @@
 
         .phase-number {
             font-family: 'Outfit', sans-serif;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 700;
             background: var(--gradient-accent);
             padding: 0.3rem 0.8rem;
@@ -371,38 +397,51 @@
 
 <div class="container">
     <header>
-        <h1>AI News & Notion Learning System</h1>
+        <h1>AI News & Learning System</h1>
         <p class="subtitle">自律情報収集＆車内カーラジオ学習システム 開発ロードマップ</p>
     </header>
+
+    <!-- Railway Metaphor Banner -->
+    <div class="metaphor-section">
+        <div class="metaphor-emoji">🚉</div>
+        <div class="metaphor-content">
+            <h3>鉄道システムに例える開発コンセプト</h3>
+            <p>
+                <strong>第1段階 (Phase 1-3)</strong> で自動化の「線路（動線）」を敷き、試験電車（テスト音声）を無事走らせました。<br>
+                <strong>第2段階 (Phase 4-5)</strong> では、乱雑に散らばったデータを整理して、電車が快適に発車するための「車庫（Notion DB）」を整理整頓します。<br>
+                <strong>第3段階 (Phase 6)</strong> では、毎日の運行で最も大切な「ダイヤの正確さ」や、聴きやすさといった「電車の乗り心地（質）」を磨いていきます。
+            </p>
+        </div>
+    </div>
 
     <!-- Project Status Overview -->
     <div class="overview-cards">
         <div class="stat-card">
             <div class="stat-label">現在の全体の進捗状況</div>
-            <div class="stat-value" id="overall-progress">60%</div>
-            <div class="stat-desc">初期ロードマップ完了・新章スタート</div>
+            <div class="stat-value" id="overall-progress">50%</div>
+            <div class="stat-desc">線路（動線）の構築が完了</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">デプロイ環境</div>
-            <div class="stat-value" style="font-size: 1.5rem; margin-top: 0.4rem; color: #10b981;">GitHub Cloud (Actions)</div>
-            <div class="stat-desc">MacBookのスリープ影響なし</div>
+            <div class="stat-value" style="font-size: 1.5rem; margin-top: 0.4rem; color: #10b981;">GitHub Actions (Cloud)</div>
+            <div class="stat-desc">毎朝6:00 自動ダイヤ運行</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">インプット形態の変更</div>
-            <div class="stat-value" style="font-size: 1.35rem; margin-top: 0.5rem; color: #a855f7;">学習日記 → DB化</div>
-            <div class="stat-desc">新フェーズでの移行を計画中</div>
+            <div class="stat-label">現在の立ち位置</div>
+            <div class="stat-value" style="font-size: 1.35rem; margin-top: 0.5rem; color: #a855f7;">車庫（Notion）の整理</div>
+            <div class="stat-desc">フェーズ4 データ移行中</div>
         </div>
     </div>
 
     <!-- Timeline Phases -->
     <div class="timeline">
 
-        <!-- Phase 1 (Completed) -->
-        <div class="phase-card collapsed" id="phase1-card">
-            <div class="phase-header" onclick="togglePhase('phase1-card')">
+        <!-- Phase 1-3 (Completed) -->
+        <div class="phase-card collapsed" id="phase1to3-card">
+            <div class="phase-header" onclick="togglePhase('phase1to3-card')">
                 <div class="phase-title-group">
-                    <span class="phase-number" style="background: var(--status-completed);">PHASE 1</span>
-                    <span class="phase-title">知識ベース構築 ＆ ニュースグラウンディング化</span>
+                    <span class="phase-number" style="background: var(--status-completed);">PHASE 1-3</span>
+                    <span class="phase-title">🚉 線路の敷設と試運転（動線と自動化の構築）</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem;">
                     <span class="status-badge completed">Completed</span>
@@ -411,6 +450,9 @@
             </div>
             
             <div class="phase-body">
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">
+                    <strong>進捗報告:</strong> Notionからの抽出、ホワイトリストRSSニュースの収集、Gemini APIによるグラウンディング台本化、Edge TTSによる男女対話音声の自動合成、およびGitHub Actions/Pagesによる「Macがスリープでも毎朝自動更新してCarPlayで再生できる線路」の構築をすべて完了しました。
+                </p>
                 <ul class="task-list">
                     <li class="task-item">
                         <label class="checkbox-container">
@@ -418,8 +460,7 @@
                             <span class="checkbox-custom"></span>
                         </label>
                         <div class="task-content">
-                            <div class="task-title">Notion API連携スクリプトの作成</div>
-                            <div class="task-desc">親ページの下に並んでいる日付子ページをスキャン・本文テキストを読み込むロジックを実装。</div>
+                            <div class="task-title">Notion日記ページ連携スクリプトの作成</div>
                         </div>
                     </li>
                     <li class="task-item">
@@ -428,8 +469,7 @@
                             <span class="checkbox-custom"></span>
                         </label>
                         <div class="task-content">
-                            <div class="task-title">復習回数と最終復習日のアップデート処理</div>
-                            <div class="task-desc">抽出された日記子ページの本文末尾に、復習回数と最終日付を自動追記するロジックを実装。</div>
+                            <div class="task-title">復習履歴の自動追記処理の実装 (Notion本文末尾へ)</div>
                         </div>
                     </li>
                     <li class="task-item">
@@ -438,8 +478,7 @@
                             <span class="checkbox-custom"></span>
                         </label>
                         <div class="task-content">
-                            <div class="task-title">信頼できるホワイトリストソース(RSS)情報収集</div>
-                            <div class="task-desc">主要AIラボの公式ブログやarXiv等のRSSからニュース記事全文を収集する処理を実装。</div>
+                            <div class="task-title">ホワイトリストRSSからの自動ニュース収集</div>
                         </div>
                     </li>
                     <li class="task-item">
@@ -448,37 +487,7 @@
                             <span class="checkbox-custom"></span>
                         </label>
                         <div class="task-content">
-                            <div class="task-title">Gemini APIグラウンディング要約＆サニタイズ</div>
-                            <div class="task-desc">収集した記事全文をコンテキストに入力し、一次情報に100%基づいた台本を作成するプロンプトを構築。</div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Phase 2 (Completed) -->
-        <div class="phase-card collapsed" id="phase2-card">
-            <div class="phase-header" onclick="togglePhase('phase2-card')">
-                <div class="phase-title-group">
-                    <span class="phase-number" style="background: var(--status-completed);">PHASE 2</span>
-                    <span class="phase-title">音声合成 ＆ プライベートポッドキャスト配信</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <span class="status-badge completed">Completed</span>
-                    <span class="toggle-icon">▼</span>
-                </div>
-            </div>
-            
-            <div class="phase-body">
-                <ul class="task-list">
-                    <li class="task-item">
-                        <label class="checkbox-container">
-                            <input type="checkbox" checked onchange="updateProgress()">
-                            <span class="checkbox-custom"></span>
-                        </label>
-                        <div class="task-content">
-                            <div class="task-title">対話型ラジオ台本プロンプトの設計</div>
-                            <div class="task-desc">Geminiにケンジ（聞き手）とアミ（解説者）の対話による5分程度の日本語台本を出力させるプロンプトを設計。</div>
+                            <div class="task-title">Edge TTSを用いた対話型音声ファイル(MP3)の自動合成</div>
                         </div>
                     </li>
                     <li class="task-item">
@@ -487,57 +496,7 @@
                             <span class="checkbox-custom"></span>
                         </label>
                         <div class="task-content">
-                            <div class="task-title">Edge TTSを用いた音声ファイル(MP3)の自動生成</div>
-                            <div class="task-desc">ja-JP-KeitaNeuralとja-JP-NanamiNeuralの高品質な合成音声を利用し、セリフ文末の余韻を繋いで自動合成する仕組みを構築。</div>
-                        </div>
-                    </li>
-                    <li class="task-item">
-                        <label class="checkbox-container">
-                            <input type="checkbox" checked onchange="updateProgress()">
-                            <span class="checkbox-custom"></span>
-                        </label>
-                        <div class="task-content">
-                            <div class="task-title">プライベートポッドキャスト配信環境の構築</div>
-                            <div class="task-desc">GitHub Pagesを利用したパブリックな配信環境を構築。iPhoneの純正ポッドキャストに番組としてURL登録することに成功。</div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Phase 3 (Completed) -->
-        <div class="phase-card collapsed" id="phase3-card">
-            <div class="phase-header" onclick="togglePhase('phase3-card')">
-                <div class="phase-title-group">
-                    <span class="phase-number" style="background: var(--status-completed);">PHASE 3</span>
-                    <span class="phase-title">車内CarPlay連携 ＆ クラウド全自動化</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <span class="status-badge completed">Completed</span>
-                    <span class="toggle-icon">▼</span>
-                </div>
-            </div>
-            
-            <div class="phase-body">
-                <ul class="task-list">
-                    <li class="task-item">
-                        <label class="checkbox-container">
-                            <input type="checkbox" checked onchange="updateProgress()">
-                            <span class="checkbox-custom"></span>
-                        </label>
-                        <div class="task-content">
-                            <div class="task-title">iPhoneポッドキャストアプリ登録と再生テスト</div>
-                            <div class="task-desc">実際にiPhoneの「ポッドキャスト」アプリに登録し、車載CarPlayでの再生を確認。</div>
-                        </div>
-                    </li>
-                    <li class="task-item">
-                        <label class="checkbox-container">
-                            <input type="checkbox" checked onchange="updateProgress()">
-                            <span class="checkbox-custom"></span>
-                        </label>
-                        <div class="task-content">
-                            <div class="task-title">GitHub Actionsによるクラウド全自動化</div>
-                            <div class="task-desc">MacBookのスリープ状態に依存しないよう、GitHub Actionsのワークフローを構築。毎朝6:00にクラウド上で自動合成＆プッシュされる設定が完了。</div>
+                            <div class="task-title">GitHub Actions/Pagesによる全自動配信・CarPlay連携</div>
                         </div>
                     </li>
                 </ul>
@@ -549,7 +508,7 @@
             <div class="phase-header" onclick="togglePhase('phase4-card')">
                 <div class="phase-title-group">
                     <span class="phase-number">PHASE 4</span>
-                    <span class="phase-title">Notionインプットのデータベース(DB)化とデータ移行</span>
+                    <span class="phase-title">🏢 車庫の整理整頓：学習用データベース(DB)化とデータ一括移行</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem;">
                     <span class="status-badge active" style="background-color: rgba(59, 130, 246, 0.15); color: var(--status-active); border: 1px solid rgba(59, 130, 246, 0.3);">Active</span>
@@ -559,7 +518,7 @@
             
             <div class="phase-body">
                 <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
-                    【今回の追加要望】可読性と使いやすさを向上させ、AIがパースしやすい定型フォーマット（表形式）へ学習ログを移行します。
+                    【第2段階】これまで無造作に日付名で並んでいた学習日記を、AIが扱いやすくユーザーにとっても整理しやすい定形フォーマット（表データベース形式）へ移行し、データを一括整列します。
                 </p>
                 <ul class="task-list">
                     <li class="task-item">
@@ -568,8 +527,8 @@
                             <span class="checkbox-custom"></span>
                         </label>
                         <div class="task-content">
-                            <div class="task-title">新規学習データベース(DB)の設計・作成</div>
-                            <div class="task-desc">Notion上で「名前」「学習日（作成日時）」「復習回数」「最終復習日」のプロパティを持つ新しいテーブルを作成する。</div>
+                            <div class="task-title">新規学習データベース(メインDB)の作成</div>
+                            <div class="task-desc">Notion上に「名前」「学習日」「復習回数」「最終復習日」のプロパティ（カラム）を持つテーブルを新規作成する。</div>
                         </div>
                     </li>
                     <li class="task-item">
@@ -578,8 +537,8 @@
                             <span class="checkbox-custom"></span>
                         </label>
                         <div class="task-content">
-                            <div class="task-title">既存の日記子ページデータから新規DBへの一括移行スクリプト開発</div>
-                            <div class="task-desc">既存の「20260511」などの通常ページから、テキスト内容を抽出して新しいデータベースへ自動で再登録・移行する一回限りのスクリプトを作成・実行する。</div>
+                            <div class="task-title">既存の日記子ページデータから新規DBへの一括移行スクリプト実行</div>
+                            <div class="task-desc">既存の「20260511」などの日記本文から、テキスト内容を抽出して新しいメインデータベースへ自動で一括移行するスクリプトを作成・実行する。</div>
                         </div>
                     </li>
                     <li class="task-item">
@@ -588,16 +547,11 @@
                             <span class="checkbox-custom"></span>
                         </label>
                         <div class="task-content">
-                            <div class="task-title">ポッドキャストパイプラインのDB対応リファクタリング</div>
-                            <div class="task-desc">データベース移行に伴い、notion_helper.pyを「データベースAPI」対応に戻し、厳密な数値での復習回数カウントアップ処理に切り替える。</div>
+                            <div class="task-title">ポッドキャストパイプラインのDB対応</div>
+                            <div class="task-desc">データベース移行に伴い、notion_helper.pyを「データベースAPI」対応に戻し、数値による復習回数管理に切り替える。</div>
                         </div>
                     </li>
                 </ul>
-                <div class="tech-tags">
-                    <span class="tech-label">技術スタック:</span>
-                    <span class="tech-badge">Notion API</span>
-                    <span class="tech-badge">Python Migration Script</span>
-                </div>
             </div>
         </div>
 
@@ -606,7 +560,7 @@
             <div class="phase-header" onclick="togglePhase('phase5-card')">
                 <div class="phase-title-group">
                     <span class="phase-number">PHASE 5</span>
-                    <span class="phase-title">受信箱（Inbox）の自動要約 ＆ 振り分けオートメーション</span>
+                    <span class="phase-title">📥 自動転車台(ターンテーブル)の設置：受信箱(Inbox)自動振り分け</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem;">
                     <span class="status-badge planned">Planned</span>
@@ -616,7 +570,7 @@
             
             <div class="phase-body">
                 <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
-                    【将来構想】チャット履歴などの雑多なメモをInboxに放り込むだけで、AIが自動で要約・抽出して学習データベースへ登録する仕組みを作ります。
+                    【第2段階の発展】Geminiとの対話などのローデータを受信箱（Inbox）にコピペして置くだけで、オートメーションが自動で要約・整理し、メインDBへ登録・配置する仕組みを作ります。
                 </p>
                 <ul class="task-list">
                     <li class="task-item">
@@ -635,8 +589,40 @@
                             <span class="checkbox-custom"></span>
                         </label>
                         <div class="task-content">
-                            <div class="task-title">Gemini APIによるInbox監視 ＆ 自動要約スクリプトの実装</div>
-                            <div class="task-desc">Inboxにある未処理のチャット履歴から、Geminiが「用語名」「解説要約」「学習日」を抽出し、メイン学習DBへ清書・登録する処理を実装。</div>
+                            <div class="task-title">Gemini APIによるInbox自動要約・登録スクリプト</div>
+                            <div class="task-desc">未処理のコピペデータから、Geminiが「用語名」「解説要約」「学習日」を抽出し、メインDBへ登録・Inboxから削除する処理を実装。</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Phase 6 (NEW / Planned) -->
+        <div class="phase-card collapsed" id="phase6-card">
+            <div class="phase-header" onclick="togglePhase('phase6-card')">
+                <div class="phase-title-group">
+                    <span class="phase-number">PHASE 6</span>
+                    <span class="phase-title">⏱️ ダイヤ改正と乗り心地の改善（運用評価とクオリティ最適化）</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span class="status-badge planned">Planned</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+            </div>
+            
+            <div class="phase-body">
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+                    【第3段階】線路と車庫が整った後、実際の通勤運用において「定時で動いているか」「音声や内容のクオリティは快適か」といった乗り心地を評価・調整します。
+                </p>
+                <ul class="task-list">
+                    <li class="task-item">
+                        <label class="checkbox-container">
+                            <input type="checkbox" onchange="updateProgress()">
+                            <span class="checkbox-custom"></span>
+                        </label>
+                        <div class="task-content">
+                            <div class="task-title">(a) 聴いている内容の適切さの評価</div>
+                            <div class="task-desc">ホワイトリストから収集されたニュースと学習用語のマッチング精度、およびGeminiによる解説内容が学習として適切かをレビュー・調整する。</div>
                         </div>
                     </li>
                     <li class="task-item">
@@ -645,16 +631,21 @@
                             <span class="checkbox-custom"></span>
                         </label>
                         <div class="task-content">
-                            <div class="task-title">GitHub Actionsワークフローへの統合</div>
-                            <div class="task-desc">毎朝ポッドキャストを生成する直前に、Inboxの自動要約・振り分けを自動で前処理として実行させるようワークフローを統合。</div>
+                            <div class="task-title">(b) 運行の正確さ（定時運行）の監視</div>
+                            <div class="task-desc">毎朝6:00のGitHub Actionsの定期ダイヤ（スケジュール実行）が遅延なく、安定してiPhoneへ自動ダウンロードされるか稼働状況を監視する。</div>
+                        </div>
+                    </li>
+                    <li class="task-item">
+                        <label class="checkbox-container">
+                            <input type="checkbox" onchange="updateProgress()">
+                            <span class="checkbox-custom"></span>
+                        </label>
+                        <div class="task-content">
+                            <div class="task-title">(c) 乗り心地の調整（アウトプットの長さ・時間）</div>
+                            <div class="task-desc">「朝の5分間」という乗車時間に最適に収まるよう、音声の生成時間やEdge TTSの読み上げ速度（rate）を最適化チューニングする。</div>
                         </div>
                     </li>
                 </ul>
-                <div class="tech-tags">
-                    <span class="tech-label">技術スタック:</span>
-                    <span class="tech-badge">Gemini Structured Outputs</span>
-                    <span class="tech-badge">GitHub Actions Automation</span>
-                </div>
             </div>
         </div>
 
@@ -684,12 +675,14 @@
         const progressDesc = progressVal.nextElementSibling;
         if (progressPercentage === 100) {
             progressDesc.innerText = '全フェーズ完了！';
-        } else if (progressPercentage > 60) {
-            progressDesc.innerText = 'インボックス自動化（フェーズ5）進行中';
+        } else if (progressPercentage > 70) {
+            progressDesc.innerText = 'ダイヤ改正・乗り心地改善（フェーズ6）進行中';
+        } else if (progressPercentage > 50) {
+            progressDesc.innerText = '自動転車台・Inbox自動化（フェーズ5）進行中';
         } else if (progressPercentage > 40) {
-            progressDesc.innerText = 'データベース移行（フェーズ4）進行中';
+            progressDesc.innerText = '車庫の整理・DB移行（フェーズ4）進行中';
         } else {
-            progressDesc.innerText = '初期フェーズ 進行中';
+            progressDesc.innerText = '線路敷設（フェーズ1-3）進行中';
         }
     }
 
