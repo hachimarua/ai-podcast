@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI News & Learning System - Roadmap</title>
+    <title>AI News & Learning System - Roadmap (Updated)</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,7 +51,6 @@
             margin: 0 auto;
         }
 
-        /* Header Styles */
         header {
             text-align: center;
             margin-bottom: 3.5rem;
@@ -75,7 +74,6 @@
             font-weight: 300;
         }
 
-        /* Overview Stats */
         .overview-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -137,13 +135,11 @@
             margin-top: 0.25rem;
         }
 
-        /* Timeline Section */
         .timeline {
             position: relative;
             margin-bottom: 4rem;
         }
 
-        /* Cards */
         .phase-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -213,7 +209,6 @@
             background-color: rgba(59, 130, 246, 0.15);
             color: var(--status-active);
             border: 1px solid rgba(59, 130, 246, 0.3);
-            animation: pulse 2s infinite;
         }
 
         .status-badge.planned {
@@ -222,7 +217,6 @@
             border: 1px solid rgba(107, 114, 128, 0.3);
         }
 
-        /* Task List */
         .task-list {
             list-style: none;
             display: flex;
@@ -312,7 +306,6 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* Tech Stack Tags */
         .tech-tags {
             margin-top: 1.5rem;
             display: flex;
@@ -337,7 +330,6 @@
             border-radius: 6px;
         }
 
-        /* Footer */
         footer {
             text-align: center;
             color: var(--text-muted);
@@ -347,19 +339,11 @@
             border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
-            70% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
-        }
-
-        /* Detail Toggle Animation */
         .phase-body {
             max-height: 1000px;
             overflow: hidden;
@@ -388,40 +372,40 @@
 <div class="container">
     <header>
         <h1>AI News & Notion Learning System</h1>
-        <p class="subtitle">自律情報収集＆車内カーラジオ学習システムの開発ロードマップ</p>
+        <p class="subtitle">自律情報収集＆車内カーラジオ学習システム 開発ロードマップ</p>
     </header>
 
     <!-- Project Status Overview -->
     <div class="overview-cards">
         <div class="stat-card">
-            <div class="stat-label">全体の進捗状況</div>
-            <div class="stat-value" id="overall-progress">10%</div>
-            <div class="stat-desc">フェーズ1 準備中</div>
+            <div class="stat-label">現在の全体の進捗状況</div>
+            <div class="stat-value" id="overall-progress">60%</div>
+            <div class="stat-desc">初期ロードマップ完了・新章スタート</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">ターゲット環境</div>
-            <div class="stat-value" style="font-size: 1.5rem; margin-top: 0.4rem;">Mac M2 + CarPlay</div>
-            <div class="stat-desc">iPhone 17 Appleシステム</div>
+            <div class="stat-label">デプロイ環境</div>
+            <div class="stat-value" style="font-size: 1.5rem; margin-top: 0.4rem; color: #10b981;">GitHub Cloud (Actions)</div>
+            <div class="stat-desc">MacBookのスリープ影響なし</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">決定した抽出ルール</div>
-            <div class="stat-value" style="font-size: 1.35rem; margin-top: 0.5rem; color: #a855f7;">ランダム＋未学習</div>
-            <div class="stat-desc">復習回数カウントアップ対応</div>
+            <div class="stat-label">インプット形態の変更</div>
+            <div class="stat-value" style="font-size: 1.35rem; margin-top: 0.5rem; color: #a855f7;">学習日記 → DB化</div>
+            <div class="stat-desc">新フェーズでの移行を計画中</div>
         </div>
     </div>
 
     <!-- Timeline Phases -->
     <div class="timeline">
 
-        <!-- Phase 1 -->
-        <div class="phase-card" id="phase1-card">
+        <!-- Phase 1 (Completed) -->
+        <div class="phase-card collapsed" id="phase1-card">
             <div class="phase-header" onclick="togglePhase('phase1-card')">
                 <div class="phase-title-group">
-                    <span class="phase-number">PHASE 1</span>
+                    <span class="phase-number" style="background: var(--status-completed);">PHASE 1</span>
                     <span class="phase-title">知識ベース構築 ＆ ニュースグラウンディング化</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <span class="status-badge active">In Progress</span>
+                    <span class="status-badge completed">Completed</span>
                     <span class="toggle-icon">▼</span>
                 </div>
             </div>
@@ -435,76 +419,52 @@
                         </label>
                         <div class="task-content">
                             <div class="task-title">Notion API連携スクリプトの作成</div>
-                            <div class="task-desc">Notion DBから未学習または復習回数が少ない単語をランダムに3〜5件抽出するロジックを実装。</div>
-                            <div class="task-meta">
-                                <span class="meta-tag">Python (notion-client)</span>
-                                <span class="meta-tag">重要度: 高</span>
-                            </div>
+                            <div class="task-desc">親ページの下に並んでいる日付子ページをスキャン・本文テキストを読み込むロジックを実装。</div>
                         </div>
                     </li>
                     <li class="task-item">
                         <label class="checkbox-container">
-                            <input type="checkbox" onchange="updateProgress()">
+                            <input type="checkbox" checked onchange="updateProgress()">
                             <span class="checkbox-custom"></span>
                         </label>
                         <div class="task-content">
                             <div class="task-title">復習回数と最終復習日のアップデート処理</div>
-                            <div class="task-desc">抽出された単語の「復習回数」プロパティを+1し、「最終復習日」に当日日付を書き込むNotion更新ロジックを実装。</div>
-                            <div class="task-meta">
-                                <span class="meta-tag">Notion API / Python</span>
-                                <span class="meta-tag">重要度: 高</span>
-                            </div>
+                            <div class="task-desc">抽出された日記子ページの本文末尾に、復習回数と最終日付を自動追記するロジックを実装。</div>
                         </div>
                     </li>
                     <li class="task-item">
                         <label class="checkbox-container">
-                            <input type="checkbox" onchange="updateProgress()">
+                            <input type="checkbox" checked onchange="updateProgress()">
                             <span class="checkbox-custom"></span>
                         </label>
                         <div class="task-content">
                             <div class="task-title">信頼できるホワイトリストソース(RSS)情報収集</div>
-                            <div class="task-desc">主要AIラボの公式ブログやarXiv等のRSSから、抽出した単語に関連する最新のニュース記事全文を収集する処理を実装。</div>
-                            <div class="task-meta">
-                                <span class="meta-tag">feedparser / BeautifulSoup</span>
-                                <span class="meta-tag">重要度: 高</span>
-                            </div>
+                            <div class="task-desc">主要AIラボの公式ブログやarXiv等のRSSからニュース記事全文を収集する処理を実装。</div>
                         </div>
                     </li>
                     <li class="task-item">
                         <label class="checkbox-container">
-                            <input type="checkbox" onchange="updateProgress()">
+                            <input type="checkbox" checked onchange="updateProgress()">
                             <span class="checkbox-custom"></span>
                         </label>
                         <div class="task-content">
                             <div class="task-title">Gemini APIグラウンディング要約＆サニタイズ</div>
-                            <div class="task-desc">ハルシネーションを防ぐため、収集した記事全文をコンテキストに入力し、厳密に事実のみに基づく日本語の要約・解説を作成するプロンプトを検証。外部プロンプトのサニタイズ処理も追加。</div>
-                            <div class="task-meta">
-                                <span class="meta-tag">Gemini API (3.5 Flash / 1.5 Pro)</span>
-                                <span class="meta-tag">重要度: 極大</span>
-                            </div>
+                            <div class="task-desc">収集した記事全文をコンテキストに入力し、一次情報に100%基づいた台本を作成するプロンプトを構築。</div>
                         </div>
                     </li>
                 </ul>
-
-                <div class="tech-tags">
-                    <span class="tech-label">想定技術:</span>
-                    <span class="tech-badge">Python</span>
-                    <span class="tech-badge">Notion API</span>
-                    <span class="tech-badge">Gemini API</span>
-                    <span class="tech-badge">feedparser</span>
-                </div>
             </div>
         </div>
 
-        <!-- Phase 2 -->
+        <!-- Phase 2 (Completed) -->
         <div class="phase-card collapsed" id="phase2-card">
             <div class="phase-header" onclick="togglePhase('phase2-card')">
                 <div class="phase-title-group">
-                    <span class="phase-number">PHASE 2</span>
+                    <span class="phase-number" style="background: var(--status-completed);">PHASE 2</span>
                     <span class="phase-title">音声合成 ＆ プライベートポッドキャスト配信</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <span class="status-badge planned">Planned</span>
+                    <span class="status-badge completed">Completed</span>
                     <span class="toggle-icon">▼</span>
                 </div>
             </div>
@@ -513,66 +473,47 @@
                 <ul class="task-list">
                     <li class="task-item">
                         <label class="checkbox-container">
-                            <input type="checkbox" onchange="updateProgress()">
+                            <input type="checkbox" checked onchange="updateProgress()">
                             <span class="checkbox-custom"></span>
                         </label>
                         <div class="task-content">
                             <div class="task-title">対話型ラジオ台本プロンプトの設計</div>
-                            <div class="task-desc">Geminiにパーソナリティ2名（例：解説のAIアシスタントとユーザーの対話、あるいはアナウンサー2人）の掛け合いによる5分程度の日本語台本を出力させるプロンプトを洗練。</div>
-                            <div class="task-meta">
-                                <span class="meta-tag">Prompt Engineering</span>
-                                <span class="meta-tag">所要時間目安: 3日</span>
-                            </div>
+                            <div class="task-desc">Geminiにケンジ（聞き手）とアミ（解説者）の対話による5分程度の日本語台本を出力させるプロンプトを設計。</div>
                         </div>
                     </li>
                     <li class="task-item">
                         <label class="checkbox-container">
-                            <input type="checkbox" onchange="updateProgress()">
+                            <input type="checkbox" checked onchange="updateProgress()">
                             <span class="checkbox-custom"></span>
                         </label>
                         <div class="task-content">
                             <div class="task-title">Edge TTSを用いた音声ファイル(MP3)の自動生成</div>
-                            <div class="task-desc">軽量かつ高品質な日本語合成音声（男性・女性の2ボイス）を用いて、対話型台本をスムーズなオーディオファイル（MP3）に自動合成する。</div>
-                            <div class="task-meta">
-                                <span class="meta-tag">edge-tts (Python)</span>
-                                <span class="meta-tag">所要時間目安: 4日</span>
-                            </div>
+                            <div class="task-desc">ja-JP-KeitaNeuralとja-JP-NanamiNeuralの高品質な合成音声を利用し、セリフ文末の余韻を繋いで自動合成する仕組みを構築。</div>
                         </div>
                     </li>
                     <li class="task-item">
                         <label class="checkbox-container">
-                            <input type="checkbox" onchange="updateProgress()">
+                            <input type="checkbox" checked onchange="updateProgress()">
                             <span class="checkbox-custom"></span>
                         </label>
                         <div class="task-content">
                             <div class="task-title">プライベートポッドキャスト配信環境の構築</div>
-                            <div class="task-desc">MP3ファイルのホスティングと、ポッドキャストに準拠したRSS（XML）を自動生成・公開する軽量サーバー/ホスティング（GitHub Pages等）を設定。</div>
-                            <div class="task-meta">
-                                <span class="meta-tag">RSS 2.0 XML</span>
-                                <span class="meta-tag">GitHub Pages / Vercel</span>
-                            </div>
+                            <div class="task-desc">GitHub Pagesを利用したパブリックな配信環境を構築。iPhoneの純正ポッドキャストに番組としてURL登録することに成功。</div>
                         </div>
                     </li>
                 </ul>
-
-                <div class="tech-tags">
-                    <span class="tech-label">想定技術:</span>
-                    <span class="tech-badge">Edge TTS</span>
-                    <span class="tech-badge">XML Generation</span>
-                    <span class="tech-badge">Static Hosting</span>
-                </div>
             </div>
         </div>
 
-        <!-- Phase 3 -->
+        <!-- Phase 3 (Completed) -->
         <div class="phase-card collapsed" id="phase3-card">
             <div class="phase-header" onclick="togglePhase('phase3-card')">
                 <div class="phase-title-group">
-                    <span class="phase-number">PHASE 3</span>
-                    <span class="phase-title">車内CarPlay連携 ＆ デーモン常駐化</span>
+                    <span class="phase-number" style="background: var(--status-completed);">PHASE 3</span>
+                    <span class="phase-title">車内CarPlay連携 ＆ クラウド全自動化</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <span class="status-badge planned">Planned</span>
+                    <span class="status-badge completed">Completed</span>
                     <span class="toggle-icon">▼</span>
                 </div>
             </div>
@@ -581,52 +522,138 @@
                 <ul class="task-list">
                     <li class="task-item">
                         <label class="checkbox-container">
-                            <input type="checkbox" onchange="updateProgress()">
+                            <input type="checkbox" checked onchange="updateProgress()">
                             <span class="checkbox-custom"></span>
                         </label>
                         <div class="task-content">
                             <div class="task-title">iPhoneポッドキャストアプリ登録と再生テスト</div>
-                            <div class="task-desc">生成されたプライベートRSS URLをiPhoneの「ポッドキャスト」アプリに登録し、バックグラウンドでの自動取得を検証。</div>
-                            <div class="task-meta">
-                                <span class="meta-tag">Apple Podcasts</span>
-                                <span class="meta-tag">CarPlay</span>
-                            </div>
+                            <div class="task-desc">実際にiPhoneの「ポッドキャスト」アプリに登録し、車載CarPlayでの再生を確認。</div>
                         </div>
                     </li>
                     <li class="task-item">
                         <label class="checkbox-container">
-                            <input type="checkbox" onchange="updateProgress()">
+                            <input type="checkbox" checked onchange="updateProgress()">
                             <span class="checkbox-custom"></span>
                         </label>
                         <div class="task-content">
-                            <div class="task-title">車内CarPlay連携のUX調整</div>
-                            <div class="task-desc">USB-Cで車載システムに接続した際、ポッドキャストの画面に正しく表示され、ボタン操作で再生ができるか実車環境に近いテストを行う。</div>
-                            <div class="task-meta">
-                                <span class="meta-tag">UI/UX Test</span>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="task-item">
-                        <label class="checkbox-container">
-                            <input type="checkbox" onchange="updateProgress()">
-                            <span class="checkbox-custom"></span>
-                        </label>
-                        <div class="task-content">
-                            <div class="task-title">OpenClaw / Cronによるスケジュール自動運転化</div>
-                            <div class="task-desc">毎朝、指定時刻（例: 朝6:00）にすべてのパイプライン（Notion抽出 → ニュース検索 → 台本化 → 音声合成 → RSS公開）が全自動で稼働するよう、Mac上のデーモンまたはCronとして設定。</div>
-                            <div class="task-meta">
-                                <span class="meta-tag">OpenClaw (Daemon)</span>
-                                <span class="meta-tag">launchd / crontab</span>
-                            </div>
+                            <div class="task-title">GitHub Actionsによるクラウド全自動化</div>
+                            <div class="task-desc">MacBookのスリープ状態に依存しないよう、GitHub Actionsのワークフローを構築。毎朝6:00にクラウド上で自動合成＆プッシュされる設定が完了。</div>
                         </div>
                     </li>
                 </ul>
+            </div>
+        </div>
 
+        <!-- Phase 4 (NEW / In Progress) -->
+        <div class="phase-card" id="phase4-card">
+            <div class="phase-header" onclick="togglePhase('phase4-card')">
+                <div class="phase-title-group">
+                    <span class="phase-number">PHASE 4</span>
+                    <span class="phase-title">Notionインプットのデータベース(DB)化とデータ移行</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span class="status-badge active" style="background-color: rgba(59, 130, 246, 0.15); color: var(--status-active); border: 1px solid rgba(59, 130, 246, 0.3);">Active</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+            </div>
+            
+            <div class="phase-body">
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+                    【今回の追加要望】可読性と使いやすさを向上させ、AIがパースしやすい定型フォーマット（表形式）へ学習ログを移行します。
+                </p>
+                <ul class="task-list">
+                    <li class="task-item">
+                        <label class="checkbox-container">
+                            <input type="checkbox" onchange="updateProgress()">
+                            <span class="checkbox-custom"></span>
+                        </label>
+                        <div class="task-content">
+                            <div class="task-title">新規学習データベース(DB)の設計・作成</div>
+                            <div class="task-desc">Notion上で「名前」「学習日（作成日時）」「復習回数」「最終復習日」のプロパティを持つ新しいテーブルを作成する。</div>
+                        </div>
+                    </li>
+                    <li class="task-item">
+                        <label class="checkbox-container">
+                            <input type="checkbox" onchange="updateProgress()">
+                            <span class="checkbox-custom"></span>
+                        </label>
+                        <div class="task-content">
+                            <div class="task-title">既存の日記子ページデータから新規DBへの一括移行スクリプト開発</div>
+                            <div class="task-desc">既存の「20260511」などの通常ページから、テキスト内容を抽出して新しいデータベースへ自動で再登録・移行する一回限りのスクリプトを作成・実行する。</div>
+                        </div>
+                    </li>
+                    <li class="task-item">
+                        <label class="checkbox-container">
+                            <input type="checkbox" onchange="updateProgress()">
+                            <span class="checkbox-custom"></span>
+                        </label>
+                        <div class="task-content">
+                            <div class="task-title">ポッドキャストパイプラインのDB対応リファクタリング</div>
+                            <div class="task-desc">データベース移行に伴い、notion_helper.pyを「データベースAPI」対応に戻し、厳密な数値での復習回数カウントアップ処理に切り替える。</div>
+                        </div>
+                    </li>
+                </ul>
                 <div class="tech-tags">
-                    <span class="tech-label">想定技術:</span>
-                    <span class="tech-badge">OpenClaw Daemon</span>
-                    <span class="tech-badge">macOS crontab</span>
-                    <span class="tech-badge">CarPlay</span>
+                    <span class="tech-label">技術スタック:</span>
+                    <span class="tech-badge">Notion API</span>
+                    <span class="tech-badge">Python Migration Script</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 5 (NEW / Planned) -->
+        <div class="phase-card collapsed" id="phase5-card">
+            <div class="phase-header" onclick="togglePhase('phase5-card')">
+                <div class="phase-title-group">
+                    <span class="phase-number">PHASE 5</span>
+                    <span class="phase-title">受信箱（Inbox）の自動要約 ＆ 振り分けオートメーション</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span class="status-badge planned">Planned</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+            </div>
+            
+            <div class="phase-body">
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+                    【将来構想】チャット履歴などの雑多なメモをInboxに放り込むだけで、AIが自動で要約・抽出して学習データベースへ登録する仕組みを作ります。
+                </p>
+                <ul class="task-list">
+                    <li class="task-item">
+                        <label class="checkbox-container">
+                            <input type="checkbox" onchange="updateProgress()">
+                            <span class="checkbox-custom"></span>
+                        </label>
+                        <div class="task-content">
+                            <div class="task-title">Notion「受信箱（Inbox）データベース」の作成</div>
+                            <div class="task-desc">ユーザーがメモやチャットログを放り込むための一時的な簡易データベースを作成。</div>
+                        </div>
+                    </li>
+                    <li class="task-item">
+                        <label class="checkbox-container">
+                            <input type="checkbox" onchange="updateProgress()">
+                            <span class="checkbox-custom"></span>
+                        </label>
+                        <div class="task-content">
+                            <div class="task-title">Gemini APIによるInbox監視 ＆ 自動要約スクリプトの実装</div>
+                            <div class="task-desc">Inboxにある未処理のチャット履歴から、Geminiが「用語名」「解説要約」「学習日」を抽出し、メイン学習DBへ清書・登録する処理を実装。</div>
+                        </div>
+                    </li>
+                    <li class="task-item">
+                        <label class="checkbox-container">
+                            <input type="checkbox" onchange="updateProgress()">
+                            <span class="checkbox-custom"></span>
+                        </label>
+                        <div class="task-content">
+                            <div class="task-title">GitHub Actionsワークフローへの統合</div>
+                            <div class="task-desc">毎朝ポッドキャストを生成する直前に、Inboxの自動要約・振り分けを自動で前処理として実行させるようワークフローを統合。</div>
+                        </div>
+                    </li>
+                </ul>
+                <div class="tech-tags">
+                    <span class="tech-label">技術スタック:</span>
+                    <span class="tech-badge">Gemini Structured Outputs</span>
+                    <span class="tech-badge">GitHub Actions Automation</span>
                 </div>
             </div>
         </div>
@@ -651,24 +678,21 @@
         
         const progressPercentage = Math.round((checkedCount / totalCount) * 100);
         
-        // Progress display update
         const progressVal = document.getElementById('overall-progress');
         progressVal.innerText = progressPercentage + '%';
         
-        // Stat description change dynamically
         const progressDesc = progressVal.nextElementSibling;
         if (progressPercentage === 100) {
             progressDesc.innerText = '全フェーズ完了！';
         } else if (progressPercentage > 60) {
-            progressDesc.innerText = 'フェーズ3 進行中';
-        } else if (progressPercentage > 25) {
-            progressDesc.innerText = 'フェーズ2 進行中';
+            progressDesc.innerText = 'インボックス自動化（フェーズ5）進行中';
+        } else if (progressPercentage > 40) {
+            progressDesc.innerText = 'データベース移行（フェーズ4）進行中';
         } else {
-            progressDesc.innerText = 'フェーズ1 進行中';
+            progressDesc.innerText = '初期フェーズ 進行中';
         }
     }
 
-    // Run progress count on load
     window.onload = function() {
         updateProgress();
     };
