@@ -9,6 +9,15 @@
     <itunes:summary>Notionに蓄積したAI用語の復習と、ホワイトリストソースから収集した最新AIニュースを掛け合わせた、毎朝の自律学習ポッドキャストです。</itunes:summary>
     <itunes:category text="Technology"/>
     <item>
+      <title>2026年06月19日 22:29 のAI学習ラジオ</title>
+      <description>本日の復習用語を交えた最新AIニュースの要約解説です。</description>
+      <pubDate>Fri, 19 Jun 2026 22:29:17 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260619_222917.mp3" length="1470960" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260619_222917.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>01:29</itunes:duration>
+    </item>
+    <item>
       <title>2026年06月19日 04:06 のAI学習ラジオ</title>
       <description>本日の復習用語を交えた最新AIニュースの要約解説です。</description>
       <pubDate>Fri, 19 Jun 2026 04:06:44 +0900</pubDate>
