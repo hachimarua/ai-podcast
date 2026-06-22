@@ -2,8 +2,8 @@ name: Generate Daily AI Podcast
 
 on:
   schedule:
-    # 毎朝 日本時間 6:00 (UTC 21:00)
-    - cron: '0 21 * * *'
+    # 毎朝 日本時間 4:00 (UTC 19:00)
+    - cron: '0 19 * * *'
   workflow_dispatch: # 手動実行用
 
 permissions:
