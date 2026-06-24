@@ -9,11 +9,41 @@ VOICE_MAP = {
     "アミ": "ja-JP-NanamiNeural"     # 女性ボイス
 }
 
+def apply_pronunciation_dict(text):
+    """テキスト内の特定の英単語を、Edge TTSが正しく読めるようにカタカナ等に置換する"""
+    if not text:
+        return ""
+        
+    # 置換用辞書 (大文字小文字を区別せずマッチさせるため、正規表現を作成)
+    replacements = {
+        r'(?i)Claude': 'クロード',
+        r'(?i)MCP': 'エムシーピー',
+        r'(?i)LLMs': 'エルエルエムズ',
+        r'(?i)LLM': 'エルエルエム',
+        r'(?i)APIs': 'エーピーアイズ',
+        r'(?i)API': 'エーピーアイ',
+        r'(?i)Notion': 'ノーション',
+        r'(?i)Gemini': 'ジェミニ',
+        r'(?i)ChatGPT': 'チャットジーピーティー',
+        r'(?i)OpenAI': 'オープンエーアイ',
+        r'(?i)Anthropic': 'アンスロピック',
+        r'(?i)RAG': 'ラグ',
+    }
+    
+    result = text
+    for pattern, replacement in replacements.items():
+        result = re.sub(pattern, replacement, result)
+        
+    return result
+
 async def generate_line_audio(text, voice, output_path):
     """1行のセリフの音声を生成"""
     sanitized_text = text.strip()
     if not sanitized_text:
         return False
+        
+    # 発音辞書の適用 (Claude などの誤読対策)
+    sanitized_text = apply_pronunciation_dict(sanitized_text)
         
     # 文末に句読点を必ず付与することで、合成音声の末尾に自然な「間（余韻）」を作らせる
     if not sanitized_text.endswith(("。", "！", "？", "!", "?")):

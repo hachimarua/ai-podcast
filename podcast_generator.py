@@ -4,6 +4,7 @@ import glob
 import socket
 import shutil
 from datetime import datetime, timezone, timedelta
+from mutagen.mp3 import MP3
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 from dotenv import load_dotenv
@@ -144,8 +145,15 @@ def generate_podcast_rss():
         # iTunesメタデータ
         ET.SubElement(item, "guid", {"isPermaLink": "false"}).text = filename
         ET.SubElement(item, "itunes:author").text = "Antigravity Agent"
-        # 概算の再生時間 (128kbps想定: 1秒あたりおよそ16KB)
-        duration_sec = int(file_size / (16 * 1024))
+        # mutagenを使って正確な再生時間を取得
+        try:
+            audio = MP3(mp3_path)
+            duration_sec = int(audio.info.length)
+        except Exception as e:
+            print(f"[Warning] Failed to read audio length with mutagen for {filename}: {e}")
+            # フォールバックとして、Edge TTSの平均的なビットレート (約48kbps ＝ 1秒あたり約6KB) で計算
+            duration_sec = int(file_size / (6 * 1024))
+            
         m, s = divmod(duration_sec, 60)
         ET.SubElement(item, "itunes:duration").text = f"{m:02d}:{s:02d}"
 
