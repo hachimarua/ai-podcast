@@ -2,12 +2,154 @@ import os
 import re
 import asyncio
 import edge_tts
+import random
+import subprocess
+import shutil
+import urllib.request
+import time
+from mutagen.mp3 import MP3
 
 # キャラクターと対応するEdgeニューラル音声の割り当て
 VOICE_MAP = {
     "ケンジ": "ja-JP-KeitaNeural",   # 男性ボイス
     "アミ": "ja-JP-NanamiNeural"     # 女性ボイス
 }
+
+# デフォルトのBGMリスト (4種類、PixiJS Soundのロイヤリティフリー軽量ループ音源)
+# 初回の待ち時間を短縮するため、軽量（約90KB）なループBGMを採用しています。
+# bgm/ フォルダに好きなmp3ファイルを追加することで、何曲でもランダム選択の対象に追加できます。
+DEFAULT_BGM_LIST = [
+    {
+        "name": "loop1.mp3",
+        "url": "https://raw.githubusercontent.com/pixijs/sound/main/examples/resources/loops/loop1.mp3"
+    },
+    {
+        "name": "loop2.mp3",
+        "url": "https://raw.githubusercontent.com/pixijs/sound/main/examples/resources/loops/loop2.mp3"
+    },
+    {
+        "name": "loop3.mp3",
+        "url": "https://raw.githubusercontent.com/pixijs/sound/main/examples/resources/loops/loop3.mp3"
+    },
+    {
+        "name": "loop4.mp3",
+        "url": "https://raw.githubusercontent.com/pixijs/sound/main/examples/resources/loops/loop4.mp3"
+    }
+]
+
+def download_default_bgms(bgm_dir):
+    """デフォルトのBGMをダウンロードしてbgm_dirに保存する"""
+    os.makedirs(bgm_dir, exist_ok=True)
+    
+    # 既にファイルがあるかチェック (すでに4曲以上あればダウンロードをスキップ)
+    existing_files = [f for f in os.listdir(bgm_dir) if f.endswith(".mp3")]
+    if len(existing_files) >= len(DEFAULT_BGM_LIST):
+        print(f"BGMフォルダ内に既に {len(existing_files)} 個のファイルが存在するため、デフォルトダウンロードをスキップします。")
+        return
+        
+    print("BGMフォルダが空、または不足しているため、デフォルトのBGM（4曲）をダウンロードします。少々お待ちください...")
+    for bgm_info in DEFAULT_BGM_LIST:
+        dest_path = os.path.join(bgm_dir, bgm_info["name"])
+        url = bgm_info["url"]
+        print(f" -> {bgm_info['name']} をダウンロード中...")
+        try:
+            req = urllib.request.Request(
+                url, 
+                headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+            )
+            with urllib.request.urlopen(req) as response, open(dest_path, 'wb') as out_file:
+                shutil.copyfileobj(response, out_file)
+            print(f"    成功: {bgm_info['name']}")
+        except Exception as e:
+            print(f"    [Warning] {bgm_info['name']} のダウンロードに失敗しました: {e}")
+        
+        # サーバー負荷低減のための時間調整
+        time.sleep(1)
+
+def mix_bgm(speech_mp3_path, output_mp3_path):
+    """
+    合成された音声ファイルに、ランダムに選択したBGMを重ね合わせる。
+    BGMの有効無効、音量は環境変数から取得。
+    """
+    enable_bgm = os.getenv("ENABLE_BGM", "true").lower() == "true"
+    if not enable_bgm:
+        print("BGM機能は無効に設定されています。ミキシングをスキップします。")
+        shutil.copy2(speech_mp3_path, output_mp3_path)
+        return True
+
+    # bgmフォルダのパスを設定（スクリプトと同じディレクトリ）
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    bgm_dir = os.path.join(script_dir, "bgm")
+    
+    # BGMのダウンロード
+    download_default_bgms(bgm_dir)
+    
+    # BGMファイルのリストを取得
+    if not os.path.exists(bgm_dir):
+        print("[Warning] bgmフォルダが存在しません。ミキシングをスキップします。")
+        shutil.copy2(speech_mp3_path, output_mp3_path)
+        return False
+        
+    bgm_files = [os.path.join(bgm_dir, f) for f in os.listdir(bgm_dir) if f.endswith((".mp3", ".ogg", ".wav"))]
+    if not bgm_files:
+        print("[Warning] bgmフォルダに音楽ファイルが見つかりません。ミキシングをスキップします。")
+        shutil.copy2(speech_mp3_path, output_mp3_path)
+        return False
+        
+    # ランダムにBGMを選択
+    chosen_bgm = random.choice(bgm_files)
+    print(f"使用するBGM: {os.path.basename(chosen_bgm)}")
+    
+    try:
+        # 1. 音声（台本）の長さを取得
+        audio = MP3(speech_mp3_path)
+        duration = audio.info.length
+        print(f"合成音声の長さ: {duration:.2f} 秒")
+        
+        # 2. フェードアウトの計算（終了3秒前）
+        fade_duration = 3.0
+        fade_start = max(0.0, duration - fade_duration)
+        
+        # BGMの音量 (デフォルト 0.38)
+        bgm_volume = float(os.getenv("BGM_VOLUME", "0.38"))
+        
+        # 3. ffmpegによるミキシング
+        # -stream_loop -1 でBGMを無限ループ
+        # afadeでbgmをフェードアウト
+        # amixのduration=firstで最初のインプット（speech）の長さに合わせる
+        cmd = [
+            "ffmpeg", "-y",
+            "-i", speech_mp3_path,
+            "-stream_loop", "-1",
+            "-i", chosen_bgm,
+            "-filter_complex", 
+            f"[1:a]volume={bgm_volume},afade=t=out:st={fade_start:.2f}:d={fade_duration:.2f}[bgm_faded];"
+            f"[0:a][bgm_faded]amix=inputs=2:duration=first:dropout_transition=3:normalize=0[a]",
+            "-map", "[a]",
+            "-c:a", "libmp3lame",
+            "-q:a", "4",
+            output_mp3_path
+        ]
+        
+        print("FFmpegによるミキシング処理を実行中...")
+        # stdout/stderrはデバッグ用にキャプチャするが、詳細なログ出力のためにバックグラウンドでは走らせない
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        
+        if result.returncode == 0:
+            print(f"BGMミキシングが正常に完了しました: {output_mp3_path}")
+            return True
+        else:
+            print(f"[Error] FFmpeg mixing failed (exit code {result.returncode}):")
+            print(result.stderr)
+            print("フォールバックとしてBGM無しの音声を出力します。")
+            shutil.copy2(speech_mp3_path, output_mp3_path)
+            return False
+            
+    except Exception as e:
+        print(f"[Error] Failed to mix BGM: {e}")
+        print("フォールバックとしてBGM無しの音声を出力します。")
+        shutil.copy2(speech_mp3_path, output_mp3_path)
+        return False
 
 def apply_pronunciation_dict(text):
     """テキスト内の特定の英単語を、Edge TTSが正しく読めるようにカタカナ等に置換する"""
@@ -107,14 +249,30 @@ async def synthesize_podcast(script_path, output_mp3_path):
                 
         # 2. 一時ファイルをバイナリ結合
         print("\n音声ファイルの結合処理を行っています...")
-        with open(output_mp3_path, "wb") as outfile:
+        temp_combined_path = "temp_speech_combined.mp3"
+        with open(temp_combined_path, "wb") as outfile:
             for temp_file in temp_files:
                 if os.path.exists(temp_file):
                     with open(temp_file, "rb") as infile:
                         outfile.write(infile.read())
                         
-        print(f"ポッドキャスト音声の生成が完了しました: {output_mp3_path}")
-        return True
+        # 3. BGMのミキシング
+        print("\nBGMミキシング処理を開始します...")
+        mix_success = mix_bgm(temp_combined_path, output_mp3_path)
+        
+        # 一時結合ファイルの削除
+        if os.path.exists(temp_combined_path):
+            try:
+                os.remove(temp_combined_path)
+            except Exception as e:
+                print(f"[Warning] Failed to delete temporary file {temp_combined_path}: {e}")
+                
+        if mix_success:
+            print(f"ポッドキャスト音声の生成が完了しました: {output_mp3_path}")
+            return True
+        else:
+            print("[Warning] BGMミキシング処理で問題が発生しましたが、音声自体は出力されました。")
+            return True
         
     except Exception as e:
         print(f"[Error] Audio synthesis failed in synthesize_podcast: {e}")
