@@ -15,7 +15,7 @@ VOICE_MAP = {
     "アミ": "ja-JP-NanamiNeural"     # 女性ボイス
 }
 
-# デフォルトのBGMリスト (朝の5分ラジオに最適な高品質アコースティック・クラシック音源)
+# デフォルトのBGMリスト (朝の5分ラジオに最適な高品質アコースティック・カフェ風・クラシック音源)
 DEFAULT_BGM_LIST = [
     {
         "name": "clear_air.mp3",
@@ -32,6 +32,18 @@ DEFAULT_BGM_LIST = [
     {
         "name": "morning.mp3",
         "url": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Morning.mp3"
+    },
+    {
+        "name": "carefree.mp3",
+        "url": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Carefree.mp3"
+    },
+    {
+        "name": "montauk_point.mp3",
+        "url": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Montauk%20Point.mp3"
+    },
+    {
+        "name": "bossa_antigua.mp3",
+        "url": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Bossa%20Antigua.mp3"
     }
 ]
 
