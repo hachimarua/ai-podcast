@@ -15,41 +15,52 @@ VOICE_MAP = {
     "アミ": "ja-JP-NanamiNeural"     # 女性ボイス
 }
 
-# デフォルトのBGMリスト (4種類、PixiJS Soundのロイヤリティフリー軽量ループ音源)
-# 初回の待ち時間を短縮するため、軽量（約90KB）なループBGMを採用しています。
-# bgm/ フォルダに好きなmp3ファイルを追加することで、何曲でもランダム選択の対象に追加できます。
+# デフォルトのBGMリスト (朝の5分ラジオに最適な高品質アコースティック・クラシック音源)
 DEFAULT_BGM_LIST = [
     {
-        "name": "loop1.mp3",
-        "url": "https://raw.githubusercontent.com/pixijs/sound/main/examples/resources/loops/loop1.mp3"
+        "name": "clear_air.mp3",
+        "url": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Clear%20Air.mp3"
     },
     {
-        "name": "loop2.mp3",
-        "url": "https://raw.githubusercontent.com/pixijs/sound/main/examples/resources/loops/loop2.mp3"
+        "name": "porch_swing_days.mp3",
+        "url": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Porch%20Swing%20Days%20-%20slower.mp3"
     },
     {
-        "name": "loop3.mp3",
-        "url": "https://raw.githubusercontent.com/pixijs/sound/main/examples/resources/loops/loop3.mp3"
+        "name": "friday_morning.mp3",
+        "url": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Friday%20Morning.mp3"
     },
     {
-        "name": "loop4.mp3",
-        "url": "https://raw.githubusercontent.com/pixijs/sound/main/examples/resources/loops/loop4.mp3"
+        "name": "morning.mp3",
+        "url": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Morning.mp3"
     }
 ]
 
 def download_default_bgms(bgm_dir):
-    """デフォルトのBGMをダウンロードしてbgm_dirに保存する"""
+    """デフォルトの高品質BGMをダウンロードしてbgm_dirに保存する"""
     os.makedirs(bgm_dir, exist_ok=True)
     
-    # 既にファイルがあるかチェック (すでに4曲以上あればダウンロードをスキップ)
+    # 以前の古いチープなループ音源(loop1~4)があればクリーンアップ削除
+    old_loops = ["loop1.mp3", "loop2.mp3", "loop3.mp3", "loop4.mp3"]
+    for old_file in old_loops:
+        old_path = os.path.join(bgm_dir, old_file)
+        if os.path.exists(old_path):
+            try:
+                os.remove(old_path)
+                print(f"古いBGM素材を削除しました: {old_file}")
+            except Exception as e:
+                print(f"古いBGM素材の削除に失敗しました: {e}")
+
+    # 既に新BGMファイルがあるかチェック
     existing_files = [f for f in os.listdir(bgm_dir) if f.endswith(".mp3")]
     if len(existing_files) >= len(DEFAULT_BGM_LIST):
-        print(f"BGMフォルダ内に既に {len(existing_files)} 個のファイルが存在するため、デフォルトダウンロードをスキップします。")
+        print(f"BGMフォルダ内に既に {len(existing_files)} 個の高品質ファイルが存在するため、ダウンロードをスキップします。")
         return
         
-    print("BGMフォルダが空、または不足しているため、デフォルトのBGM（4曲）をダウンロードします。少々お待ちください...")
+    print("朝のラジオにふさわしい高品質なアコースティックBGMをダウンロードしています...")
     for bgm_info in DEFAULT_BGM_LIST:
         dest_path = os.path.join(bgm_dir, bgm_info["name"])
+        if os.path.exists(dest_path):
+            continue
         url = bgm_info["url"]
         print(f" -> {bgm_info['name']} をダウンロード中...")
         try:
@@ -63,7 +74,6 @@ def download_default_bgms(bgm_dir):
         except Exception as e:
             print(f"    [Warning] {bgm_info['name']} のダウンロードに失敗しました: {e}")
         
-        # サーバー負荷低減のための時間調整
         time.sleep(1)
 
 def mix_bgm(speech_mp3_path, output_mp3_path):
@@ -106,16 +116,17 @@ def mix_bgm(speech_mp3_path, output_mp3_path):
         duration = audio.info.length
         print(f"合成音声の長さ: {duration:.2f} 秒")
         
-        # 2. フェードアウトの計算（終了3秒前）
-        fade_duration = 3.0
-        fade_start = max(0.0, duration - fade_duration)
+        # 2. フェードイン・フェードアウトの計算
+        fade_in_duration = 2.0
+        fade_out_duration = 3.0
+        fade_out_start = max(0.0, duration - fade_out_duration)
         
-        # BGMの音量 (デフォルト 0.38)
-        bgm_volume = float(os.getenv("BGM_VOLUME", "0.38"))
+        # 本格アコースティックBGMに適したバランス音量 (デフォルト 0.22)
+        bgm_volume = float(os.getenv("BGM_VOLUME", "0.22"))
         
         # 3. ffmpegによるミキシング
         # -stream_loop -1 でBGMを無限ループ
-        # afadeでbgmをフェードアウト
+        # afadeでbgmを自然にフェードイン＆フェードアウト
         # amixのduration=firstで最初のインプット（speech）の長さに合わせる
         cmd = [
             "ffmpeg", "-y",
@@ -123,7 +134,9 @@ def mix_bgm(speech_mp3_path, output_mp3_path):
             "-stream_loop", "-1",
             "-i", chosen_bgm,
             "-filter_complex", 
-            f"[1:a]volume={bgm_volume},afade=t=out:st={fade_start:.2f}:d={fade_duration:.2f}[bgm_faded];"
+            f"[1:a]volume={bgm_volume},"
+            f"afade=t=in:st=0:d={fade_in_duration:.2f},"
+            f"afade=t=out:st={fade_out_start:.2f}:d={fade_out_duration:.2f}[bgm_faded];"
             f"[0:a][bgm_faded]amix=inputs=2:duration=first:dropout_transition=3:normalize=0[a]",
             "-map", "[a]",
             "-c:a", "libmp3lame",
