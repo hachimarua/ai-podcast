@@ -19,6 +19,11 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Install system dependencies (ffmpeg)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ffmpeg
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -37,7 +42,7 @@ jobs:
         NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
         NOTION_INBOX_DATABASE_ID: ${{ secrets.NOTION_INBOX_DATABASE_ID }}
         BASE_URL: "https://hachimarua.github.io/ai-podcast"
-        BGM_VOLUME: "0.22"
+        BGM_VOLUME: "0.30"
       run: |
         # 1. 受信箱 (Inbox) の自動要約・振り分けを先に実行
         python process_inbox.py
@@ -55,6 +60,7 @@ jobs:
         
         # 変更がある場合のみコミット＆プッシュ
         if ! git diff --cached --quiet; then
+          git pull --rebase origin main || true
           git commit -m "chore: Update daily podcast episode [skip ci]"
           git push
         else

@@ -75,17 +75,27 @@ def download_default_bgms(bgm_dir):
             continue
         url = bgm_info["url"]
         print(f" -> {bgm_info['name']} をダウンロード中...")
-        try:
-            req = urllib.request.Request(
-                url, 
-                headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-            )
-            with urllib.request.urlopen(req) as response, open(dest_path, 'wb') as out_file:
-                shutil.copyfileobj(response, out_file)
-            print(f"    成功: {bgm_info['name']}")
-        except Exception as e:
-            print(f"    [Warning] {bgm_info['name']} のダウンロードに失敗しました: {e}")
         
+        # 最大3回のリトライ処理
+        download_success = False
+        for attempt in range(1, 4):
+            try:
+                req = urllib.request.Request(
+                    url, 
+                    headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+                )
+                with urllib.request.urlopen(req, timeout=15) as response, open(dest_path, 'wb') as out_file:
+                    shutil.copyfileobj(response, out_file)
+                print(f"    成功: {bgm_info['name']}")
+                download_success = True
+                break
+            except Exception as e:
+                print(f"    [Attempt {attempt}/3 Warning] {bgm_info['name']} のダウンロードに失敗: {e}")
+                time.sleep(2)
+        
+        if not download_success:
+            print(f"    [Error] {bgm_info['name']} の取得をスキップして続行します。")
+            
         time.sleep(1)
 
 def mix_bgm(speech_mp3_path, output_mp3_path):
@@ -133,11 +143,12 @@ def mix_bgm(speech_mp3_path, output_mp3_path):
         fade_out_duration = 3.0
         fade_out_start = max(0.0, duration - fade_out_duration)
         
-        # 本格アコースティックBGMに適したバランス音量 (デフォルト 0.22)
-        bgm_volume = float(os.getenv("BGM_VOLUME", "0.22"))
+        # 本格アコースティックBGMに適したバランス音量 (デフォルト 0.30)
+        bgm_volume = float(os.getenv("BGM_VOLUME", "0.30"))
         
         # 3. ffmpegによるミキシング
-        # -stream_loop -1 でBGMを無限ループ
+        # loudnormで楽曲ごとの音圧差を均一化
+        # volumeで指定音量にスケール
         # afadeでbgmを自然にフェードイン＆フェードアウト
         # amixのduration=firstで最初のインプット（speech）の長さに合わせる
         cmd = [
@@ -146,7 +157,7 @@ def mix_bgm(speech_mp3_path, output_mp3_path):
             "-stream_loop", "-1",
             "-i", chosen_bgm,
             "-filter_complex", 
-            f"[1:a]volume={bgm_volume},"
+            f"[1:a]loudnorm=I=-20:LRA=11:TP=-1.5,volume={bgm_volume},"
             f"afade=t=in:st=0:d={fade_in_duration:.2f},"
             f"afade=t=out:st={fade_out_start:.2f}:d={fade_out_duration:.2f}[bgm_faded];"
             f"[0:a][bgm_faded]amix=inputs=2:duration=first:dropout_transition=3:normalize=0[a]",
