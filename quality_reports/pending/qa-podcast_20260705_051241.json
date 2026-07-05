@@ -2,8 +2,8 @@
   "broadcast_date": "2026-07-05",
   "category": "audio_quality",
   "created_at": "2026-07-05T08:55:29.171887+00:00",
-  "decided_at": null,
-  "decision_reason": null,
+  "decided_at": "2026-07-05T09:36:20.068317+00:00",
+  "decision_reason": "Agreed",
   "episode_id": "podcast_20260705_051241",
   "evidence": [
     {
@@ -36,7 +36,7 @@
   "safe_auto_apply": false,
   "schema_version": 1,
   "severity": "warning",
-  "status": "pending",
+  "status": "agreed",
   "suggested_changes": [
     "技術用語や特殊文字（アンダースコアなど）の読み方について、スクリプトに具体的な指示（例: 「アンダーライン」と読む、または意味のある部分だけ読む）を追加してください。「Consu」は完全な単語で読み上げるように修正してください。",
     "技術用語の読み方について、スクリプトに具体的な指示（例: 意味のある部分だけ読む、より自然な表現に言い換える）を追加してください。",
