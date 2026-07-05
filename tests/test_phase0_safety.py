@@ -11,6 +11,7 @@ from unittest.mock import AsyncMock, patch
 
 import api_client
 import antigravity_review_notifier
+import antigravity_sidecar_runner
 import audio_generator
 import audio_quality
 import bootstrap_episode_history
@@ -20,6 +21,7 @@ import improvement_application
 import local_server
 import main as pipeline_main
 import notion_helper
+import obsidian_inbox_adapter
 import podcast_generator
 import review_decision
 import script_generator
@@ -559,6 +561,21 @@ class AntigravityNotifierTests(unittest.TestCase):
         self.assertEqual(agentapi.call_count, 1)
         self.assertIn(proposal["proposal_id"], state["notified"])
 
+    def test_obsidian_intake_runs_as_isolated_child_process(self):
+        workspace = Path("/tmp/workspace")
+        completed = subprocess.CompletedProcess(
+            args=[], returncode=0, stdout="Obsidian intake complete", stderr=""
+        )
+        with patch.object(
+            antigravity_sidecar_runner.subprocess, "run", return_value=completed
+        ) as run:
+            summary = antigravity_sidecar_runner.run_obsidian_intake(workspace)
+        command = run.call_args.args[0]
+        self.assertEqual(command[0], "/tmp/workspace/venv/bin/python")
+        self.assertEqual(command[1], "/tmp/workspace/obsidian_inbox_adapter.py")
+        self.assertNotIn(".env", command)
+        self.assertEqual(summary, "Obsidian intake complete")
+
 
 class ReviewDecisionTests(unittest.TestCase):
     def test_agreed_decision_is_recorded_without_applying_change(self):
@@ -620,6 +637,113 @@ class ImprovementApplicationTests(unittest.TestCase):
         self.assertIn("技術識別子は、そのまま台詞へ転記しない", script_generator.SYSTEM_INSTRUCTION)
         self.assertIn("日付か識別番号か判断できない場合", script_generator.SYSTEM_INSTRUCTION)
         self.assertIn("英単語が途中で切れた形", script_generator.SYSTEM_INSTRUCTION)
+
+
+class ObsidianInboxAdapterTests(unittest.TestCase):
+    def make_vault(self, root: Path) -> Path:
+        vault = root / "MainVault"
+        (vault / "20_Dev_開発" / "Learning").mkdir(parents=True)
+        (vault / "00_Inbox_受信箱").mkdir(parents=True)
+        (vault / "10_Clinical_臨床").mkdir(parents=True)
+        return vault
+
+    def test_only_explicit_learning_promotions_are_read(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            vault = self.make_vault(Path(tmp))
+            promoted = vault / "20_Dev_開発" / "Learning" / "RAG.md"
+            promoted.write_text(
+                "---\nai_radio: true\ntype: learning_note\ncreated: 2026-07-06\n---\n# RAG\n検索拡張生成の学習メモ。\n",
+                encoding="utf-8",
+            )
+            ignored = vault / "20_Dev_開発" / "Learning" / "draft.md"
+            ignored.write_text("# 下書き\nまだ昇格しない。\n", encoding="utf-8")
+            (vault / "10_Clinical_臨床" / "private.md").write_text(
+                "---\nai_radio: true\n---\n# 臨床メモ\n対象外。\n", encoding="utf-8"
+            )
+            before = promoted.read_bytes()
+            notes = obsidian_inbox_adapter.scan_promoted_notes(vault)
+            after = promoted.read_bytes()
+        self.assertEqual(len(notes), 1)
+        self.assertEqual(notes[0].title, "RAG")
+        self.assertEqual(before, after)
+        self.assertNotIn("ai_radio", notes[0].content)
+        self.assertIn("学習日: 2026-07-06", notes[0].content)
+
+    def test_state_prevents_duplicate_import_without_editing_source(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            vault = self.make_vault(root)
+            source = vault / "20_Dev_開発" / "Learning" / "MCP.md"
+            source.write_text(
+                "---\nai_radio: ready\n---\n# MCP\nモデルと外部ツールを接続する。\n",
+                encoding="utf-8",
+            )
+            state_path = root / "state.json"
+            before = source.read_bytes()
+            with (
+                patch.object(obsidian_inbox_adapter, "_notion_session", return_value=object()),
+                patch.object(obsidian_inbox_adapter, "already_in_notion", return_value=False),
+                patch.object(
+                    obsidian_inbox_adapter,
+                    "create_notion_inbox_page",
+                    return_value="notion-page-1",
+                ) as create,
+            ):
+                first = obsidian_inbox_adapter.import_promoted_notes(
+                    vault=vault,
+                    state_path=state_path,
+                    api_key="token",
+                    inbox_database_id="inbox",
+                    learning_database_id="learning",
+                )
+                second = obsidian_inbox_adapter.import_promoted_notes(
+                    vault=vault,
+                    state_path=state_path,
+                    api_key="token",
+                    inbox_database_id="inbox",
+                    learning_database_id="learning",
+                )
+            after = source.read_bytes()
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+        self.assertEqual(first["imported"], 1)
+        self.assertEqual(second["pending"], 0)
+        self.assertEqual(create.call_count, 1)
+        self.assertEqual(before, after)
+        self.assertEqual(len(state["imports"]), 1)
+
+    def test_existing_notion_record_is_marked_without_duplicate_create(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            vault = self.make_vault(root)
+            (vault / "20_Dev_開発" / "Learning" / "既存.md").write_text(
+                "---\nai_radio: true\n---\n# 既存概念\nすでにNotionにある。\n",
+                encoding="utf-8",
+            )
+            with (
+                patch.object(obsidian_inbox_adapter, "_notion_session", return_value=object()),
+                patch.object(obsidian_inbox_adapter, "already_in_notion", return_value=True),
+                patch.object(obsidian_inbox_adapter, "create_notion_inbox_page") as create,
+            ):
+                result = obsidian_inbox_adapter.import_promoted_notes(
+                    vault=vault,
+                    state_path=root / "state.json",
+                    api_key="token",
+                    inbox_database_id="inbox",
+                    learning_database_id="learning",
+                )
+        self.assertEqual(result["imported"], 0)
+        self.assertEqual(result["skipped"], 1)
+        create.assert_not_called()
+
+    def test_clinical_flag_is_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            vault = self.make_vault(Path(tmp))
+            (vault / "20_Dev_開発" / "Learning" / "bad.md").write_text(
+                "---\nai_radio: true\nclinical: true\n---\n# 対象外\n本文。\n",
+                encoding="utf-8",
+            )
+            with self.assertRaises(obsidian_inbox_adapter.ObsidianIntakeError):
+                obsidian_inbox_adapter.scan_promoted_notes(vault)
 
 
 if __name__ == "__main__":

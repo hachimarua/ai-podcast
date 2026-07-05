@@ -259,10 +259,42 @@ Notion本文、完全な台本、APIレスポンス全文は公開manifestへ保
 
 目的: 入力頻度を上げ、候補不足そのものを減らす。
 
-- Obsidianを入力元アダプターとして追加する。
-- 重複防止・品質監査とは独立して実装する。
-- 元ノートを削除・改名・上書きしない。
-- Notionとの正本関係と二重取り込み防止を先に決める。
+正本関係:
+
+- Obsidianは流れる学習メモの入力元、Notion学習DBはラジオが参照する構造化された正本とする。
+- 情報収集レーンのAI Digestを丸ごと取り込まず、`20_Dev_開発/Learning/`で明示的に昇格したノートだけを対象にする。
+- 医療ノート、共通Inbox、Daily、Archive、添付ファイルは走査しない。
+
+昇格方法:
+
+```yaml
+---
+type: learning_note
+ai_radio: true
+created: 2026-07-06
+---
+# 学習テーマ
+ここに学習メモを書く。
+```
+
+動作:
+
+- `obsidian_inbox_adapter.py`が対象ノートを読み取り、Notion Inboxへコピーする。
+- 元ノートは読み取り専用とし、削除・改名・上書き・処理済みマークの追記をしない。
+- 相対パス由来の非可逆`source_key`とMacローカル状態ファイルで同じノートの再取り込みを防ぐ。
+- 状態消失時も、Notion Inboxのタイトルと学習DBの`元のページ名`を照合して二重作成を防ぐ。
+- `clinical: true`、空本文、2万文字超、設定不足はフェイルクローズする。
+- Antigravity Sidecarが起動直後と15分ごとに、独立した子プロセスとして取り込む。品質通知処理自身は`.env`を読み込まない。
+- MacまたはAntigravityが停止中なら取り込みだけを次回起動後へ延期し、GitHub Actionsの放送は停止しない。
+- 3:30のLaunchAgent方式も実機確認したが、macOSのDocuments保護により単独プロセスがworkspaceを開けず終了コード127となったため採用せず、失敗した常駐設定は撤去する。
+
+完了条件:
+
+- 明示的に昇格した開発学習ノートだけが候補になる。
+- 元ノートのバイト列が取り込み前後で変化しない。
+- 同じノートを複数回実行してもNotionページが重複しない。
+- 対象0件では外部更新を行わず正常終了する。
+- Mac停止中でも放送が継続する。
 
 ## テスト方針
 
@@ -285,7 +317,7 @@ Notion本文、完全な台本、APIレスポンス全文は公開manifestへ保
 
 ## 現在フェーズ
 
-**Phase 5実装完了 — 次回定期放送で効果確認待ち**
+**Phase 6実装完了 — 初回の実ノート昇格待ち**
 
 ### Phase 0検証結果（2026-07-05）
 
@@ -379,12 +411,25 @@ Notion本文、完全な台本、APIレスポンス全文は公開manifestへ保
 - Workflow・権限・Secrets・依存関係・破壊的データ変更・大きな設計変更・本番コード4ファイル以上を機械的なエスカレーション条件にし、対応可否を自己申告だけで判断しないようにした。
 - 自動テスト39件、`pip check`、Python AST解析、Workflow YAML解析、JSON検証、差分チェックに成功した。
 
+### Phase 6検証結果（2026-07-06）
+
+- MainVaultの`AGENTS.md`、`_RULES.md`、開発・Learning・AI DigestのREADMEを読み、既存の「情報収集レーンと学習レーンを分け、学びたい概念だけ昇格する」方針を正本関係へ採用した。
+- `20_Dev_開発/Learning/`内でfrontmatterに`ai_radio: true`または`ready`があるMarkdownだけを読む`obsidian_inbox_adapter.py`を追加した。
+- Vault全体、医療ノート、共通Inbox、Daily、Archive、添付ファイルを走査対象から除外した。
+- 元ノートを変更せずNotion Inboxへコピーし、Notion学習DBをラジオ入力の正本として維持した。
+- Macローカル状態とNotion上の二重照合により、同じノートの再実行・状態消失時の重複作成を防ぐ。
+- `clinical: true`、空本文、2万文字超、Notion設定不足を安全停止させる。
+- LaunchAgent単独実行はmacOSのDocuments保護により終了コード127となったため撤去し、既存Antigravity Sidecarから独立子プロセスとして起動する構成へ切り替えた。
+- Sidecar子プロセス経由の実Vault確認は`discovered=0 pending=0 imported=0 skipped=0`で正常終了し、外部更新を行わなかった。
+- Sidecarを再起動し、新しいプロセスで起動直後と15分ごとの取り込みが有効になったことを確認した。
+- 自動テスト44件、`pip check`、Python AST解析、JSON検証、差分チェックに成功した。
+
 ### 次の一手
 
-1. 次回放送のManifestとGemini QAで、技術識別子・数字列・途中で切れた語のwarningが再発しないか確認する。
-2. 新しいproposalが出た場合は、Antigravityとの会話で判断し、Agreed後の実装から完了報告までの一連の運用を確認する。
-3. 明示的な高リスク条件または解消不能な問題が出た場合だけ、ユーザー判断でCodexへエスカレーションする。
-4. Phase 6のObsidian Inbox連携は別トラックとして、Notionとの正本関係と二重取り込み防止を決めてから開始する。
+1. 学習したい開発概念を`20_Dev_開発/Learning/`へ置き、frontmatterへ`ai_radio: true`を付ける。
+2. Antigravity Sidecarの次回確認でNotion Inboxへ1件だけ入り、元ノートが不変であることを実データで確認する。
+3. 次回GitHub ActionsでNotion学習DBへ清書され、後日のテーマ候補に入ることを確認する。
+4. 新しい品質proposalが出た場合は、Antigravityとの会話でAgreed後の実装から完了報告までを確認する。
 
 ## 変更履歴
 
@@ -397,3 +442,4 @@ Notion本文、完全な台本、APIレスポンス全文は公開manifestへ保
 - 2026-07-05: Phase 4実装完了。Antigravity 2.0 Sidecar、重複通知防止、Agreed/Disagree/Later記録を追加。初回確認会話を作成、35テスト成功。
 - 2026-07-05: Phase 5完了。初回Agreed提案をLevel Bとして台本生成ルールへ反映し、適用履歴と安全レベル検証を追加。39テスト成功。
 - 2026-07-05: 日常運用の担当をAntigravityへ移管。Agreed後は同じ会話内で実装・検証・push・完了報告まで行い、Codexは高リスク案件の監修先とする役割分担へ更新。
+- 2026-07-06: Phase 6実装完了。Obsidian Learningの明示的昇格ノートだけを読み取り専用でNotion Inboxへ渡すアダプター、二重取り込み防止、Antigravity Sidecar連携を追加。44テスト成功。

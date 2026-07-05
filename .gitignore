@@ -19,6 +19,7 @@ todays_podcast.mp3
 todays_script.txt
 temp_*.mp3
 todays_manifest.json
+obsidian-import-state.json
 
 # OS Files
 .DS_Store
