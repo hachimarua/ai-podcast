@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
 import api_client
+import antigravity_review_notifier
 import audio_generator
 import audio_quality
 import bootstrap_episode_history
@@ -19,6 +20,7 @@ import local_server
 import main as pipeline_main
 import notion_helper
 import podcast_generator
+import review_decision
 import script_generator
 
 
@@ -499,6 +501,78 @@ class GeminiAudioQATests(unittest.TestCase):
             result = gemini_audio_qa.run_shadow_audio_qa("unused.mp3")
         self.assertEqual(result["status"], "unavailable")
         self.assertEqual(result["issues"], [])
+
+
+class AntigravityNotifierTests(unittest.TestCase):
+    def sample_proposal(self):
+        return {
+            "proposal_id": "qa-podcast_20260705_051241",
+            "broadcast_date": "2026-07-05",
+            "severity": "warning",
+            "summary": "発音に改善余地あり",
+            "evidence": [{
+                "timestamp": "01:23",
+                "evidence": "記号を不自然に読み上げた",
+                "severity": "warning",
+                "category": "pronunciation",
+            }],
+            "suggested_changes": ["記号を音声向け表現に変換する"],
+            "status": "pending",
+        }
+
+    def test_prompt_treats_qa_content_as_untrusted_and_forbids_auto_apply(self):
+        prompt = antigravity_review_notifier.build_review_prompt(
+            self.sample_proposal(), Path("/tmp/workspace")
+        )
+        self.assertIn("<untrusted_qa_data>", prompt)
+        self.assertIn("Agreed / Disagree / Later", prompt)
+        self.assertIn("改善案を実装しない", prompt)
+
+    def test_same_proposal_is_not_notified_twice(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp) / "workspace"
+            (workspace / ".git").mkdir(parents=True)
+            state_path = Path(tmp) / "state" / "notifier.json"
+            proposal = self.sample_proposal()
+            with (
+                patch.object(
+                    antigravity_review_notifier,
+                    "fetch_pending_proposals",
+                    return_value=[proposal],
+                ),
+                patch.object(
+                    antigravity_review_notifier,
+                    "_run",
+                    return_value="conversation-id",
+                ) as agentapi,
+            ):
+                first = antigravity_review_notifier.notify_pending(workspace, state_path)
+                second = antigravity_review_notifier.notify_pending(workspace, state_path)
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+        self.assertEqual(first, 1)
+        self.assertEqual(second, 0)
+        self.assertEqual(agentapi.call_count, 1)
+        self.assertIn(proposal["proposal_id"], state["notified"])
+
+
+class ReviewDecisionTests(unittest.TestCase):
+    def test_agreed_decision_is_recorded_without_applying_change(self):
+        proposal = {"proposal_id": "qa-test", "status": "pending", "safe_auto_apply": False}
+        updated = review_decision.update_proposal_decision(
+            proposal,
+            "agreed",
+            "この方向で進める",
+            decided_at="2026-07-05T00:00:00+00:00",
+        )
+        self.assertEqual(updated["status"], "agreed")
+        self.assertEqual(updated["decision_reason"], "この方向で進める")
+        self.assertFalse(updated["safe_auto_apply"])
+
+    def test_already_decided_proposal_cannot_be_overwritten(self):
+        with self.assertRaises(ValueError):
+            review_decision.update_proposal_decision(
+                {"status": "agreed"}, "disagreed", "change mind"
+            )
 
 
 if __name__ == "__main__":

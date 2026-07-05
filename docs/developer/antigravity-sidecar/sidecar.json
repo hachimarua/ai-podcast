@@ -1,0 +1,13 @@
+{
+  "description": "Checks AI learning radio quality proposals and creates one Antigravity review conversation per new proposal.",
+  "display_name": "AIラジオ改善提案",
+  "command": "python3",
+  "args": [
+    "/Users/sakiya/Documents/Antigravity IDE/AI news knowledge learning system/antigravity_sidecar_runner.py",
+    "--workspace",
+    "/Users/sakiya/Documents/Antigravity IDE/AI news knowledge learning system",
+    "--interval-seconds",
+    "900"
+  ],
+  "restart_policy": "always"
+}

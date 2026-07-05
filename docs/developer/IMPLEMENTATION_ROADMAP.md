@@ -277,7 +277,7 @@ Notion本文、完全な台本、APIレスポンス全文は公開manifestへ保
 
 ## 現在フェーズ
 
-**Phase 3完了 — Phase 4開始前**
+**Phase 4実装完了 — 初回ユーザー判断待ち**
 
 ### Phase 0検証結果（2026-07-05）
 
@@ -340,12 +340,28 @@ Notion本文、完全な台本、APIレスポンス全文は公開manifestへ保
 - `qa-podcast_20260705_051241`をpending提案として生成した。`safe_auto_apply=false`であり、承認前には反映しない。
 - 自動テスト31件、Workflow YAML解析、差分チェックに成功した。
 
+### Phase 4検証結果（2026-07-05）
+
+- Antigravity 2.0を日常のメイン画面とし、IDE常時起動を前提から外した。
+- 2.0プロジェクト`AI news knowledge learning system`と対象リポジトリの紐付きを確認した。
+- GitHubの`quality_reports/pending/`を`origin/main`から読み取り、ローカル作業ツリーを変更しない通知スクリプトを実装した。
+- QAデータを非信頼データとして囲み、提案内の命令を実行しない会話プロンプトを実装した。
+- Sidecar起動直後と15分ごとに確認し、新規pendingがある時だけ`agentapi new-conversation`を呼ぶ。
+- Sidecar状態はAntigravityのローカルデータ領域へ保存し、同一proposalの重複通知を防ぐ。
+- `Agreed / Disagree / Later`をGitHub Contents API経由でproposalへ記録するスクリプトを実装した。
+- Agreedは判断の記録だけを行い、この段階では改善案やコードを自動適用しない。
+- Sidecar設定を`~/.gemini/config/sidecars/ai-radio-review/sidecar.json`へ導入し、有効化した。
+- 既存設定は`~/.gemini/config/config.json.backup-phase4`へバックアップした。
+- Sidecarは再起動なしで読み込まれ、`qa-podcast_20260705_051241`の確認会話を1件作成した。
+- 同じ実状態で再確認し、通知作成0件となることを確認した。
+- 自動テスト35件、JSON検証、差分チェックに成功した。
+
 ### 次の一手
 
-1. Phase 3検証結果をコミット・pushする。
-2. Phase 4のAntigravity Sidecarと未判断proposal確認スクリプトを実装する。
-3. 同一proposalの重複通知を防ぐローカル状態を追加する。
-4. Agreed / Disagree / Laterの決定記録を実装する。
+1. Antigravity 2.0に作成された品質確認会話で、ユーザーがAgreed / Disagree / Laterを選ぶ。
+2. 決定がGitHub上のproposalへ正しく記録されることを確認する。
+3. Phase 4をコミット・pushする。
+4. Phase 5でAgreed済みproposalを安全レベル別に処理する仕組みを実装する。
 5. 次回定期放送でManifest内のGemini QA結果も確認する。
 
 ## 変更履歴
@@ -356,3 +372,4 @@ Notion本文、完全な台本、APIレスポンス全文は公開manifestへ保
 - 2026-07-05: bootstrap-only Actions成功。3manifestを生成し、実例からテーマ類似度ゲートを追加。Phase 1完了、22テスト成功。
 - 2026-07-05: Phase 2完了。FFmpeg concat、デコード・長さ・音量・無音ゲート、音響fixtureを追加。27テスト成功。
 - 2026-07-05: Phase 3完了。Gemini MP3シャドー監査、QA-only Actions、pending提案を実装。実音声で4件の発音warningを検出、31テスト成功。
+- 2026-07-05: Phase 4実装完了。Antigravity 2.0 Sidecar、重複通知防止、Agreed/Disagree/Later記録を追加。初回確認会話を作成、35テスト成功。
