@@ -7,6 +7,7 @@ import subprocess
 import shutil
 import urllib.request
 import time
+import tempfile
 from mutagen.mp3 import MP3
 
 # キャラクターと対応するEdgeニューラル音声の割り当て
@@ -256,73 +257,72 @@ def parse_script_file(script_path):
                 
     return parsed_lines
 
+
+def concatenate_mp3_files(input_paths, output_path):
+    """Concatenate MP3 segments through FFmpeg instead of raw byte appends."""
+    if not input_paths:
+        return False
+    list_path = os.path.join(os.path.dirname(output_path), "concat-list.txt")
+    with open(list_path, "w", encoding="utf-8") as handle:
+        for path in input_paths:
+            escaped = os.path.abspath(path).replace("'", "'\\''")
+            handle.write(f"file '{escaped}'\n")
+    result = subprocess.run(
+        [
+            "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+            "-f", "concat", "-safe", "0", "-i", list_path,
+            "-c", "copy", output_path,
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        timeout=120,
+    )
+    if result.returncode != 0:
+        print(f"[Error] FFmpeg concat failed: {result.stderr[-1000:]}")
+        return False
+    return os.path.isfile(output_path) and os.path.getsize(output_path) > 0
+
 async def synthesize_podcast(script_path, output_mp3_path):
-    """台本から音声ファイルを生成し、バイナリ結合してポッドキャストMP3を出力"""
+    """台本から音声ファイルを生成し、FFmpegで結合してポッドキャストMP3を出力"""
     parsed_lines = parse_script_file(script_path)
     if not parsed_lines:
         print("[Error] No valid script lines found to synthesize.")
         return False
-        
+
     print(f"台本の解析完了: {len(parsed_lines)} 行のセリフが見つかりました。")
-    temp_files = []
-    
-    try:
-        # 1. 各行の音声を一時ファイルとして生成
-        print("音声の個別生成を開始します...")
-        for idx, (speaker, text) in enumerate(parsed_lines):
-            voice = VOICE_MAP.get(speaker)
-            if not voice:
-                print(f"[Warning] Unknown speaker '{speaker}', skipping.")
-                continue
-                
-            temp_line_path = f"temp_line_{idx}.mp3"
-            
-            # セリフ音声の生成
-            print(f" -> [{speaker}] を生成中... ({idx+1}/{len(parsed_lines)})")
-            success = await generate_line_audio(text, voice, temp_line_path)
-            if success:
-                temp_files.append(temp_line_path)
-                
-        # 2. 一時ファイルをバイナリ結合
-        print("\n音声ファイルの結合処理を行っています...")
-        temp_combined_path = "temp_speech_combined.mp3"
-        with open(temp_combined_path, "wb") as outfile:
-            for temp_file in temp_files:
-                if os.path.exists(temp_file):
-                    with open(temp_file, "rb") as infile:
-                        outfile.write(infile.read())
-                        
-        # 3. BGMのミキシング
-        print("\nBGMミキシング処理を開始します...")
-        mix_success = mix_bgm(temp_combined_path, output_mp3_path)
-        
-        # 一時結合ファイルの削除
-        if os.path.exists(temp_combined_path):
-            try:
-                os.remove(temp_combined_path)
-            except Exception as e:
-                print(f"[Warning] Failed to delete temporary file {temp_combined_path}: {e}")
-                
-        if mix_success:
-            print(f"ポッドキャスト音声の生成が完了しました: {output_mp3_path}")
-            return True
-        else:
+    with tempfile.TemporaryDirectory(prefix="podcast-audio-") as temp_dir:
+        try:
+            temp_files = []
+            print("音声の個別生成を開始します...")
+            for idx, (speaker, text) in enumerate(parsed_lines):
+                voice = VOICE_MAP.get(speaker)
+                if not voice:
+                    print(f"[Warning] Unknown speaker '{speaker}', skipping.")
+                    continue
+
+                temp_line_path = os.path.join(temp_dir, f"line_{idx}.mp3")
+                print(f" -> [{speaker}] を生成中... ({idx+1}/{len(parsed_lines)})")
+                success = await generate_line_audio(text, voice, temp_line_path)
+                if success:
+                    temp_files.append(temp_line_path)
+
+            print("\n音声ファイルの結合処理を行っています...")
+            temp_combined_path = os.path.join(temp_dir, "speech-combined.mp3")
+            if not concatenate_mp3_files(temp_files, temp_combined_path):
+                return False
+
+            print("\nBGMミキシング処理を開始します...")
+            mix_success = mix_bgm(temp_combined_path, output_mp3_path)
+
+            if mix_success:
+                print(f"ポッドキャスト音声の生成が完了しました: {output_mp3_path}")
+                return True
             print("[Warning] BGMミキシング処理で問題が発生しましたが、音声自体は出力されました。")
             return True
-        
-    except Exception as e:
-        print(f"[Error] Audio synthesis failed in synthesize_podcast: {e}")
-        return False
-        
-    finally:
-        # 一時ファイルの削除クリーンアップ
-        print("一時ファイルをクリーンアップしています...")
-        for temp_file in temp_files:
-            if os.path.exists(temp_file):
-                try:
-                    os.remove(temp_file)
-                except Exception as e:
-                    print(f"[Warning] Failed to delete temporary file {temp_file}: {e}")
+        except Exception as e:
+            print(f"[Error] Audio synthesis failed in synthesize_podcast: {e}")
+            return False
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(__file__)

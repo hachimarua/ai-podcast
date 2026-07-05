@@ -16,6 +16,7 @@ from episode_history import (
     max_recent_similarity,
     write_manifest_atomic,
 )
+from audio_quality import require_audio_quality
 
 async def async_main():
     print("==================================================")
@@ -125,6 +126,14 @@ async def async_main():
     if not synthesis_success:
         print("[Error] 音声合成に失敗しました。パイプラインを中断します。")
         sys.exit(1)
+
+    audio_quality = require_audio_quality(output_mp3_path)
+    print(
+        "音声品質ゲート通過: "
+        f"{audio_quality['duration_seconds']:.1f}秒, "
+        f"平均{audio_quality['mean_volume_db']:.1f}dB, "
+        f"最大{audio_quality['max_volume_db']:.1f}dB"
+    )
         
     # 6. ポッドキャストXML(RSSフィード)の生成とアーカイブ保存 (GitHub Actions上でのみ本番アーカイブを更新)
     print("\n[Step 6] ポッドキャストRSSフィードを生成し、アーカイブを更新しています...")
@@ -157,6 +166,7 @@ async def async_main():
                     "final_script_similarity": round(final_similarity, 4),
                     "duplicate_threshold": duplicate_threshold,
                     "used_news_only_fallback": used_news_only_fallback,
+                    "audio_quality": audio_quality,
                 },
                 publish_status="published",
             )

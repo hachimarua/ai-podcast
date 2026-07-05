@@ -1,6 +1,8 @@
 import asyncio
 import json
 import os
+import shutil
+import subprocess
 import tempfile
 import unittest
 from datetime import date, datetime
@@ -8,6 +10,8 @@ from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
 import api_client
+import audio_generator
+import audio_quality
 import bootstrap_episode_history
 import episode_history
 import local_server
@@ -332,6 +336,16 @@ class DuplicateGateIntegrationTests(unittest.TestCase):
                     side_effect=[duplicate_script, fresh_script],
                 ) as generate,
                 patch.object(pipeline_main, "synthesize_podcast", new=AsyncMock(return_value=True)),
+                patch.object(
+                    pipeline_main,
+                    "require_audio_quality",
+                    return_value={
+                        "passed": True,
+                        "duration_seconds": 300.0,
+                        "mean_volume_db": -18.0,
+                        "max_volume_db": -1.0,
+                    },
+                ),
                 patch.object(pipeline_main, "update_term_review_status") as update_status,
                 patch.dict(os.environ, {"GITHUB_ACTIONS": "false"}, clear=False),
             ):
@@ -341,6 +355,72 @@ class DuplicateGateIntegrationTests(unittest.TestCase):
         self.assertEqual(generate.call_count, 2)
         self.assertEqual(saved_script, fresh_script)
         update_status.assert_not_called()
+
+
+@unittest.skipUnless(shutil.which("ffmpeg") and shutil.which("ffprobe"), "FFmpeg required")
+class AudioQualityTests(unittest.TestCase):
+    def make_audio(self, path: Path, source: str, duration: float):
+        result = subprocess.run(
+            [
+                "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+                "-f", "lavfi", "-i", source, "-t", str(duration),
+                "-c:a", "libmp3lame", str(path),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def short_thresholds(self):
+        return audio_quality.AudioThresholds(
+            min_duration_seconds=2.0,
+            max_duration_seconds=10.0,
+            min_mean_volume_db=-40.0,
+            max_mean_volume_db=-1.0,
+            max_peak_volume_db=-0.1,
+            max_long_silence_ratio=0.20,
+        )
+
+    def test_normal_tone_passes_configured_fixture_thresholds(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            audio = Path(tmp) / "tone.mp3"
+            self.make_audio(audio, "sine=frequency=440:sample_rate=24000", 3.0)
+            result = audio_quality.inspect_audio(audio, self.short_thresholds())
+        self.assertTrue(result["passed"], result)
+
+    def test_short_audio_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            audio = Path(tmp) / "short.mp3"
+            self.make_audio(audio, "sine=frequency=440:sample_rate=24000", 0.5)
+            result = audio_quality.inspect_audio(audio, self.short_thresholds())
+        self.assertIn("duration_too_short", result["issues"])
+
+    def test_long_silence_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            audio = Path(tmp) / "silent.mp3"
+            self.make_audio(audio, "anullsrc=r=24000:cl=mono", 3.0)
+            result = audio_quality.inspect_audio(audio, self.short_thresholds())
+        self.assertIn("too_much_long_silence", result["issues"])
+
+    def test_corrupt_audio_raises(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            audio = Path(tmp) / "corrupt.mp3"
+            audio.write_bytes(b"not-an-mp3")
+            with self.assertRaises(audio_quality.AudioQualityError):
+                audio_quality.inspect_audio(audio, self.short_thresholds())
+
+    def test_ffmpeg_concat_produces_decodable_audio(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            first = root / "first.mp3"
+            second = root / "second.mp3"
+            combined = root / "combined.mp3"
+            self.make_audio(first, "sine=frequency=440:sample_rate=24000", 1.2)
+            self.make_audio(second, "sine=frequency=660:sample_rate=24000", 1.2)
+            self.assertTrue(audio_generator.concatenate_mp3_files([first, second], combined))
+            result = audio_quality.inspect_audio(combined, self.short_thresholds())
+        self.assertGreater(result["duration_seconds"], 2.0)
 
 
 if __name__ == "__main__":
