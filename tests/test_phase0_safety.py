@@ -14,6 +14,7 @@ import audio_generator
 import audio_quality
 import bootstrap_episode_history
 import episode_history
+import gemini_audio_qa
 import local_server
 import main as pipeline_main
 import notion_helper
@@ -149,6 +150,7 @@ class WorkflowGuardTests(unittest.TestCase):
         self.assertIn("Bootstrap recent episode history once", workflow)
         self.assertIn("bootstrap_episode_history.py --limit 3", workflow)
         self.assertIn("bootstrap_only:", workflow)
+        self.assertIn("qa_existing_only:", workflow)
 
 
 class PromptBoundaryTests(unittest.TestCase):
@@ -346,6 +348,18 @@ class DuplicateGateIntegrationTests(unittest.TestCase):
                         "max_volume_db": -1.0,
                     },
                 ),
+                patch.object(
+                    pipeline_main,
+                    "run_shadow_audio_qa",
+                    return_value={
+                        "status": "completed",
+                        "model": "test-model",
+                        "summary": "問題なし",
+                        "overall_score": 5,
+                        "requires_human_review": False,
+                        "issues": [],
+                    },
+                ),
                 patch.object(pipeline_main, "update_term_review_status") as update_status,
                 patch.dict(os.environ, {"GITHUB_ACTIONS": "false"}, clear=False),
             ):
@@ -421,6 +435,70 @@ class AudioQualityTests(unittest.TestCase):
             self.assertTrue(audio_generator.concatenate_mp3_files([first, second], combined))
             result = audio_quality.inspect_audio(combined, self.short_thresholds())
         self.assertGreater(result["duration_seconds"], 2.0)
+
+
+class GeminiAudioQATests(unittest.TestCase):
+    def test_structured_schema_rejects_invalid_score(self):
+        with self.assertRaises(ValueError):
+            gemini_audio_qa.AudioQAAnalysis.model_validate({
+                "summary": "bad",
+                "overall_score": 6,
+                "speech_clarity_score": 5,
+                "dialogue_naturalness_score": 5,
+                "bgm_balance_score": 5,
+                "pacing_score": 5,
+                "has_internal_repetition": False,
+                "requires_human_review": False,
+                "issues": [],
+            })
+
+    def test_warning_creates_pending_proposal_without_transcript(self):
+        qa_result = {
+            "status": "completed",
+            "model": "gemini-2.5-flash",
+            "summary": "BGMが一部大きい",
+            "overall_score": 3,
+            "requires_human_review": True,
+            "issues": [{
+                "category": "bgm",
+                "severity": "warning",
+                "timestamp": "02:14",
+                "evidence": "声が一時的に聞き取りにくい",
+                "suggested_change": "BGM音量を少し下げる",
+            }],
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            path = gemini_audio_qa.write_improvement_proposal(
+                qa_result=qa_result,
+                episode_id="podcast_20260705_051241",
+                broadcast_date="2026-07-05",
+                reports_dir=tmp,
+            )
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(payload["status"], "pending")
+        self.assertFalse(payload["safe_auto_apply"])
+        self.assertNotIn("transcript", json.dumps(payload, ensure_ascii=False).lower())
+
+    def test_clean_result_does_not_create_proposal(self):
+        qa_result = {
+            "status": "completed",
+            "requires_human_review": False,
+            "issues": [],
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            path = gemini_audio_qa.write_improvement_proposal(
+                qa_result=qa_result,
+                episode_id="episode",
+                broadcast_date="2026-07-05",
+                reports_dir=tmp,
+            )
+        self.assertIsNone(path)
+
+    def test_missing_key_is_non_blocking_unavailable_status(self):
+        with patch.dict(os.environ, {"GEMINI_API_KEY": ""}, clear=False):
+            result = gemini_audio_qa.run_shadow_audio_qa("unused.mp3")
+        self.assertEqual(result["status"], "unavailable")
+        self.assertEqual(result["issues"], [])
 
 
 if __name__ == "__main__":

@@ -181,6 +181,7 @@ def build_manifest(
     duration_seconds: int,
     deterministic_checks: dict[str, Any],
     publish_status: str,
+    gemini_qa_summary: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     return {
         "schema_version": SCHEMA_VERSION,
@@ -202,7 +203,7 @@ def build_manifest(
         "audio_sha256": sha256_file(audio_path),
         "duration_seconds": duration_seconds,
         "deterministic_checks": deterministic_checks,
-        "gemini_qa_summary": None,
+        "gemini_qa_summary": gemini_qa_summary,
         "publish_status": publish_status,
     }
 

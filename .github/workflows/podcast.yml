@@ -11,6 +11,11 @@ on:
         required: false
         type: boolean
         default: false
+      qa_existing_only:
+        description: "最新の既存MP3にGemini音声監査だけを実行する"
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: daily-ai-podcast-${{ github.ref }}
@@ -59,7 +64,7 @@ jobs:
         fi
 
     - name: Run Podcast Pipeline
-      if: ${{ github.event_name != 'workflow_dispatch' || inputs.bootstrap_only != true }}
+      if: ${{ github.event_name != 'workflow_dispatch' || (inputs.bootstrap_only != true && inputs.qa_existing_only != true) }}
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
@@ -75,13 +80,24 @@ jobs:
         # 2. メインのポッドキャスト生成・更新を実行
         python main.py
 
+    - name: Run Gemini QA against latest existing episode only
+      if: ${{ github.event_name == 'workflow_dispatch' && inputs.qa_existing_only == true }}
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        GEMINI_AUDIO_QA_MODEL: "gemini-2.5-flash"
+      run: |
+        latest_audio=$(find episodes -maxdepth 1 -name 'podcast_*.mp3' | sort | tail -1)
+        episode_id=$(basename "$latest_audio" .mp3)
+        broadcast_date=$(echo "$episode_id" | sed -E 's/podcast_([0-9]{4})([0-9]{2})([0-9]{2})_.*/\1-\2-\3/')
+        python gemini_audio_qa.py "$latest_audio" --episode-id "$episode_id" --broadcast-date "$broadcast_date"
+
     - name: Commit and Push changes
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
         
         # 変更されたファイルをステージング
-        git add podcast.xml episodes/ episode_manifests/
+        git add podcast.xml episodes/ episode_manifests/ quality_reports/
         
         # 変更がある場合のみコミット＆プッシュ
         if ! git diff --cached --quiet; then

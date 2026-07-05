@@ -17,6 +17,7 @@ from episode_history import (
     write_manifest_atomic,
 )
 from audio_quality import require_audio_quality
+from gemini_audio_qa import run_shadow_audio_qa, write_improvement_proposal
 
 async def async_main():
     print("==================================================")
@@ -134,6 +135,8 @@ async def async_main():
         f"平均{audio_quality['mean_volume_db']:.1f}dB, "
         f"最大{audio_quality['max_volume_db']:.1f}dB"
     )
+    gemini_qa = run_shadow_audio_qa(output_mp3_path)
+    print(f"Gemini音声シャドー監査: {gemini_qa.get('status')}")
         
     # 6. ポッドキャストXML(RSSフィード)の生成とアーカイブ保存 (GitHub Actions上でのみ本番アーカイブを更新)
     print("\n[Step 6] ポッドキャストRSSフィードを生成し、アーカイブを更新しています...")
@@ -169,9 +172,18 @@ async def async_main():
                     "audio_quality": audio_quality,
                 },
                 publish_status="published",
+                gemini_qa_summary=gemini_qa,
             )
             manifest_path = write_manifest_atomic(manifest, manifests_dir)
             print(f"Episode manifest saved: {manifest_path}")
+            proposal_path = write_improvement_proposal(
+                qa_result=gemini_qa,
+                episode_id=episode_id,
+                broadcast_date=broadcast_date,
+                reports_dir=os.path.join(base_dir, "quality_reports"),
+            )
+            if proposal_path:
+                print(f"Audio improvement proposal saved: {proposal_path}")
             generate_podcast_rss()
         else:
             print("[Error] 音声ファイルのアーカイブに失敗しました。")
