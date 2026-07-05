@@ -1,0 +1,47 @@
+{
+  "broadcast_date": "2026-07-05",
+  "category": "audio_quality",
+  "created_at": "2026-07-05T08:55:29.171887+00:00",
+  "decided_at": null,
+  "decision_reason": null,
+  "episode_id": "podcast_20260705_051241",
+  "evidence": [
+    {
+      "category": "pronunciation",
+      "evidence": "アミが「Axangrab Tips_Inbox Axangrab」をアンダースコアを含めて文字通り読み上げており、不自然に聞こえます。また、「Consu」という単語が途中で切れているように聞こえます。",
+      "severity": "warning",
+      "timestamp": "01:23"
+    },
+    {
+      "category": "pronunciation",
+      "evidence": "アミが「Axangrab Pending Axangrab」を文字通り読み上げており、不自然に聞こえます。",
+      "severity": "warning",
+      "timestamp": "01:39"
+    },
+    {
+      "category": "pronunciation",
+      "evidence": "アミが「Axangrab Tips_Inbox Axangrab」と「Axangrab Pending Axangrab」をアンダースコアを含めて文字通り読み上げており、不自然に聞こえます。",
+      "severity": "warning",
+      "timestamp": "03:31"
+    },
+    {
+      "category": "pronunciation",
+      "evidence": "アミが「2026518」を「2026万518」と読み上げています。これは日付やIDの可能性が高く、数字の読み方として不自然です。",
+      "severity": "warning",
+      "timestamp": "04:06"
+    }
+  ],
+  "overall_score": 4,
+  "proposal_id": "qa-podcast_20260705_051241",
+  "safe_auto_apply": false,
+  "schema_version": 1,
+  "severity": "warning",
+  "status": "pending",
+  "suggested_changes": [
+    "技術用語や特殊文字（アンダースコアなど）の読み方について、スクリプトに具体的な指示（例: 「アンダーライン」と読む、または意味のある部分だけ読む）を追加してください。「Consu」は完全な単語で読み上げるように修正してください。",
+    "技術用語の読み方について、スクリプトに具体的な指示（例: 意味のある部分だけ読む、より自然な表現に言い換える）を追加してください。",
+    "技術用語や特殊文字の読み方について、スクリプトに具体的な指示を追加してください。",
+    "日付やIDなどの数字列の読み方について、スクリプトに具体的な指示（例: 「2026年5月18日」や「2026-05-18」のように読む）を追加してください。"
+  ],
+  "summary": "通勤時間向けのAI学習ラジオとして、全体的に明瞭な音声と適切なBGMバランスで聞きやすい内容でした。話者の切り替えも自然で、テンポも良好です。しかし、一部の技術用語や数字の読み上げにおいて、不自然な箇所が見受けられました。特に、アンダースコアを含む文字列や日付と思われる数字の読み方について改善の余地があります。"
+}
