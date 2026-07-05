@@ -49,7 +49,7 @@ def run_loop(workspace: Path, interval_seconds: int) -> None:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--workspace", type=Path, required=True)
-    parser.add_argument("--interval-seconds", type=int, default=900)
+    parser.add_argument("--interval-seconds", type=int, default=86400)
     args = parser.parse_args()
     run_loop(args.workspace, max(300, args.interval_seconds))
 

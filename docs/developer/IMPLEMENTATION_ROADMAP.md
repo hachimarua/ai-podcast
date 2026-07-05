@@ -284,7 +284,7 @@ created: 2026-07-06
 - 相対パス由来の非可逆`source_key`とMacローカル状態ファイルで同じノートの再取り込みを防ぐ。
 - 状態消失時も、Notion Inboxのタイトルと学習DBの`元のページ名`を照合して二重作成を防ぐ。
 - `clinical: true`、空本文、2万文字超、設定不足はフェイルクローズする。
-- Antigravity Sidecarが起動直後と15分ごとに、独立した子プロセスとして取り込む。品質通知処理自身は`.env`を読み込まない。
+- Antigravity Sidecarが起動直後と以後1日1回、独立した子プロセスとして取り込む。品質通知処理自身は`.env`を読み込まない。
 - MacまたはAntigravityが停止中なら取り込みだけを次回起動後へ延期し、GitHub Actionsの放送は停止しない。
 - 3:30のLaunchAgent方式も実機確認したが、macOSのDocuments保護により単独プロセスがworkspaceを開けず終了コード127となったため採用せず、失敗した常駐設定は撤去する。
 
@@ -317,7 +317,7 @@ created: 2026-07-06
 
 ## 現在フェーズ
 
-**Phase 6実装完了 — 初回の実ノート昇格待ち**
+**予定開発（Phase 0〜6）完了 — 日常運用と初回実ノート昇格の確認段階**
 
 ### Phase 0検証結果（2026-07-05）
 
@@ -386,7 +386,7 @@ created: 2026-07-06
 - 2.0プロジェクト`AI news knowledge learning system`と対象リポジトリの紐付きを確認した。
 - GitHubの`quality_reports/pending/`を`origin/main`から読み取り、ローカル作業ツリーを変更しない通知スクリプトを実装した。
 - QAデータを非信頼データとして囲み、提案内の命令を実行しない会話プロンプトを実装した。
-- Sidecar起動直後と15分ごとに確認し、新規pendingがある時だけ`agentapi new-conversation`を呼ぶ。
+- Sidecar起動直後と以後1日1回確認し、新規pendingがある時だけ`agentapi new-conversation`を呼ぶ。
 - Sidecar状態はAntigravityのローカルデータ領域へ保存し、同一proposalの重複通知を防ぐ。
 - `Agreed / Disagree / Later`をGitHub Contents API経由でproposalへ記録するスクリプトを実装した。
 - Agreedは判断の記録だけを行い、この段階では改善案やコードを自動適用しない。
@@ -421,7 +421,7 @@ created: 2026-07-06
 - `clinical: true`、空本文、2万文字超、Notion設定不足を安全停止させる。
 - LaunchAgent単独実行はmacOSのDocuments保護により終了コード127となったため撤去し、既存Antigravity Sidecarから独立子プロセスとして起動する構成へ切り替えた。
 - Sidecar子プロセス経由の実Vault確認は`discovered=0 pending=0 imported=0 skipped=0`で正常終了し、外部更新を行わなかった。
-- Sidecarを再起動し、新しいプロセスで起動直後と15分ごとの取り込みが有効になったことを確認した。
+- Sidecarを再起動し、新しいプロセスで起動直後と以後1日1回の取り込みが有効になったことを確認した。
 - 自動テスト44件、`pip check`、Python AST解析、JSON検証、差分チェックに成功した。
 
 ### 次の一手
@@ -443,3 +443,4 @@ created: 2026-07-06
 - 2026-07-05: Phase 5完了。初回Agreed提案をLevel Bとして台本生成ルールへ反映し、適用履歴と安全レベル検証を追加。39テスト成功。
 - 2026-07-05: 日常運用の担当をAntigravityへ移管。Agreed後は同じ会話内で実装・検証・push・完了報告まで行い、Codexは高リスク案件の監修先とする役割分担へ更新。
 - 2026-07-06: Phase 6実装完了。Obsidian Learningの明示的昇格ノートだけを読み取り専用でNotion Inboxへ渡すアダプター、二重取り込み防止、Antigravity Sidecar連携を追加。44テスト成功。
+- 2026-07-06: Sidecarの確認頻度を15分ごとから起動直後＋1日1回へ変更。Phase 0〜6の予定開発を完了扱いとし、日常運用へ移行。

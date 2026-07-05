@@ -7,7 +7,7 @@
     "--workspace",
     "/Users/sakiya/Documents/Antigravity IDE/AI news knowledge learning system",
     "--interval-seconds",
-    "900"
+    "86400"
   ],
   "restart_policy": "always"
 }
