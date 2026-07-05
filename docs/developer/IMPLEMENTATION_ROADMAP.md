@@ -238,15 +238,22 @@ Notion本文、完全な台本、APIレスポンス全文は公開manifestへ保
 
 反映レベル:
 
-- Level A: 閾値、禁止期間、音量などの設定変更。Agreed後に自動反映可能。
-- Level B: プロンプト変更。差分とテストを作り、確認後に反映。
-- Level C: Python、Workflow、権限変更。Codexが実装・検証し、勝手に本番反映しない。
+- Level A: 閾値、禁止期間、音量などの設定変更。Agreed後にAntigravityが反映する。
+- Level B: プロンプト変更。Agreed後にAntigravityが差分とテストを作り、反映する。
+- Level C: Python変更のうち局所的で小規模なものはAntigravityが担当する。Workflow、権限、Secrets、依存関係、破壊的データ変更、大きな設計変更、本番コード4ファイル以上の変更はCodexへエスカレーションする。
+
+運用上の役割分担:
+
+- Antigravityは日常運用の実務担当とし、ユーザーとの提案確認、Agreed後の修正、検証、適用記録、commit、push、完了報告まで同じ会話で行う。
+- Codexは通常経路へ自動接続しない。Antigravityが明示的な高リスク条件または解消不能な問題を報告し、ユーザーが依頼した場合だけ監修・実装を担当する。
+- 「対応可能」という自己申告だけで進めず、変更範囲とテスト結果を完了判定の根拠にする。
 
 完了条件:
 
 - どの提案がいつ何へ反映されたか追跡できる。
 - Disagreeされた提案が再提案され続けない。
 - コード変更が承認なしで自動生成・pushされない。
+- Agreed後の日常修正は、別途Codexへ依頼せずAntigravity内で完了する。
 
 ### Phase 6: Obsidian Inbox連携（別トラック）
 
@@ -367,13 +374,16 @@ Notion本文、完全な台本、APIレスポンス全文は公開manifestへ保
 - `qa-podcast_20260705_051241`へLevel B、適用日時、変更ファイル、検証結果を記録し、`applied`へ更新した。
 - Disagreeは既存の決定状態として残り、Sidecarは`pending`だけを通知するため、同一proposalを再通知・適用しない。
 - 適用ツールはローカルJSONの検証と記録だけを行い、コード生成、commit、pushは実行しない。
+- 初回は大規模改修の見本としてCodexが実装したが、今後の日常修正はAgreed後にAntigravityが同じ会話で実装から完了報告まで担当する運用へ変更した。
+- Antigravityの会話指示へ、ローカル同期、最小実装、テスト、`applied`記録、commit、push、完了報告の手順を追加した。
+- Workflow・権限・Secrets・依存関係・破壊的データ変更・大きな設計変更・本番コード4ファイル以上を機械的なエスカレーション条件にし、対応可否を自己申告だけで判断しないようにした。
 - 自動テスト39件、`pip check`、Python AST解析、Workflow YAML解析、JSON検証、差分チェックに成功した。
 
 ### 次の一手
 
-1. Phase 5をcommit・pushし、次回の定期放送へ台本生成ルールを反映する。
-2. 次回放送のManifestとGemini QAで、技術識別子・数字列・途中で切れた語のwarningが再発しないか確認する。
-3. 再発時は音声前処理を含むLevel C案を新しいproposalとして人間確認へ戻す。
+1. 次回放送のManifestとGemini QAで、技術識別子・数字列・途中で切れた語のwarningが再発しないか確認する。
+2. 新しいproposalが出た場合は、Antigravityとの会話で判断し、Agreed後の実装から完了報告までの一連の運用を確認する。
+3. 明示的な高リスク条件または解消不能な問題が出た場合だけ、ユーザー判断でCodexへエスカレーションする。
 4. Phase 6のObsidian Inbox連携は別トラックとして、Notionとの正本関係と二重取り込み防止を決めてから開始する。
 
 ## 変更履歴
@@ -386,3 +396,4 @@ Notion本文、完全な台本、APIレスポンス全文は公開manifestへ保
 - 2026-07-05: Phase 3完了。Gemini MP3シャドー監査、QA-only Actions、pending提案を実装。実音声で4件の発音warningを検出、31テスト成功。
 - 2026-07-05: Phase 4実装完了。Antigravity 2.0 Sidecar、重複通知防止、Agreed/Disagree/Later記録を追加。初回確認会話を作成、35テスト成功。
 - 2026-07-05: Phase 5完了。初回Agreed提案をLevel Bとして台本生成ルールへ反映し、適用履歴と安全レベル検証を追加。39テスト成功。
+- 2026-07-05: 日常運用の担当をAntigravityへ移管。Agreed後は同じ会話内で実装・検証・push・完了報告まで行い、Codexは高リスク案件の監修先とする役割分担へ更新。

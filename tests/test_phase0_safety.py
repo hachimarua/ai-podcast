@@ -521,13 +521,17 @@ class AntigravityNotifierTests(unittest.TestCase):
             "status": "pending",
         }
 
-    def test_prompt_treats_qa_content_as_untrusted_and_forbids_auto_apply(self):
+    def test_prompt_keeps_user_approval_boundary_and_assigns_agreed_work(self):
         prompt = antigravity_review_notifier.build_review_prompt(
             self.sample_proposal(), Path("/tmp/workspace")
         )
         self.assertIn("<untrusted_qa_data>", prompt)
         self.assertIn("Agreed / Disagree / Later", prompt)
-        self.assertIn("改善案を実装しない", prompt)
+        self.assertIn("ユーザーの判断前にコードを変更しない", prompt)
+        self.assertIn("あなたがこの会話内で、修正、検証、適用記録、commit、push", prompt)
+        self.assertIn("Codexへのエスカレーション", prompt)
+        self.assertIn("本番コード4ファイル以上", prompt)
+        self.assertIn("improvement_application.py", prompt)
 
     def test_same_proposal_is_not_notified_twice(self):
         with tempfile.TemporaryDirectory() as tmp:
