@@ -277,7 +277,7 @@ Notion本文、完全な台本、APIレスポンス全文は公開manifestへ保
 
 ## 現在フェーズ
 
-**Phase 2完了 — Phase 3開始前**
+**Phase 3完了 — Phase 4開始前**
 
 ### Phase 0検証結果（2026-07-05）
 
@@ -325,13 +325,28 @@ Notion本文、完全な台本、APIレスポンス全文は公開manifestへ保
 - 直近3放送はすべて本番閾値を通過した。長さ294〜329秒、平均音量-18.0〜-17.6dB、最大音量-1.3〜-1.0dB、2秒以上の無音0秒だった。
 - 自動テスト27件、`pip check`、AST解析、差分チェックに成功した。
 
+### Phase 3検証結果（2026-07-05）
+
+- Gemini MP3監査を構造化JSONで返すPydanticスキーマを実装した。
+- 明瞭度、対話自然さ、BGMバランス、テンポ、番組内反復を1〜5で評価する。
+- 問題はカテゴリ、重大度、MM:SS、聞こえた根拠、具体的改善案として保存する。
+- Gemini API障害・キー不足・スキーマ不整合は`unavailable`として記録し、放送を止めないシャドー運用とした。
+- 問題なしの日は提案を作らず、warning/criticalまたは人間確認必要時だけ`quality_reports/pending/`へ保存する。
+- 評価JSONと提案には全文文字起こし、Notion本文、APIキーを保存しない。
+- QA-only Actionsを追加し、既存MP3だけを評価して放送・RSS・Notionを変更しない検証経路を作った。
+- QA-only Actions run `28735411847` は成功し、7月5日音声を実評価した。
+- 評価は総合4/5、明瞭度5/5、対話自然さ3/5、BGM5/5、テンポ4/5、番組内反復なしだった。
+- `Tips_Inbox`等の記号付き語句と`2026518`の日付読みについて、4件の発音warningをタイムスタンプ付きで検出した。
+- `qa-podcast_20260705_051241`をpending提案として生成した。`safe_auto_apply=false`であり、承認前には反映しない。
+- 自動テスト31件、Workflow YAML解析、差分チェックに成功した。
+
 ### 次の一手
 
-1. Phase 2をコミット・pushする。
-2. Phase 3のGemini MP3監査スキーマを定義する。
-3. 最初はシャドー評価として、決定論的ゲート通過音声を止めずに品質レポートだけ保存する。
-4. 次回定期放送で新規manifest、音声品質値、RSS更新を確認する。
-5. Phase 3完了時に、この節をPhase 4開始前へ更新する。
+1. Phase 3検証結果をコミット・pushする。
+2. Phase 4のAntigravity Sidecarと未判断proposal確認スクリプトを実装する。
+3. 同一proposalの重複通知を防ぐローカル状態を追加する。
+4. Agreed / Disagree / Laterの決定記録を実装する。
+5. 次回定期放送でManifest内のGemini QA結果も確認する。
 
 ## 変更履歴
 
@@ -340,3 +355,4 @@ Notion本文、完全な台本、APIレスポンス全文は公開manifestへ保
 - 2026-07-05: Phase 1実装完了。Episode Manifest、過去3回参照、ニュースURL除外、台本MinHash、再生成ゲート、初回音声ブートストラップ、20テストを追加。
 - 2026-07-05: bootstrap-only Actions成功。3manifestを生成し、実例からテーマ類似度ゲートを追加。Phase 1完了、22テスト成功。
 - 2026-07-05: Phase 2完了。FFmpeg concat、デコード・長さ・音量・無音ゲート、音響fixtureを追加。27テスト成功。
+- 2026-07-05: Phase 3完了。Gemini MP3シャドー監査、QA-only Actions、pending提案を実装。実音声で4件の発音warningを検出、31テスト成功。
