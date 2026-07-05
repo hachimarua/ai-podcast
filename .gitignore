@@ -18,6 +18,7 @@ test_edge_tts.py
 todays_podcast.mp3
 todays_script.txt
 temp_*.mp3
+todays_manifest.json
 
 # OS Files
 .DS_Store

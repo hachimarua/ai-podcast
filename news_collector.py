@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 import re
 from datetime import datetime, timedelta
 import time
+import requests
+from api_client import request_bytes
 
 # 信頼できるAI情報源のホワイトリストRSSフィード
 WHITELIST_FEEDS = {
@@ -56,8 +58,12 @@ def fetch_feed_entries(feed_name, feed_url, max_entries=5):
     """指定されたフィードから最新記事を取得"""
     print(f"Fetching {feed_name}...")
     try:
-        # タイムアウトを設定したリクエスト
-        feed = feedparser.parse(feed_url)
+        session = requests.Session()
+        session.headers.update({"User-Agent": "AI-Learning-Radio/1.0 (+RSS reader)"})
+        feed_bytes = request_bytes(session, "GET", feed_url)
+        feed = feedparser.parse(feed_bytes)
+        if feed.bozo and not feed.entries:
+            raise ValueError(f"Invalid RSS feed: {type(feed.bozo_exception).__name__}")
         entries = []
         
         for entry in feed.entries[:max_entries]:
@@ -148,6 +154,8 @@ def collect_latest_news(max_entries_per_feed=5):
     
     # ビジネスノイズを除外
     filtered_news = filter_business_noise(all_news)
+    if not filtered_news:
+        raise RuntimeError("No valid news entries were collected; pipeline stopped")
     return filtered_news
 
 def match_news_with_words(news_list, words):

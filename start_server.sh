@@ -19,5 +19,5 @@ echo "=================================================="
 echo "Ctrl+C でサーバーを停止できます。"
 echo ""
 
-# Python 簡易サーバーの起動
-python3 -m http.server $PORT
+# 公開対象を podcast.xml / cover.png / episodes/ に限定したサーバーを起動
+python3 local_server.py --port "$PORT"

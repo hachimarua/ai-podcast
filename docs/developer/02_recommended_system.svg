@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1120" viewBox="0 0 1600 1120" role="img" aria-labelledby="title desc">
+  <title id="title">AI学習ラジオ 推奨システム構成</title>
+  <desc id="desc">GitHub Actions上の放送系と、Antigravity 2.0上のフィードバック系を分離し、過去3回の重複防止、決定論的検査、Gemini音声監査、人間承認を組み合わせる。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07111f"/>
+      <stop offset="1" stop-color="#152642"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5ce1b9"/>
+      <stop offset="0.55" stop-color="#65d6ff"/>
+      <stop offset="1" stop-color="#9c83ff"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000" flood-opacity="0.26"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0 0 L12 6 L0 12 Z" fill="#80a0c7"/>
+    </marker>
+    <marker id="greenArrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0 0 L12 6 L0 12 Z" fill="#5dd3aa"/>
+    </marker>
+    <style>
+      .title{font:700 42px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#f7fbff}
+      .subtitle{font:400 20px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#aebed5}
+      .laneTitle{font:700 21px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#eaf8ff;letter-spacing:1px}
+      .laneSub{font:400 15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#9db2cc}
+      .nodeTitle{font:700 18px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#f8fbff}
+      .nodeText{font:400 14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#b9c7da}
+      .small{font:400 13px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#9dafc7}
+      .pill{font:700 13px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#071b1b}
+      .box{fill:#14243b;stroke:#35506f;stroke-width:2;rx:16;filter:url(#shadow)}
+      .input{fill:#102f36;stroke:#2e7e81}
+      .history{fill:#18304a;stroke:#4785af}
+      .ai{fill:#241d48;stroke:#7563d4}
+      .quality{fill:#332943;stroke:#a075bd}
+      .publish{fill:#15362a;stroke:#3c9067}
+      .human{fill:#3a2e19;stroke:#c19540}
+      .lane{fill:#0c192a;stroke:#263d5c;stroke-width:2;rx:24}
+      .arrow{fill:none;stroke:#80a0c7;stroke-width:4;marker-end:url(#arrow)}
+      .greenArrow{fill:none;stroke:#5dd3aa;stroke-width:4;marker-end:url(#greenArrow)}
+      .feedback{fill:none;stroke:#e0b85b;stroke-width:4;stroke-dasharray:10 8;marker-end:url(#arrow)}
+      .divider{stroke:#29415f;stroke-width:2;stroke-dasharray:8 10}
+    </style>
+  </defs>
+
+  <rect width="1600" height="1120" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1600" height="8" fill="url(#accent)"/>
+  <text x="80" y="78" class="title">AI学習ラジオ｜推奨システム構成</text>
+  <text x="80" y="114" class="subtitle">放送はクラウドで継続。監査結果の判断だけをAntigravity 2.0へ届ける。</text>
+
+  <rect x="60" y="155" width="1480" height="620" class="lane"/>
+  <text x="90" y="200" class="laneTitle">CLOUD LANE｜GitHub Actions — Macが閉じていても毎朝配信</text>
+  <text x="90" y="229" class="laneSub">決定論的な検査を優先し、意味・聞感の判断にだけGeminiを使う</text>
+
+  <rect x="90" y="275" width="240" height="135" class="box input"/>
+  <text x="116" y="314" class="nodeTitle">1. 入力取得</text>
+  <text x="116" y="344" class="nodeText">Notion学習DB</text>
+  <text x="116" y="369" class="nodeText">ホワイトリストRSS</text>
+  <text x="116" y="394" class="small">障害時は停止・モック配信禁止</text>
+
+  <rect x="380" y="275" width="240" height="135" class="box history"/>
+  <text x="406" y="314" class="nodeTitle">2. 過去3回を参照</text>
+  <text x="406" y="344" class="nodeText">テーマ／Notion ID</text>
+  <text x="406" y="369" class="nodeText">ニュースURL／類似度</text>
+  <text x="406" y="394" class="small">Episode Manifestが記憶になる</text>
+
+  <rect x="670" y="275" width="240" height="135" class="box"/>
+  <text x="696" y="314" class="nodeTitle">3. 新規性スコア選出</text>
+  <text x="696" y="344" class="nodeText">復習優先度＋ニュース鮮度</text>
+  <text x="696" y="369" class="nodeText">＋過去3回との非重複</text>
+  <text x="696" y="394" class="small">乱数頼みから再現可能な選出へ</text>
+
+  <rect x="960" y="275" width="240" height="135" class="box ai"/>
+  <text x="986" y="314" class="nodeTitle">4. 台本生成</text>
+  <text x="986" y="344" class="nodeText">Gemini Flash</text>
+  <text x="986" y="369" class="nodeText">生成後にも重複を再判定</text>
+  <text x="986" y="394" class="small">高類似なら1回だけ再生成</text>
+
+  <rect x="1250" y="275" width="240" height="135" class="box"/>
+  <text x="1276" y="314" class="nodeTitle">5. 音声生成</text>
+  <text x="1276" y="344" class="nodeText">Edge TTS</text>
+  <text x="1276" y="369" class="nodeText">FFmpeg concat＋BGM</text>
+  <text x="1276" y="394" class="small">安全な一時領域で処理</text>
+
+  <path d="M330 342 H380" class="arrow"/>
+  <path d="M620 342 H670" class="arrow"/>
+  <path d="M910 342 H960" class="arrow"/>
+  <path d="M1200 342 H1250" class="arrow"/>
+
+  <rect x="235" y="485" width="270" height="150" class="box quality"/>
+  <text x="261" y="524" class="nodeTitle">6A. 決定論的音声検査</text>
+  <text x="261" y="554" class="nodeText">長さ／無音／クリッピング</text>
+  <text x="261" y="579" class="nodeText">デコード／話者行数の整合</text>
+  <rect x="261" y="598" width="124" height="24" rx="12" fill="#5dd3aa"/>
+  <text x="276" y="615" class="pill">AI消費なし</text>
+
+  <rect x="570" y="485" width="270" height="150" class="box ai"/>
+  <text x="596" y="524" class="nodeTitle">6B. Gemini MP3監査</text>
+  <text x="596" y="554" class="nodeText">聞感／話者／読み上げ</text>
+  <text x="596" y="579" class="nodeText">タイムスタンプ付き改善案</text>
+  <text x="596" y="612" class="small">1放送につき最大1回</text>
+
+  <rect x="905" y="485" width="270" height="150" class="box publish"/>
+  <text x="931" y="524" class="nodeTitle">7. 公開判定</text>
+  <text x="931" y="554" class="nodeText">重大障害 → 公開停止</text>
+  <text x="931" y="579" class="nodeText">注意のみ → 公開＋提案</text>
+  <text x="931" y="612" class="small">シャドー期間は停止条件を限定</text>
+
+  <rect x="1240" y="485" width="250" height="150" class="box publish"/>
+  <text x="1266" y="524" class="nodeTitle">8. 成果物保存</text>
+  <text x="1266" y="554" class="nodeText">MP3／RSS／Manifest</text>
+  <text x="1266" y="579" class="nodeText">品質レポート</text>
+  <text x="1266" y="612" class="small">同日キーで冪等に公開</text>
+
+  <path d="M1370 410 V445 H370 V485" class="arrow"/>
+  <path d="M505 560 H570" class="arrow"/>
+  <path d="M840 560 H905" class="arrow"/>
+  <path d="M1175 560 H1240" class="greenArrow"/>
+
+  <rect x="90" y="682" width="1400" height="62" rx="16" fill="#122d2b" stroke="#367d70" stroke-width="2"/>
+  <text x="120" y="721" class="nodeTitle">重要な分離：</text>
+  <text x="255" y="721" class="nodeText">AntigravityやMacが停止していても、このクラウドレーンだけで放送は継続する。</text>
+
+  <line x1="60" y1="820" x2="1540" y2="820" class="divider"/>
+
+  <rect x="60" y="855" width="1480" height="205" class="lane"/>
+  <text x="90" y="900" class="laneTitle">FEEDBACK LANE｜Antigravity 2.0 — 見られる時に判断</text>
+  <text x="90" y="929" class="laneSub">Sidecarは未判断レポートだけを確認し、問題がある時だけ会話を作る</text>
+
+  <rect x="105" y="960" width="265" height="72" class="box history"/>
+  <text x="129" y="990" class="nodeTitle">Sidecar軽量チェック</text>
+  <text x="129" y="1016" class="small">既読IDを保持・通知連打を防止</text>
+
+  <rect x="455" y="960" width="265" height="72" class="box ai"/>
+  <text x="479" y="990" class="nodeTitle">確認会話を1件作成</text>
+  <text x="479" y="1016" class="small">問題なしの日は何も作らない</text>
+
+  <rect x="805" y="960" width="265" height="72" class="box human"/>
+  <text x="829" y="990" class="nodeTitle">あなたが判断</text>
+  <text x="829" y="1016" class="small">Agreed / Disagree / Later</text>
+
+  <rect x="1155" y="960" width="300" height="72" class="box publish"/>
+  <text x="1179" y="990" class="nodeTitle">決定履歴へ記録</text>
+  <text x="1179" y="1016" class="small">承認済みだけ次回ルールへ反映</text>
+
+  <path d="M370 996 H455" class="arrow"/>
+  <path d="M720 996 H805" class="arrow"/>
+  <path d="M1070 996 H1155" class="greenArrow"/>
+  <path d="M1370 635 V790 Q1370 810 1350 810 H240 Q220 810 220 830 V960" class="arrow"/>
+  <path d="M1305 960 V915 Q1305 895 1285 895 H1035" class="feedback"/>
+
+  <text x="80" y="1092" class="small">原則：AIは監査と提案まで｜設定変更はAgreed後｜コード変更はCodexが実装・検証し、承認なしで自動pushしない</text>
+</svg>

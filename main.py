@@ -1,12 +1,21 @@
 import os
 import sys
 import asyncio
+from datetime import datetime, timezone, timedelta
+from mutagen.mp3 import MP3
 from dotenv import load_dotenv
 from notion_helper import select_terms_for_review, update_term_review_status, is_notion_configured
 from news_collector import collect_latest_news, match_news_with_words
 from script_generator import generate_radio_script
 from audio_generator import synthesize_podcast
 from podcast_generator import archive_today_podcast, generate_podcast_rss
+from episode_history import (
+    build_manifest,
+    exclude_recent_news,
+    load_recent_manifests,
+    max_recent_similarity,
+    write_manifest_atomic,
+)
 
 async def async_main():
     print("==================================================")
@@ -14,22 +23,36 @@ async def async_main():
     print("==================================================")
     
     base_dir = os.path.dirname(os.path.abspath(__file__))
+    manifests_dir = os.path.join(base_dir, "episode_manifests")
+    recent_manifests = load_recent_manifests(manifests_dir, limit=3)
+    recent_topics = [
+        manifest.get("primary_topic", "")
+        for manifest in recent_manifests
+        if manifest.get("primary_topic")
+    ]
     
     # 1. Notion(またはモック)から復習用語を抽出
     print("\n[Step 1] Notionから復習用語を抽出しています...")
-    selected_terms = select_terms_for_review(3)
+    selected_terms = select_terms_for_review(3, recent_manifests=recent_manifests)
     if not selected_terms:
-        print("[Error] 復習対象の用語が見つかりませんでした。")
-        sys.exit(1)
-        
-    print("【本日の復習用語】:")
-    for term in selected_terms:
-        print(f" - {term['name']} (これまでの復習回数: {term['review_count']}回, 前回復習日: {term['last_reviewed'] or 'なし'})")
+        print("過去3回または直近3日と重ならない復習項目がないため、最新ニュース特集へ切り替えます。")
+    else:
+        print("【本日の復習用語】:")
+        for term in selected_terms:
+            print(f" - {term['name']} (これまでの復習回数: {term['review_count']}回, 前回復習日: {term['last_reviewed'] or 'なし'})")
         
     # 2. ホワイトリストソースからニュースを収集
     print("\n[Step 2] 信頼できるソース(ホワイトリスト)から最新ニュースを収集しています...")
     all_news = collect_latest_news(max_entries_per_feed=5)
-    print(f"合計 {len(all_news)} 件の最新ニュースをフェッチしました。")
+    all_news, recent_news_removed = exclude_recent_news(all_news, recent_manifests)
+    print(
+        f"新規ニュース {len(all_news)} 件を採用候補にしました。"
+        f"過去3回で使用済みの {recent_news_removed} 件は除外しました。"
+    )
+    if not all_news and not selected_terms:
+        raise RuntimeError(
+            "No fresh Notion terms or news remain after the past-three-episodes filter"
+        )
     
     # 3. ニュースと用語のマッチング
     print("\n[Step 3] ニュースと復習用語の関連性をチェックしています...")
@@ -44,12 +67,49 @@ async def async_main():
     model_name = os.getenv("GEMINI_MODEL_NAME", "gemini-2.5-flash")
     print(f"使用モデル: {model_name}")
     
-    script = generate_radio_script(selected_terms, matched, unmatched, model_name=model_name)
+    script = generate_radio_script(
+        selected_terms,
+        matched,
+        unmatched,
+        model_name=model_name,
+        avoid_topics=recent_topics,
+    )
     
     if not script:
         print("[Error] 台本の生成に失敗しました。")
         sys.exit(1)
         
+    duplicate_threshold = float(os.getenv("DUPLICATE_SIMILARITY_THRESHOLD", "0.82"))
+    if not 0.0 <= duplicate_threshold <= 1.0:
+        raise ValueError("DUPLICATE_SIMILARITY_THRESHOLD must be between 0 and 1")
+    first_similarity = max_recent_similarity(script, recent_manifests)
+    used_news_only_fallback = False
+
+    if first_similarity >= duplicate_threshold:
+        print(
+            f"[Duplicate Gate] 過去3回との類似度 {first_similarity:.2f}。"
+            "復習項目を外した最新ニュース特集として1回だけ再生成します。"
+        )
+        script = generate_radio_script(
+            [],
+            [],
+            all_news,
+            model_name=model_name,
+            avoid_topics=recent_topics,
+        )
+        if not script:
+            raise RuntimeError("Duplicate fallback script generation failed")
+        selected_terms = []
+        matched = []
+        unmatched = all_news
+        used_news_only_fallback = True
+
+    final_similarity = max_recent_similarity(script, recent_manifests)
+    if final_similarity >= duplicate_threshold:
+        raise RuntimeError(
+            f"Generated script is too similar to a recent episode ({final_similarity:.2f}); publication stopped"
+        )
+
     # 台本の保存
     script_path = os.path.join(base_dir, "todays_script.txt")
     with open(script_path, "w", encoding="utf-8") as f:
@@ -71,6 +131,37 @@ async def async_main():
     if os.getenv("GITHUB_ACTIONS") == "true":
         archived_filename = archive_today_podcast()
         if archived_filename:
+            JST = timezone(timedelta(hours=9))
+            broadcast_date = datetime.now(JST).strftime("%Y-%m-%d")
+            episode_id = os.path.splitext(archived_filename)[0]
+            archived_path = os.path.join(base_dir, "episodes", archived_filename)
+            duration_seconds = int(MP3(archived_path).info.length)
+            primary_topic = (
+                selected_terms[0]["name"]
+                if selected_terms
+                else (all_news[0]["title"] if all_news else "最新AIニュース")
+            )
+            used_news = matched + unmatched[:2]
+            manifest = build_manifest(
+                episode_id=episode_id,
+                broadcast_date=broadcast_date,
+                selected_terms=selected_terms,
+                primary_topic=primary_topic,
+                news_urls=[item.get("link", "") for item in used_news],
+                script=script,
+                audio_path=archived_path,
+                duration_seconds=duration_seconds,
+                deterministic_checks={
+                    "recent_episode_count": len(recent_manifests),
+                    "initial_script_similarity": round(first_similarity, 4),
+                    "final_script_similarity": round(final_similarity, 4),
+                    "duplicate_threshold": duplicate_threshold,
+                    "used_news_only_fallback": used_news_only_fallback,
+                },
+                publish_status="published",
+            )
+            manifest_path = write_manifest_atomic(manifest, manifests_dir)
+            print(f"Episode manifest saved: {manifest_path}")
             generate_podcast_rss()
         else:
             print("[Error] 音声ファイルのアーカイブに失敗しました。")
@@ -80,19 +171,15 @@ async def async_main():
     
     # 7. Notion側の復習履歴をアップデート (すべてのステップが成功した後にのみ更新)
     print("\n[Step 7] Notion DBの復習回数と日付を更新しています...")
-    update_success = True
-    for term in selected_terms:
-        success = update_term_review_status(term["id"], term["review_count"])
-        if not success:
-            update_success = False
-            
-    if update_success:
+    if not selected_terms:
+        print("ニュース特集として生成したため、Notionの復習履歴は更新しません。")
+    else:
+        for term in selected_terms:
+            update_term_review_status(term["id"], term["review_count"])
         if is_notion_configured():
             print("Notion DBの更新がすべて正常に完了しました！")
         else:
             print("ローカルモックDB(notion_mock_db.json)の更新が完了しました。")
-    else:
-        print("[Warning] 一部の用語のステータス更新に失敗しました。")
         
     print("\n==================================================")
     print(" 全自動AIニュース学習音声化処理が正常に完了しました！")
@@ -100,8 +187,12 @@ async def async_main():
 
 def main():
     load_dotenv()
-    # 非同期メイン関数を実行
-    asyncio.run(async_main())
+    try:
+        # 非同期メイン関数を実行
+        asyncio.run(async_main())
+    except Exception as exc:
+        print(f"[Fatal] Pipeline stopped safely: {type(exc).__name__}: {exc}")
+        raise SystemExit(1) from exc
 
 if __name__ == "__main__":
     main()

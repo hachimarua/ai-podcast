@@ -56,10 +56,19 @@ def archive_today_podcast():
     os.makedirs(episodes_path, exist_ok=True)
     
     # 日本時間 (JST) で日付付きのファイル名を作成 (例: episodes/podcast_20260619_073000.mp3)
+    # 同日分が既に存在する場合はそのファイルを置き換え、再実行でエピソードを増やさない。
     JST = timezone(timedelta(hours=9))
-    timestamp = datetime.now(JST).strftime("%Y%m%d_%H%M%S")
-    dest_filename = f"podcast_{timestamp}.mp3"
-    dest_path = os.path.join(episodes_path, dest_filename)
+    now = datetime.now(JST)
+    date_prefix = now.strftime("%Y%m%d")
+    existing_today = sorted(glob.glob(os.path.join(episodes_path, f"podcast_{date_prefix}_*.mp3")))
+    if existing_today:
+        dest_path = existing_today[-1]
+        dest_filename = os.path.basename(dest_path)
+        print(f"Replacing existing episode for {date_prefix}: {dest_filename}")
+    else:
+        timestamp = now.strftime("%Y%m%d_%H%M%S")
+        dest_filename = f"podcast_{timestamp}.mp3"
+        dest_path = os.path.join(episodes_path, dest_filename)
     
     shutil.copy2(source_path, dest_path)
     print(f"Archived today's podcast to: {dest_path}")

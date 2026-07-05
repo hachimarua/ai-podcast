@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1040" viewBox="0 0 1600 1040" role="img" aria-labelledby="title desc">
+  <title id="title">AI学習ラジオ 現行システム構造</title>
+  <desc id="desc">NotionとRSSを入力に、Gemini、Edge TTS、FFmpeg、GitHub Pagesを通じて毎日配信する現行パイプライン。履歴不足と品質ゲート不足を示す。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07111f"/>
+      <stop offset="1" stop-color="#13233d"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#65d6ff"/>
+      <stop offset="1" stop-color="#8b7cff"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000" flood-opacity="0.28"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0 0 L12 6 L0 12 Z" fill="#7e94b8"/>
+    </marker>
+    <style>
+      .title{font:700 42px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#f7fbff}
+      .subtitle{font:400 20px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#aebed5}
+      .section{font:700 18px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#7edcff;letter-spacing:2px}
+      .nodeTitle{font:700 21px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#f8fbff}
+      .nodeText{font:400 16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#b9c7da}
+      .small{font:400 14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#9dafc7}
+      .warnTitle{font:700 19px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#ffd2cb}
+      .warnText{font:400 15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#ffc0b7}
+      .box{fill:#14243b;stroke:#324a69;stroke-width:2;rx:18;filter:url(#shadow)}
+      .input{fill:#102d36;stroke:#2c7180}
+      .ai{fill:#241d48;stroke:#6958c7}
+      .output{fill:#173428;stroke:#3b8262}
+      .warning{fill:#3d2025;stroke:#b85863;stroke-width:2;rx:18}
+      .arrow{fill:none;stroke:#7e94b8;stroke-width:4;marker-end:url(#arrow)}
+      .dash{fill:none;stroke:#dc7b87;stroke-width:3;stroke-dasharray:10 9}
+    </style>
+  </defs>
+
+  <rect width="1600" height="1040" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1600" height="8" fill="url(#accent)"/>
+  <text x="80" y="82" class="title">AI学習ラジオ｜現行システム構造</text>
+  <text x="80" y="118" class="subtitle">高速な全自動配信が強み。一方、過去放送の記憶と公開前品質ゲートが不足している。</text>
+
+  <text x="80" y="182" class="section">INPUT</text>
+  <rect x="80" y="210" width="310" height="142" class="box input"/>
+  <text x="108" y="250" class="nodeTitle">Notion学習DB</text>
+  <text x="108" y="281" class="nodeText">・InboxをGeminiで要約</text>
+  <text x="108" y="308" class="nodeText">・復習回数を保持</text>
+  <text x="108" y="335" class="small">候補数が少ないと同じ項目が再選出</text>
+
+  <rect x="80" y="397" width="310" height="142" class="box input"/>
+  <text x="108" y="437" class="nodeTitle">ホワイトリストRSS</text>
+  <text x="108" y="468" class="nodeText">Google / TechCrunch</text>
+  <text x="108" y="495" class="nodeText">Hugging Face / arXiv</text>
+  <text x="108" y="522" class="small">最大5件ずつ取得・単純語句マッチ</text>
+
+  <text x="486" y="182" class="section">DAILY PIPELINE</text>
+  <rect x="470" y="210" width="300" height="142" class="box"/>
+  <text x="498" y="250" class="nodeTitle">1. 復習項目を3件選出</text>
+  <text x="498" y="281" class="nodeText">復習回数の少ない候補から</text>
+  <text x="498" y="308" class="nodeText">ランダムサンプリング</text>
+  <text x="498" y="335" class="small">過去3回は参照しない</text>
+
+  <rect x="470" y="397" width="300" height="142" class="box"/>
+  <text x="498" y="437" class="nodeTitle">2. ニュース照合</text>
+  <text x="498" y="468" class="nodeText">選出語と記事本文を照合</text>
+  <text x="498" y="495" class="nodeText">関連・一般ニュースへ分類</text>
+  <text x="498" y="522" class="small">重複URL履歴なし</text>
+
+  <rect x="850" y="210" width="300" height="142" class="box ai"/>
+  <text x="878" y="250" class="nodeTitle">3. Gemini台本生成</text>
+  <text x="878" y="281" class="nodeText">Notionメモ＋RSS本文</text>
+  <text x="878" y="308" class="nodeText">ケンジ／アミの対話形式</text>
+  <text x="878" y="335" class="small">生成後の重複検査なし</text>
+
+  <rect x="850" y="397" width="300" height="142" class="box"/>
+  <text x="878" y="437" class="nodeTitle">4. Edge TTS＋BGM</text>
+  <text x="878" y="468" class="nodeText">話者ごとにMP3を生成</text>
+  <text x="878" y="495" class="nodeText">FFmpegでBGMを合成</text>
+  <text x="878" y="522" class="small">完成音声の内容監査なし</text>
+
+  <text x="1244" y="182" class="section">PUBLISH</text>
+  <rect x="1230" y="210" width="290" height="142" class="box output"/>
+  <text x="1258" y="250" class="nodeTitle">5. MP3・RSS公開</text>
+  <text x="1258" y="281" class="nodeText">episodes/ に保存</text>
+  <text x="1258" y="308" class="nodeText">GitHub Pagesへpush</text>
+  <text x="1258" y="335" class="small">同日再実行で複数作成可能</text>
+
+  <rect x="1230" y="397" width="290" height="142" class="box output"/>
+  <text x="1258" y="437" class="nodeTitle">6. Notion履歴更新</text>
+  <text x="1258" y="468" class="nodeText">復習回数＋1</text>
+  <text x="1258" y="495" class="nodeText">最終復習日を更新</text>
+  <text x="1258" y="522" class="small">push失敗時に状態がずれる可能性</text>
+
+  <path d="M390 281 H470" class="arrow"/>
+  <path d="M390 468 H470" class="arrow"/>
+  <path d="M770 281 H850" class="arrow"/>
+  <path d="M770 468 H810 Q830 468 830 448 V301 Q830 281 850 281" class="arrow"/>
+  <path d="M1000 352 V397" class="arrow"/>
+  <path d="M1150 468 H1190 Q1210 468 1210 448 V301 Q1210 281 1230 281" class="arrow"/>
+  <path d="M1375 352 V397" class="arrow"/>
+
+  <text x="80" y="625" class="section">CURRENT GAPS</text>
+  <rect x="80" y="655" width="440" height="260" class="warning"/>
+  <text x="112" y="700" class="warnTitle">履歴が足りない</text>
+  <text x="112" y="736" class="warnText">× 採用Notion IDを保存しない</text>
+  <text x="112" y="768" class="warnText">× 主要テーマを保存しない</text>
+  <text x="112" y="800" class="warnText">× 台本・ニュースURLを追跡しない</text>
+  <text x="112" y="832" class="warnText">× 過去3回との比較ができない</text>
+  <text x="112" y="874" class="small">結果：候補不足時に同じ話題が連日選ばれる</text>
+
+  <rect x="580" y="655" width="440" height="260" class="warning"/>
+  <text x="612" y="700" class="warnTitle">品質ゲートが足りない</text>
+  <text x="612" y="736" class="warnText">× 完成MP3を再生・解析しない</text>
+  <text x="612" y="768" class="warnText">× 無音・音切れ・話者誤りを検出しない</text>
+  <text x="612" y="800" class="warnText">× 台本の意味的重複を検出しない</text>
+  <text x="612" y="832" class="warnText">× 改善提案の承認経路がない</text>
+  <text x="612" y="874" class="small">結果：生成成功＝そのまま公開になる</text>
+
+  <rect x="1080" y="655" width="440" height="260" class="warning"/>
+  <text x="1112" y="700" class="warnTitle">安全・運用上のリスク</text>
+  <text x="1112" y="736" class="warnText">× Notion障害時にモックへフォールバック</text>
+  <text x="1112" y="768" class="warnText">× ローカルサーバーが.envも配信可能</text>
+  <text x="1112" y="800" class="warnText">× API timeout・限定retry不足</text>
+  <text x="1112" y="832" class="warnText">× Actions多重実行の防止なし</text>
+  <text x="1112" y="874" class="small">結果：誤配信・秘密漏えい・状態不整合の余地</text>
+
+  <path d="M620 539 V610 H300 V655" class="dash"/>
+  <path d="M1000 539 V610 H800 V655" class="dash"/>
+  <path d="M1375 539 V610 H1300 V655" class="dash"/>
+
+  <text x="80" y="986" class="small">確認時点: 2026-07-05｜配信基盤: GitHub Actions / GitHub Pages｜通知・承認機能: 未実装</text>
+</svg>
