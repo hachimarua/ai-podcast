@@ -17,6 +17,7 @@ SCHEMA_VERSION = 1
 PIPELINE_VERSION = "phase1"
 MINHASH_SIZE = 64
 NGRAM_SIZE = 3
+TOPIC_SIMILARITY_THRESHOLD = 0.30
 
 
 def stable_term_key(page_id: str) -> str:
@@ -70,6 +71,36 @@ def signature_similarity(left: list[int], right: list[int]) -> float:
         return 0.0
     equal = sum(a == b for a, b in zip(left, right))
     return equal / len(left)
+
+
+def topic_similarity(left: str, right: str) -> float:
+    """Compare short topic labels with character bigram Jaccard similarity."""
+    normalized_left = normalize_script(left)
+    normalized_right = normalize_script(right)
+    if not normalized_left or not normalized_right:
+        return 0.0
+    if normalized_left == normalized_right:
+        return 1.0
+
+    def bigrams(value: str) -> set[str]:
+        if len(value) < 2:
+            return {value}
+        return {value[index:index + 2] for index in range(len(value) - 1)}
+
+    left_bigrams = bigrams(normalized_left)
+    right_bigrams = bigrams(normalized_right)
+    union = left_bigrams | right_bigrams
+    return len(left_bigrams & right_bigrams) / len(union) if union else 0.0
+
+
+def max_topic_similarity(topic: str, manifests: list[dict[str, Any]]) -> float:
+    return max(
+        (
+            topic_similarity(topic, manifest.get("primary_topic", ""))
+            for manifest in manifests
+        ),
+        default=0.0,
+    )
 
 
 def max_recent_similarity(script: str, manifests: list[dict[str, Any]]) -> float:

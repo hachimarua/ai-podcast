@@ -4,7 +4,12 @@ from datetime import datetime, timezone, timedelta
 import requests
 from dotenv import load_dotenv
 from api_client import ExternalServiceError, request_json
-from episode_history import recently_reviewed, stable_term_key
+from episode_history import (
+    TOPIC_SIMILARITY_THRESHOLD,
+    max_topic_similarity,
+    recently_reviewed,
+    stable_term_key,
+)
 
 # 環境変数の読み込み
 load_dotenv()
@@ -161,6 +166,8 @@ def select_terms_for_review(count=3, recent_manifests=None, today=None):
         for term in terms
         if stable_term_key(str(term["id"])) not in recent_keys
         and not recently_reviewed(term.get("last_reviewed"), today=today, days=3)
+        and max_topic_similarity(term.get("name", ""), recent_manifests)
+        < TOPIC_SIMILARITY_THRESHOLD
     ]
 
     # Never-reviewed and lower-review-count records come first. Stable text keys

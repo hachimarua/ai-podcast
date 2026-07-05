@@ -184,6 +184,12 @@ class EpisodeHistoryTests(unittest.TestCase):
         right = episode_history.script_minhash("画像生成の構図と光の当て方について")
         self.assertLess(episode_history.signature_similarity(left, right), 0.5)
 
+    def test_cloudflare_d1_topics_are_detected_as_overlapping(self):
+        left = "Cloudflare D1とその活用、セキュリティ"
+        right = "Cloudflare D1とAIを活用した情報管理の効率化"
+        similarity = episode_history.topic_similarity(left, right)
+        self.assertGreaterEqual(similarity, episode_history.TOPIC_SIMILARITY_THRESHOLD)
+
     def test_manifest_hides_raw_notion_page_id(self):
         with tempfile.TemporaryDirectory() as tmp:
             audio = Path(tmp) / "episode.mp3"
@@ -254,6 +260,31 @@ class TermSelectionTests(unittest.TestCase):
                 3, recent_manifests=manifests, today=date(2026, 7, 5)
             )
         self.assertEqual([term["id"] for term in selected], ["fresh"])
+
+    def test_semantically_overlapping_topic_label_is_excluded(self):
+        terms = [
+            {
+                "id": "cloudflare-term",
+                "name": "Cloudflare D1を使った情報管理",
+                "review_count": 0,
+                "last_reviewed": None,
+            },
+            {
+                "id": "image-term",
+                "name": "画像生成の構図設計",
+                "review_count": 0,
+                "last_reviewed": None,
+            },
+        ]
+        manifests = [{"primary_topic": "Cloudflare D1とその活用、セキュリティ"}]
+        with (
+            patch.object(notion_helper, "fetch_notion_terms", return_value=terms),
+            patch.object(notion_helper, "is_notion_configured", return_value=False),
+        ):
+            selected = notion_helper.select_terms_for_review(
+                3, recent_manifests=manifests, today=date(2026, 7, 5)
+            )
+        self.assertEqual([term["id"] for term in selected], ["image-term"])
 
     def test_no_fresh_terms_returns_empty_for_news_fallback(self):
         terms = [
