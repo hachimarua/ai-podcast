@@ -126,6 +126,7 @@ Notion本文、完全な台本、APIレスポンス全文は公開manifestへ保
 - `decision_reason`
 - `created_at`
 - `decided_at`
+- `application`（適用済みの場合のみ。Level、適用日時、変更ファイル、検証結果）
 
 ## 重複防止ポリシー v1
 
@@ -277,7 +278,7 @@ Notion本文、完全な台本、APIレスポンス全文は公開manifestへ保
 
 ## 現在フェーズ
 
-**Phase 4実装完了 — 初回ユーザー判断待ち**
+**Phase 5実装完了 — 次回定期放送で効果確認待ち**
 
 ### Phase 0検証結果（2026-07-05）
 
@@ -356,13 +357,24 @@ Notion本文、完全な台本、APIレスポンス全文は公開manifestへ保
 - 同じ実状態で再確認し、通知作成0件となることを確認した。
 - 自動テスト35件、JSON検証、差分チェックに成功した。
 
+### Phase 5検証結果（2026-07-05）
+
+- GitHub上の`qa-podcast_20260705_051241`が`agreed`、判断日時と理由が記録済みであることを確認した。
+- この提案は`safe_auto_apply=false`のため、Level Aの自動設定変更ではなくLevel Bの台本生成プロンプト改善として処理した。
+- 台本生成指示へ、アンダースコア等を含む技術識別子の自然な言い換え、日付と識別番号の読み分け、途中で切れた英単語を残さない規則、出力後の音読点検を追加した。
+- Agreed済みproposalだけを`applied`へ遷移させる`improvement_application.py`を追加した。
+- Level Aは`safe_auto_apply=true`の場合だけ許可し、Level B/Cは変更ファイルと検証結果がなければ適用記録を作れないようにした。
+- `qa-podcast_20260705_051241`へLevel B、適用日時、変更ファイル、検証結果を記録し、`applied`へ更新した。
+- Disagreeは既存の決定状態として残り、Sidecarは`pending`だけを通知するため、同一proposalを再通知・適用しない。
+- 適用ツールはローカルJSONの検証と記録だけを行い、コード生成、commit、pushは実行しない。
+- 自動テスト39件、`pip check`、Python AST解析、Workflow YAML解析、JSON検証、差分チェックに成功した。
+
 ### 次の一手
 
-1. Antigravity 2.0に作成された品質確認会話で、ユーザーがAgreed / Disagree / Laterを選ぶ。
-2. 決定がGitHub上のproposalへ正しく記録されることを確認する。
-3. Phase 4をコミット・pushする。
-4. Phase 5でAgreed済みproposalを安全レベル別に処理する仕組みを実装する。
-5. 次回定期放送でManifest内のGemini QA結果も確認する。
+1. Phase 5をcommit・pushし、次回の定期放送へ台本生成ルールを反映する。
+2. 次回放送のManifestとGemini QAで、技術識別子・数字列・途中で切れた語のwarningが再発しないか確認する。
+3. 再発時は音声前処理を含むLevel C案を新しいproposalとして人間確認へ戻す。
+4. Phase 6のObsidian Inbox連携は別トラックとして、Notionとの正本関係と二重取り込み防止を決めてから開始する。
 
 ## 変更履歴
 
@@ -373,3 +385,4 @@ Notion本文、完全な台本、APIレスポンス全文は公開manifestへ保
 - 2026-07-05: Phase 2完了。FFmpeg concat、デコード・長さ・音量・無音ゲート、音響fixtureを追加。27テスト成功。
 - 2026-07-05: Phase 3完了。Gemini MP3シャドー監査、QA-only Actions、pending提案を実装。実音声で4件の発音warningを検出、31テスト成功。
 - 2026-07-05: Phase 4実装完了。Antigravity 2.0 Sidecar、重複通知防止、Agreed/Disagree/Later記録を追加。初回確認会話を作成、35テスト成功。
+- 2026-07-05: Phase 5完了。初回Agreed提案をLevel Bとして台本生成ルールへ反映し、適用履歴と安全レベル検証を追加。39テスト成功。

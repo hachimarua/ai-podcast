@@ -16,6 +16,7 @@ import audio_quality
 import bootstrap_episode_history
 import episode_history
 import gemini_audio_qa
+import improvement_application
 import local_server
 import main as pipeline_main
 import notion_helper
@@ -573,6 +574,48 @@ class ReviewDecisionTests(unittest.TestCase):
             review_decision.update_proposal_decision(
                 {"status": "agreed"}, "disagreed", "change mind"
             )
+
+
+class ImprovementApplicationTests(unittest.TestCase):
+    def test_only_agreed_proposal_can_be_applied(self):
+        with self.assertRaises(ValueError):
+            improvement_application.mark_proposal_applied(
+                {"status": "pending", "safe_auto_apply": False},
+                level="B",
+                changed_files=["script_generator.py"],
+                verification=["unit tests passed"],
+            )
+
+    def test_level_a_requires_safe_auto_apply(self):
+        with self.assertRaises(ValueError):
+            improvement_application.mark_proposal_applied(
+                {"status": "agreed", "safe_auto_apply": False},
+                level="A",
+                changed_files=["settings.json"],
+                verification=["validated"],
+            )
+
+    def test_level_b_application_is_traceable(self):
+        updated = improvement_application.mark_proposal_applied(
+            {
+                "proposal_id": "qa-podcast_20260705_051241",
+                "status": "agreed",
+                "safe_auto_apply": False,
+            },
+            level="B",
+            changed_files=["script_generator.py", "script_generator.py"],
+            verification=["39 unit tests passed"],
+            applied_at="2026-07-05T10:00:00+00:00",
+        )
+        self.assertEqual(updated["status"], "applied")
+        self.assertEqual(updated["application"]["level"], "B")
+        self.assertEqual(updated["application"]["changed_files"], ["script_generator.py"])
+        self.assertEqual(updated["application"]["verification"], ["39 unit tests passed"])
+
+    def test_prompt_contains_agreed_spoken_text_rules(self):
+        self.assertIn("技術識別子は、そのまま台詞へ転記しない", script_generator.SYSTEM_INSTRUCTION)
+        self.assertIn("日付か識別番号か判断できない場合", script_generator.SYSTEM_INSTRUCTION)
+        self.assertIn("英単語が途中で切れた形", script_generator.SYSTEM_INSTRUCTION)
 
 
 if __name__ == "__main__":
