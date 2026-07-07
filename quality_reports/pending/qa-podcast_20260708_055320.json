@@ -2,8 +2,8 @@
   "broadcast_date": "2026-07-08",
   "category": "audio_quality",
   "created_at": "2026-07-07T20:53:21.081389+00:00",
-  "decided_at": null,
-  "decision_reason": null,
+  "decided_at": "2026-07-07T23:14:33.246861+00:00",
+  "decision_reason": "Agreed by user",
   "episode_id": "podcast_20260708_055320",
   "evidence": [
     {
@@ -36,7 +36,7 @@
   "safe_auto_apply": false,
   "schema_version": 1,
   "severity": "warning",
-  "status": "pending",
+  "status": "agreed",
   "suggested_changes": [
     "「冪等性」に統一し、スクリプトと音声生成を調整する。",
     "「この単語の共起パターンを大量に学習しているんです」または「この共起パターンを大量に学習しているんです」に修正する。",
