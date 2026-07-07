@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>2026年07月08日 05:53 のAI学習ラジオ</title>
+      <description>本日の復習用語を交えた最新AIニュースの要約解説です。</description>
+      <pubDate>Wed, 08 Jul 2026 05:53:20 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260708_055320.mp3" length="2174901" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260708_055320.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>05:05</itunes:duration>
+    </item>
+    <item>
       <title>2026年07月07日 05:55 のAI学習ラジオ</title>
       <description>本日の復習用語を交えた最新AIニュースの要約解説です。</description>
       <pubDate>Tue, 07 Jul 2026 05:55:19 +0900</pubDate>
