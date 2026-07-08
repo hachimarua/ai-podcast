@@ -637,6 +637,17 @@ class ImprovementApplicationTests(unittest.TestCase):
         self.assertIn("技術識別子は、そのまま台詞へ転記しない", script_generator.SYSTEM_INSTRUCTION)
         self.assertIn("日付か識別番号か判断できない場合", script_generator.SYSTEM_INSTRUCTION)
         self.assertIn("英単語が途中で切れた形", script_generator.SYSTEM_INSTRUCTION)
+        self.assertIn("同音・類音語への置き換えをしない", script_generator.SYSTEM_INSTRUCTION)
+        self.assertIn("短い発話を独立した台詞として繰り返さない", script_generator.SYSTEM_INSTRUCTION)
+
+    def test_tts_normalizes_agreed_technical_terms(self):
+        normalized = audio_generator.apply_pronunciation_dict(
+            "Stateless APIのidempotency、つまり冪等性を確認します"
+        )
+        self.assertEqual(
+            normalized,
+            "ステートレス エーピーアイのべき等性、つまりべき等性を確認します",
+        )
 
 
 class ObsidianInboxAdapterTests(unittest.TestCase):

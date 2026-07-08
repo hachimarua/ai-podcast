@@ -1,4 +1,17 @@
 {
+  "application": {
+    "applied_at": "2026-07-08T01:05:10.005513+00:00",
+    "changed_files": [
+      "script_generator.py"
+    ],
+    "level": "B",
+    "verification": [
+      "45 unit tests passed",
+      "pip check passed",
+      "Python compile and JSON validation passed",
+      "git diff --check passed"
+    ]
+  },
   "broadcast_date": "2026-07-07",
   "category": "audio_quality",
   "created_at": "2026-07-06T20:55:19.900578+00:00",
@@ -24,7 +37,7 @@
   "safe_auto_apply": false,
   "schema_version": 1,
   "severity": "critical",
-  "status": "agreed",
+  "status": "applied",
   "suggested_changes": [
     "「深く掘り下げていきます」など、文脈に合った適切な単語に修正してください。",
     "語尾のイントネーションに抑揚をつけ、より自然な会話になるように調整してください。"

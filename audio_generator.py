@@ -195,6 +195,9 @@ def apply_pronunciation_dict(text):
         
     # 置換用辞書 (大文字小文字を区別せずマッチさせるため、正規表現を作成)
     replacements = {
+        r'(?i)(?<![A-Za-z])stateless(?![A-Za-z])': 'ステートレス',
+        r'(?i)(?<![A-Za-z])idempotency(?![A-Za-z])': 'べき等性',
+        r'冪等性': 'べき等性',
         r'(?i)Claude': 'クロード',
         r'(?i)MCP': 'エムシーピー',
         r'(?i)LLMs': 'エルエルエムズ',
