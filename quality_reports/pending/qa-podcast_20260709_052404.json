@@ -1,0 +1,33 @@
+{
+  "broadcast_date": "2026-07-09",
+  "category": "audio_quality",
+  "created_at": "2026-07-08T20:24:04.829952+00:00",
+  "decided_at": null,
+  "decision_reason": null,
+  "episode_id": "podcast_20260709_052404",
+  "evidence": [
+    {
+      "category": "pacing",
+      "evidence": "ケンジさんの「もちろん、です」の「もちろん」と「です」の間に不自然な間がありました。",
+      "severity": "info",
+      "timestamp": "02:25"
+    },
+    {
+      "category": "pronunciation",
+      "evidence": "ケンジさんが「メモは、00の00の部分に」と、スクリプトのプレースホルダーと思われる「00の00」をそのまま読み上げていました。これは文脈上不自然です。",
+      "severity": "warning",
+      "timestamp": "03:21"
+    }
+  ],
+  "overall_score": 4,
+  "proposal_id": "qa-podcast_20260709_052404",
+  "safe_auto_apply": false,
+  "schema_version": 1,
+  "severity": "warning",
+  "status": "pending",
+  "suggested_changes": [
+    "「もちろん、です」のような短い応答では、間を詰め、より自然な話し方になるように調整してください。",
+    "スクリプト内のプレースホルダー（例: {{MEMO_CONTENT}} や [MEMO_CONTENT]）は読み上げずに、その部分に挿入される内容を説明するような表現（例: 「メモの内容をここに挿入します」）に修正するか、読み上げないように処理を加えてください。"
+  ],
+  "summary": "Cloudflare D1とAIアプリの連携について、そのメリットや具体的な活用方法を解説したラジオ番組です。全体的に音声は明瞭で、BGMのバランスや会話のテンポも良好でした。しかし、一部で不自然な間や、スクリプトのプレースホルダーをそのまま読み上げてしまう箇所が見られました。"
+}
