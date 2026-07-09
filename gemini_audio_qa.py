@@ -15,6 +15,8 @@ from google import genai
 from google.genai import types
 from pydantic import BaseModel, Field
 
+from gemini_models import normalize_gemini_model
+
 
 class AudioIssue(BaseModel):
     category: Literal[
@@ -89,7 +91,7 @@ def run_shadow_audio_qa(
 ) -> dict:
     """Return a bounded QA result. Errors are recorded but never block publishing."""
     load_dotenv()
-    selected_model = model or os.getenv("GEMINI_AUDIO_QA_MODEL", "gemini-3.1-pro")
+    selected_model = normalize_gemini_model(model or os.getenv("GEMINI_AUDIO_QA_MODEL"))
     if os.getenv("ENABLE_GEMINI_AUDIO_QA", "true").lower() != "true":
         return {"status": "disabled", "model": selected_model, "issues": []}
 

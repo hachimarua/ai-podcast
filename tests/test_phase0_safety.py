@@ -503,7 +503,18 @@ class GeminiAudioQATests(unittest.TestCase):
         with patch.dict(os.environ, {"GEMINI_API_KEY": ""}, clear=False):
             result = gemini_audio_qa.run_shadow_audio_qa("unused.mp3")
         self.assertEqual(result["status"], "unavailable")
+        self.assertEqual(result["model"], "gemini-3.1-pro-preview")
         self.assertEqual(result["issues"], [])
+
+    def test_legacy_31_pro_alias_normalizes_to_preview_model(self):
+        with patch.dict(
+            os.environ,
+            {"GEMINI_API_KEY": "", "GEMINI_AUDIO_QA_MODEL": "gemini-3.1-pro"},
+            clear=False,
+        ):
+            result = gemini_audio_qa.run_shadow_audio_qa("unused.mp3")
+        self.assertEqual(result["status"], "unavailable")
+        self.assertEqual(result["model"], "gemini-3.1-pro-preview")
 
 
 class AntigravityNotifierTests(unittest.TestCase):

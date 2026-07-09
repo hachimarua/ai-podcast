@@ -15,6 +15,7 @@ from mutagen.mp3 import MP3
 from pydantic import BaseModel, Field
 
 from episode_history import build_manifest, write_manifest_atomic
+from gemini_models import DEFAULT_GEMINI_MODEL, normalize_gemini_model
 
 
 class LegacyEpisodeAnalysis(BaseModel):
@@ -64,6 +65,7 @@ def analyze_episode(client, model: str, audio_path: Path) -> LegacyEpisodeAnalys
 
 def bootstrap(limit: int, model: str) -> list[Path]:
     load_dotenv()
+    model = normalize_gemini_model(model)
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key or "YOUR_GEMINI" in api_key:
         raise RuntimeError("GEMINI_API_KEY is required for legacy audio bootstrap")
@@ -110,7 +112,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--limit", type=int, default=3)
     parser.add_argument(
-        "--model", default=os.getenv("GEMINI_AUDIO_QA_MODEL", "gemini-2.5-flash")
+        "--model", default=os.getenv("GEMINI_AUDIO_QA_MODEL", DEFAULT_GEMINI_MODEL)
     )
     args = parser.parse_args()
     created = bootstrap(args.limit, args.model)

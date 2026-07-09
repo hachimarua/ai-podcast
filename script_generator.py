@@ -3,6 +3,8 @@ from google import genai
 from google.genai import types
 from dotenv import load_dotenv
 
+from gemini_models import DEFAULT_GEMINI_MODEL, normalize_gemini_model
+
 # 環境変数の読み込み
 load_dotenv()
 
@@ -133,10 +135,11 @@ def generate_radio_script(
     selected_terms,
     matched_news,
     general_news,
-    model_name="gemini-2.5-flash",
+    model_name=DEFAULT_GEMINI_MODEL,
     avoid_topics=None,
 ):
     """Gemini APIを使用してラジオ台本を生成"""
+    model_name = normalize_gemini_model(model_name)
     client = get_gemini_client()
     
     if not client:

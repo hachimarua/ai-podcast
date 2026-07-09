@@ -18,6 +18,7 @@ from episode_history import (
 )
 from audio_quality import require_audio_quality
 from gemini_audio_qa import run_shadow_audio_qa, write_improvement_proposal
+from gemini_models import normalize_gemini_model
 
 async def async_main():
     print("==================================================")
@@ -66,7 +67,7 @@ async def async_main():
         
     # 4. Gemini APIを用いて日本語対話ラジオ台本を生成
     print("\n[Step 4] Gemini APIを呼び出し、対話型ラジオ台本を生成しています...")
-    model_name = os.getenv("GEMINI_MODEL_NAME", "gemini-3.1-pro")
+    model_name = normalize_gemini_model(os.getenv("GEMINI_MODEL_NAME"))
     print(f"使用モデル: {model_name}")
     
     script = generate_radio_script(
