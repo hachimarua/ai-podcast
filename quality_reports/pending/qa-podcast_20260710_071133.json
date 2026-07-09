@@ -2,8 +2,8 @@
   "broadcast_date": "2026-07-10",
   "category": "audio_quality",
   "created_at": "2026-07-09T22:11:33.108380+00:00",
-  "decided_at": null,
-  "decision_reason": null,
+  "decided_at": "2026-07-09T22:21:50.767333+00:00",
+  "decision_reason": "User requested manual audit implementation",
   "episode_id": "podcast_20260710_071133",
   "evidence": [
     {
@@ -24,7 +24,7 @@
   "safe_auto_apply": false,
   "schema_version": 1,
   "severity": "warning",
-  "status": "pending",
+  "status": "agreed",
   "suggested_changes": [
     "読点を削除し、「1億ドルもの資金調達」と修正してスムーズな読み上げになるようにする。",
     "「指示書の該当部分を修正して」や「特定の箇所を修正して」など、より自然な日本語表現に変更する。"
