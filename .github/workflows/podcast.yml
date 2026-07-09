@@ -54,7 +54,7 @@ jobs:
     - name: Bootstrap recent episode history once
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        GEMINI_AUDIO_QA_MODEL: "gemini-2.5-flash"
+        GEMINI_AUDIO_QA_MODEL: "gemini-3.1-pro"
       run: |
         manifest_count=$(find episode_manifests -maxdepth 1 -name '*.json' | wc -l | tr -d ' ')
         if [ "$manifest_count" -eq 0 ]; then
@@ -84,7 +84,7 @@ jobs:
       if: ${{ github.event_name == 'workflow_dispatch' && inputs.qa_existing_only == true }}
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        GEMINI_AUDIO_QA_MODEL: "gemini-2.5-flash"
+        GEMINI_AUDIO_QA_MODEL: "gemini-3.1-pro"
       run: |
         latest_audio=$(find episodes -maxdepth 1 -name 'podcast_*.mp3' | sort | tail -1)
         episode_id=$(basename "$latest_audio" .mp3)
