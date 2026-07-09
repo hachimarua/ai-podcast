@@ -66,7 +66,7 @@ async def async_main():
         
     # 4. Gemini APIを用いて日本語対話ラジオ台本を生成
     print("\n[Step 4] Gemini APIを呼び出し、対話型ラジオ台本を生成しています...")
-    model_name = os.getenv("GEMINI_MODEL_NAME", "gemini-2.5-flash")
+    model_name = os.getenv("GEMINI_MODEL_NAME", "gemini-3.1-pro")
     print(f"使用モデル: {model_name}")
     
     script = generate_radio_script(

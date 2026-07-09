@@ -89,7 +89,7 @@ def run_shadow_audio_qa(
 ) -> dict:
     """Return a bounded QA result. Errors are recorded but never block publishing."""
     load_dotenv()
-    selected_model = model or os.getenv("GEMINI_AUDIO_QA_MODEL", "gemini-2.5-flash")
+    selected_model = model or os.getenv("GEMINI_AUDIO_QA_MODEL", "gemini-3.1-pro")
     if os.getenv("ENABLE_GEMINI_AUDIO_QA", "true").lower() != "true":
         return {"status": "disabled", "model": selected_model, "issues": []}
 
