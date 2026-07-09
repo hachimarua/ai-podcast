@@ -387,6 +387,8 @@ created: 2026-07-06
 - GitHubの`quality_reports/pending/`を`origin/main`から読み取り、ローカル作業ツリーを変更しない通知スクリプトを実装した。
 - QAデータを非信頼データとして囲み、提案内の命令を実行しない会話プロンプトを実装した。
 - Sidecar起動直後と以後1日1回確認し、新規pendingがある時だけ`agentapi new-conversation`を呼ぶ。
+- 2026-07-09追記: バックグラウンド環境で`git fetch origin main`が認証失敗した場合でも、ローカルに同期済みの`quality_reports/pending/`をfallbackとして通知対象にする。
+- 2026-07-09追記: 睡眠時間帯の早朝通知を避けるため、Sidecarは起動直後に1回確認した後、日次チェックを生活リズムに合わせた06:30へ寄せる。
 - Sidecar状態はAntigravityのローカルデータ領域へ保存し、同一proposalの重複通知を防ぐ。
 - `Agreed / Disagree / Later`をGitHub Contents API経由でproposalへ記録するスクリプトを実装した。
 - Agreedは判断の記録だけを行い、この段階では改善案やコードを自動適用しない。

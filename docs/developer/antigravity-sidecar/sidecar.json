@@ -6,8 +6,8 @@
     "/Users/sakiya/Documents/Antigravity IDE/AI news knowledge learning system/antigravity_sidecar_runner.py",
     "--workspace",
     "/Users/sakiya/Documents/Antigravity IDE/AI news knowledge learning system",
-    "--interval-seconds",
-    "86400"
+    "--daily-check-time",
+    "06:30"
   ],
   "restart_policy": "always"
 }

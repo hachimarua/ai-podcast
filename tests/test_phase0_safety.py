@@ -561,6 +561,26 @@ class AntigravityNotifierTests(unittest.TestCase):
         self.assertEqual(agentapi.call_count, 1)
         self.assertIn(proposal["proposal_id"], state["notified"])
 
+    def test_local_pending_fallback_when_origin_fetch_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp) / "workspace"
+            pending_dir = workspace / "quality_reports" / "pending"
+            pending_dir.mkdir(parents=True)
+            proposal = self.sample_proposal()
+            (pending_dir / f"{proposal['proposal_id']}.json").write_text(
+                json.dumps(proposal, ensure_ascii=False),
+                encoding="utf-8",
+            )
+
+            with patch.object(
+                antigravity_review_notifier,
+                "fetch_origin_pending_proposals",
+                side_effect=antigravity_review_notifier.NotifierError("fetch failed"),
+            ):
+                pending = antigravity_review_notifier.fetch_pending_proposals(workspace)
+
+        self.assertEqual([item["proposal_id"] for item in pending], [proposal["proposal_id"]])
+
     def test_obsidian_intake_runs_as_isolated_child_process(self):
         workspace = Path("/tmp/workspace")
         completed = subprocess.CompletedProcess(
@@ -575,6 +595,24 @@ class AntigravityNotifierTests(unittest.TestCase):
         self.assertEqual(command[1], "/tmp/workspace/obsidian_inbox_adapter.py")
         self.assertNotIn(".env", command)
         self.assertEqual(summary, "Obsidian intake complete")
+
+    def test_daily_check_time_uses_next_0630_window(self):
+        before_window = datetime(2026, 7, 9, 6, 20, 0)
+        after_window = datetime(2026, 7, 9, 21, 0, 0)
+        self.assertEqual(
+            antigravity_sidecar_runner.seconds_until_next_daily_check(
+                (6, 30),
+                now=before_window,
+            ),
+            600,
+        )
+        self.assertEqual(
+            antigravity_sidecar_runner.seconds_until_next_daily_check(
+                (6, 30),
+                now=after_window,
+            ),
+            34200,
+        )
 
 
 class ReviewDecisionTests(unittest.TestCase):

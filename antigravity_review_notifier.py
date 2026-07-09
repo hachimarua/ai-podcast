@@ -39,7 +39,24 @@ def _run(command: list[str], *, cwd: Path, timeout: int = 60) -> str:
     return result.stdout.strip()
 
 
-def fetch_pending_proposals(workspace: Path) -> list[dict]:
+def _load_pending_proposal(raw: str) -> dict | None:
+    try:
+        proposal = json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+    if proposal.get("status") == "pending" and proposal.get("proposal_id"):
+        return proposal
+    return None
+
+
+def _dedupe_proposals(proposals: list[dict]) -> list[dict]:
+    deduped = {}
+    for proposal in proposals:
+        deduped[proposal["proposal_id"]] = proposal
+    return [deduped[key] for key in sorted(deduped)]
+
+
+def fetch_origin_pending_proposals(workspace: Path) -> list[dict]:
     """Read pending reports from origin/main without altering the worktree."""
     _run(["git", "fetch", "--quiet", "origin", "main"], cwd=workspace, timeout=120)
     listing = _run(
@@ -54,13 +71,44 @@ def fetch_pending_proposals(workspace: Path) -> list[dict]:
         if not relative_path.startswith(PENDING_PREFIX):
             continue
         raw = _run(["git", "show", f"origin/main:{relative_path}"], cwd=workspace)
-        try:
-            proposal = json.loads(raw)
-        except json.JSONDecodeError:
-            continue
-        if proposal.get("status") == "pending" and proposal.get("proposal_id"):
+        proposal = _load_pending_proposal(raw)
+        if proposal:
             proposals.append(proposal)
     return proposals
+
+
+def fetch_local_pending_proposals(workspace: Path) -> list[dict]:
+    """Read pending reports already present in the local worktree."""
+    pending_dir = workspace / PENDING_PREFIX
+    proposals = []
+    if not pending_dir.exists():
+        return proposals
+    for path in sorted(pending_dir.glob("*.json")):
+        try:
+            raw = path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        proposal = _load_pending_proposal(raw)
+        if proposal:
+            proposals.append(proposal)
+    return proposals
+
+
+def fetch_pending_proposals(workspace: Path) -> list[dict]:
+    """Read pending reports, preferring origin/main and falling back to local files.
+
+    The sidecar may run without access to the user's interactive Git credentials.
+    In that case, locally available pending reports are still useful and should
+    not be blocked by a remote fetch failure.
+    """
+    local = fetch_local_pending_proposals(workspace)
+    try:
+        remote = fetch_origin_pending_proposals(workspace)
+    except NotifierError:
+        if local:
+            return _dedupe_proposals(local)
+        raise
+    return _dedupe_proposals(remote + local)
 
 
 def build_review_prompt(proposal: dict, workspace: Path) -> str:
