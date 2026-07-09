@@ -1,4 +1,14 @@
 {
+  "application": {
+    "applied_at": "2026-07-09T22:22:20.167591+00:00",
+    "changed_files": [
+      "script_generator.py"
+    ],
+    "level": "B",
+    "verification": [
+      "48 unit tests passed"
+    ]
+  },
   "broadcast_date": "2026-07-10",
   "category": "audio_quality",
   "created_at": "2026-07-09T22:11:33.108380+00:00",
@@ -24,7 +34,7 @@
   "safe_auto_apply": false,
   "schema_version": 1,
   "severity": "warning",
-  "status": "agreed",
+  "status": "applied",
   "suggested_changes": [
     "読点を削除し、「1億ドルもの資金調達」と修正してスムーズな読み上げになるようにする。",
     "「指示書の該当部分を修正して」や「特定の箇所を修正して」など、より自然な日本語表現に変更する。"

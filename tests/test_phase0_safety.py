@@ -688,6 +688,8 @@ class ImprovementApplicationTests(unittest.TestCase):
         self.assertIn("英単語が途中で切れた形", script_generator.SYSTEM_INSTRUCTION)
         self.assertIn("同音・類音語への置き換えをしない", script_generator.SYSTEM_INSTRUCTION)
         self.assertIn("短い発話を独立した台詞として繰り返さない", script_generator.SYSTEM_INSTRUCTION)
+        self.assertIn("数値と単位の間に読点を挟まないでください", script_generator.SYSTEM_INSTRUCTION)
+        self.assertIn("プレースホルダーや仮の表現をそのまま台詞として出力・読み上げさせないでください", script_generator.SYSTEM_INSTRUCTION)
 
     def test_tts_normalizes_agreed_technical_terms(self):
         normalized = audio_generator.apply_pronunciation_dict(
