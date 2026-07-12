@@ -98,25 +98,24 @@ def build_prompt_content(selected_terms, matched_news, general_news, avoid_topic
         content += "(過去3回との重複を避けるため、本日は復習メモを使わず最新ニュースを扱います)\n"
     content += "\n"
     
-    # 関連ニュースの追加
-    content += "### 関連する最新のAIニュース:\n"
-    if matched_news:
-        for i, news in enumerate(matched_news, 1):
-            content += f"[ニュース {i}] Source: {news['source']}\n"
-            content += f"Title: {news['title']}\n"
-            content += f"URL: {news['link']}\n"
-            content += f"Content:\n{news['content'][:2000]}\n"
-            content += f"Matched Notion Words: {news.get('matched_words', [])}\n"
-            content += "-" * 30 + "\n"
-    else:
-        content += "(過去の学習メモに直接関連するニュースはありませんでした)\n\n"
-        
-    # 一般ニュースの追加
-    content += "### その他の最新AIニュース:\n"
-    for i, news in enumerate(general_news[:2], 1):
-        content += f"[一般ニュース {i}] Source: {news['source']}\n"
+    # A single five-minute programme receives no more than two curated news items.
+    news_for_broadcast = (matched_news + general_news)[:2]
+    content += "### 本日扱う最新AIニュース（最大2件）:\n"
+    if not news_for_broadcast:
+        content += "(採用可能な最新ニュースはありませんでした)\n"
+    for i, news in enumerate(news_for_broadcast, 1):
+        lane_label = {
+            "japan": "日本の報道・実装動向",
+            "research": "研究動向",
+            "world": "世界動向",
+        }.get(news.get("lane"), "AIニュース")
+        content += f"[ニュース {i}] 区分: {lane_label}\n"
+        content += f"Source: {news['source']}\n"
         content += f"Title: {news['title']}\n"
+        content += f"URL: {news.get('link', '')}\n"
         content += f"Content:\n{news['content'][:1500]}\n"
+        if news.get("matched_words"):
+            content += f"Matched Notion Words: {news['matched_words']}\n"
         content += "-" * 30 + "\n"
 
     content += "</untrusted_source_data>\n"
@@ -126,6 +125,7 @@ def build_prompt_content(selected_terms, matched_news, general_news, avoid_topic
         content += "過去にユーザーが学んだ内容（学習メモ本文に記載されている内容）をおさらいしながら、最新情報と結びつけて解説してください。\n"
     else:
         content += "復習メモの代わりに、提供された最新ニュースのうち一つを主要テーマとして深掘りしてください。\n"
+    content += "これは5分のラジオ番組1本です。ニュースごとに別番組のように分けず、必要に応じて世界動向・研究動向・日本の報道を自然につないでください。日本での導入・提供開始・活用事例は、記事本文で明確な場合だけそのように説明し、記事にない日本の状況を推測で補わないでください。\n"
     if avoid_topics:
         content += "次の過去3回の主要テーマは、同じ切り口・同じ説明で再利用しないでください:\n"
         for topic in avoid_topics[:3]:

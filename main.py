@@ -5,7 +5,11 @@ from datetime import datetime, timezone, timedelta
 from mutagen.mp3 import MP3
 from dotenv import load_dotenv
 from notion_helper import select_terms_for_review, update_term_review_status, is_notion_configured
-from news_collector import collect_latest_news, match_news_with_words
+from news_collector import (
+    collect_latest_news,
+    match_news_with_words,
+    select_news_for_broadcast,
+)
 from script_generator import generate_radio_script
 from audio_generator import synthesize_podcast
 from podcast_generator import archive_today_podcast, generate_podcast_rss
@@ -64,6 +68,20 @@ async def async_main():
     
     for m in matched:
         print(f" -> 関連あり: [{m['source']}] {m['title']} (マッチ用語: {m['matched_words']})")
+
+    broadcast_news, news_selection = select_news_for_broadcast(
+        matched, unmatched, recent_manifests
+    )
+    if not broadcast_news:
+        raise RuntimeError("No news candidates remain for the five-minute broadcast")
+    selected_matched = [item for item in broadcast_news if item["_matched_for_review"]]
+    selected_general = [item for item in broadcast_news if not item["_matched_for_review"]]
+    print("本日のニュース構成（5分ラジオ1本）:")
+    for item in broadcast_news:
+        print(
+            f" -> [{item['lane']}] [{item['source']}] {item['title']}"
+            f" ({item['_selection_reason']})"
+        )
         
     # 4. Gemini APIを用いて日本語対話ラジオ台本を生成
     print("\n[Step 4] Gemini APIを呼び出し、対話型ラジオ台本を生成しています...")
@@ -72,8 +90,8 @@ async def async_main():
     
     script = generate_radio_script(
         selected_terms,
-        matched,
-        unmatched,
+        selected_matched,
+        selected_general,
         model_name=model_name,
         avoid_topics=recent_topics,
     )
@@ -93,18 +111,21 @@ async def async_main():
             f"[Duplicate Gate] 過去3回との類似度 {first_similarity:.2f}。"
             "復習項目を外した最新ニュース特集として1回だけ再生成します。"
         )
+        broadcast_news, news_selection = select_news_for_broadcast(
+            [], all_news, recent_manifests
+        )
         script = generate_radio_script(
             [],
             [],
-            all_news,
+            broadcast_news,
             model_name=model_name,
             avoid_topics=recent_topics,
         )
         if not script:
             raise RuntimeError("Duplicate fallback script generation failed")
         selected_terms = []
-        matched = []
-        unmatched = all_news
+        selected_matched = []
+        selected_general = broadcast_news
         used_news_only_fallback = True
 
     final_similarity = max_recent_similarity(script, recent_manifests)
@@ -152,9 +173,9 @@ async def async_main():
             primary_topic = (
                 selected_terms[0]["name"]
                 if selected_terms
-                else (all_news[0]["title"] if all_news else "最新AIニュース")
+                else (broadcast_news[0]["title"] if broadcast_news else "最新AIニュース")
             )
-            used_news = matched + unmatched[:2]
+            used_news = broadcast_news
             manifest = build_manifest(
                 episode_id=episode_id,
                 broadcast_date=broadcast_date,
@@ -170,6 +191,7 @@ async def async_main():
                     "final_script_similarity": round(final_similarity, 4),
                     "duplicate_threshold": duplicate_threshold,
                     "used_news_only_fallback": used_news_only_fallback,
+                    "news_selection": news_selection,
                     "audio_quality": audio_quality,
                 },
                 publish_status="published",

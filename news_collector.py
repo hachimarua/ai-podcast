@@ -1,19 +1,47 @@
 import feedparser
 from bs4 import BeautifulSoup
 import re
-from datetime import datetime, timedelta
+from collections import Counter
+from datetime import datetime, timedelta, timezone
 import time
 import requests
 from api_client import request_bytes
 
 # 信頼できるAI情報源のホワイトリストRSSフィード
-WHITELIST_FEEDS = {
-    "TechCrunch AI": "https://techcrunch.com/category/artificial-intelligence/feed/",
-    "Google AI Blog": "https://blog.google/technology/ai/rss/",
-    "Hugging Face Blog": "https://huggingface.co/blog/feed.xml",
-    "arXiv cs.AI (Artificial Intelligence)": "https://arxiv.org/rss/cs.AI",
-    # ※一部RSSフィードはスクレイピング制限やURL変更の可能性があるため、必要に応じてユーザーが調整可能
+SOURCE_CONFIG = {
+    "TechCrunch AI": {
+        "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+        "lane": "world",
+    },
+    "Google AI Blog": {
+        "url": "https://blog.google/technology/ai/rss/",
+        "lane": "world",
+    },
+    "Hugging Face Blog": {
+        "url": "https://huggingface.co/blog/feed.xml",
+        "lane": "world",
+    },
+    "arXiv cs.AI (Artificial Intelligence)": {
+        "url": "https://arxiv.org/rss/cs.AI",
+        "lane": "research",
+    },
+    "ITmedia AI+": {
+        "url": "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml",
+        "lane": "japan",
+    },
+    "AI Watch": {
+        "url": "https://ai.watch.impress.co.jp/data/rss/1.0/aiw/feed.rdf",
+        "lane": "japan",
+    },
 }
+
+# Compatibility alias for callers or local tools that import the feed list directly.
+WHITELIST_FEEDS = {
+    name: config["url"] for name, config in SOURCE_CONFIG.items()
+}
+
+JAPAN_NEWS_MAX_AGE_DAYS = 14
+MAX_NEWS_PER_BROADCAST = 2
 
 def clean_html(html_content):
     """HTMLタグを除去し、プレーンテキストにする。スクリプトやスタイルは完全に削除。"""
@@ -87,6 +115,7 @@ def fetch_feed_entries(feed_name, feed_url, max_entries=5):
                 
             entries.append({
                 "source": feed_name,
+                "lane": SOURCE_CONFIG.get(feed_name, {}).get("lane", "world"),
                 "title": clean_title,
                 "link": entry.get("link", ""),
                 "published": published_dt.strftime("%Y-%m-%d %H:%M:%S"),
@@ -191,6 +220,135 @@ def match_news_with_words(news_list, words):
             unmatched_news.append(news)
             
     return matched_news, unmatched_news
+
+
+def _published_at_or_none(news):
+    """Parse the normalized RSS timestamp without treating invalid dates as current."""
+    try:
+        return datetime.strptime(news.get("published", ""), "%Y-%m-%d %H:%M:%S").replace(
+            tzinfo=timezone.utc
+        )
+    except (TypeError, ValueError):
+        return None
+
+
+def _is_fresh_japan_candidate(news, now):
+    published_at = _published_at_or_none(news)
+    if published_at is None:
+        return False
+    return published_at >= now - timedelta(days=JAPAN_NEWS_MAX_AGE_DAYS)
+
+
+def _recent_source_counts(recent_manifests):
+    """Read source history from new manifests and infer the legacy TechCrunch entries."""
+    counts = Counter()
+    for manifest in recent_manifests:
+        selection = manifest.get("deterministic_checks", {}).get("news_selection", {})
+        for source in selection.get("selected_sources", []):
+            if source:
+                counts[source] += 1
+        if selection.get("selected_sources"):
+            continue
+        for url in manifest.get("news_urls", []):
+            if "techcrunch.com" in url:
+                counts["TechCrunch AI"] += 1
+    return counts
+
+
+def select_news_for_broadcast(matched_news, unmatched_news, recent_manifests, *, now=None):
+    """Select at most two source-diverse items for one five-minute broadcast.
+
+    A matching item keeps priority.  The second slot prefers a fresh Japanese
+    reporting source, otherwise a source different from the first item.  This is
+    a deterministic fallback policy, not a daily quota: stale Japanese items are
+    never forced into the programme.
+    """
+    now = now or datetime.now(timezone.utc)
+    recent_source_counts = _recent_source_counts(recent_manifests)
+    candidates = []
+    seen = set()
+
+    for is_match, items in ((True, matched_news), (False, unmatched_news)):
+        for index, item in enumerate(items):
+            dedupe_key = item.get("link") or (item.get("source"), item.get("title"))
+            if dedupe_key in seen:
+                continue
+            seen.add(dedupe_key)
+            candidate = item.copy()
+            candidate["lane"] = candidate.get(
+                "lane", SOURCE_CONFIG.get(candidate.get("source"), {}).get("lane", "world")
+            )
+            candidate["_matched_for_review"] = is_match
+            candidate["_candidate_index"] = index
+            candidates.append(candidate)
+
+    def sort_key(candidate):
+        return (
+            0 if candidate["_matched_for_review"] else 1,
+            recent_source_counts[candidate.get("source", "")],
+            candidate["_candidate_index"],
+        )
+
+    ordered_candidates = sorted(candidates, key=sort_key)
+    selected = []
+    reasons = []
+
+    def add(candidate, reason):
+        selected.append(candidate)
+        reasons.append(reason)
+
+    if ordered_candidates:
+        add(
+            ordered_candidates[0],
+            "notion_match" if ordered_candidates[0]["_matched_for_review"] else "least_recent_source",
+        )
+
+    while len(selected) < MAX_NEWS_PER_BROADCAST:
+        remaining = [item for item in ordered_candidates if item not in selected]
+        if not remaining:
+            break
+
+        selected_sources = {item.get("source") for item in selected}
+        has_japan_lane = any(item.get("lane") == "japan" for item in selected)
+        fresh_japan = [
+            item
+            for item in remaining
+            if item.get("lane") == "japan" and _is_fresh_japan_candidate(item, now)
+        ]
+        different_source = [
+            item for item in remaining if item.get("source") not in selected_sources
+        ]
+
+        if not has_japan_lane and fresh_japan:
+            candidate = min(fresh_japan, key=sort_key)
+            reason = "fresh_japan_lane"
+        elif different_source:
+            candidate = min(different_source, key=sort_key)
+            reason = "different_source"
+        else:
+            candidate = remaining[0]
+            reason = "candidate_fallback"
+        add(candidate, reason)
+
+    selection = []
+    for item, reason in zip(selected, reasons):
+        item["_selection_reason"] = reason
+        selection.append({
+            "source": item.get("source", ""),
+            "lane": item.get("lane", "world"),
+            "matched_notion_terms": item["_matched_for_review"],
+            "reason": reason,
+        })
+
+    audit = {
+        "candidate_counts_by_source": dict(sorted(Counter(
+            item.get("source", "") for item in candidates
+        ).items())),
+        "selected_sources": [item.get("source", "") for item in selected],
+        "selected": selection,
+        "japan_freshness_days": JAPAN_NEWS_MAX_AGE_DAYS,
+    }
+    return selected, audit
 
 # 簡易動作テスト用
 if __name__ == "__main__":

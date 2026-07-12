@@ -5,7 +5,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
@@ -20,6 +20,7 @@ import gemini_audio_qa
 import improvement_application
 import local_server
 import main as pipeline_main
+import news_collector
 import notion_helper
 import obsidian_inbox_adapter
 import podcast_generator
@@ -174,6 +175,62 @@ class PromptBoundaryTests(unittest.TestCase):
         )
         self.assertIn("過去3回の主要テーマ", prompt)
         self.assertIn("- RAG", prompt)
+
+    def test_prompt_keeps_one_programme_to_two_curated_news_items(self):
+        news = [
+            {"source": "one", "title": "one", "content": "one"},
+            {"source": "two", "title": "two", "content": "two"},
+            {"source": "three", "title": "three", "content": "three"},
+        ]
+        prompt = script_generator.build_prompt_content([], [], news)
+        self.assertIn("Title: one", prompt)
+        self.assertIn("Title: two", prompt)
+        self.assertNotIn("Title: three", prompt)
+        self.assertIn("5分のラジオ番組1本", prompt)
+
+
+class NewsSelectionTests(unittest.TestCase):
+    def make_news(self, source, lane, title, published="2026-07-12 00:00:00"):
+        return {
+            "source": source,
+            "lane": lane,
+            "title": title,
+            "link": f"https://example.test/{title}",
+            "content": "本文",
+            "published": published,
+        }
+
+    def test_second_slot_prefers_fresh_japan_lane_over_second_techcrunch_item(self):
+        tech_one = self.make_news("TechCrunch AI", "world", "tech-one")
+        tech_two = self.make_news("TechCrunch AI", "world", "tech-two")
+        japan = self.make_news("ITmedia AI+", "japan", "japan-one")
+        selected, audit = news_collector.select_news_for_broadcast(
+            [], [tech_one, tech_two, japan], [],
+            now=datetime(2026, 7, 12, tzinfo=timezone.utc),
+        )
+        self.assertEqual([item["source"] for item in selected], ["TechCrunch AI", "ITmedia AI+"])
+        self.assertEqual(audit["selected"][1]["reason"], "fresh_japan_lane")
+
+    def test_stale_japan_item_is_not_forced_into_the_programme(self):
+        tech = self.make_news("TechCrunch AI", "world", "tech")
+        google = self.make_news("Google AI Blog", "world", "google")
+        stale_japan = self.make_news(
+            "ITmedia AI+", "japan", "stale-japan", "2026-06-01 00:00:00"
+        )
+        selected, _audit = news_collector.select_news_for_broadcast(
+            [], [tech, google, stale_japan], [],
+            now=datetime(2026, 7, 12, tzinfo=timezone.utc),
+        )
+        self.assertEqual([item["source"] for item in selected], ["TechCrunch AI", "Google AI Blog"])
+
+    def test_notion_match_remains_the_first_priority(self):
+        matched = self.make_news("TechCrunch AI", "world", "matched")
+        japan = self.make_news("AI Watch", "japan", "japan")
+        selected, audit = news_collector.select_news_for_broadcast(
+            [matched], [japan], [], now=datetime(2026, 7, 12, tzinfo=timezone.utc)
+        )
+        self.assertEqual([item["source"] for item in selected], ["TechCrunch AI", "AI Watch"])
+        self.assertTrue(audit["selected"][0]["matched_notion_terms"])
 
 
 class DependencyLockTests(unittest.TestCase):
