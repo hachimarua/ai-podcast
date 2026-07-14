@@ -157,6 +157,10 @@ class WorkflowGuardTests(unittest.TestCase):
         self.assertIn("bootstrap_episode_history.py --limit 3", workflow)
         self.assertIn("bootstrap_only:", workflow)
         self.assertIn("qa_existing_only:", workflow)
+        self.assertIn("phase10_trial:", workflow)
+        self.assertIn("Upload Phase 10 non-public trial", workflow)
+        self.assertIn("PHASE10_TRIAL_MODE:", workflow)
+        self.assertIn("inputs.phase10_trial != true", workflow)
 
 
 class PromptBoundaryTests(unittest.TestCase):

@@ -17,6 +17,7 @@ import notion_helper
 import podcast_generator
 import process_inbox
 import script_generator
+import phase10_trial
 
 
 class EpisodeFormatConfigTests(unittest.TestCase):
@@ -33,6 +34,27 @@ class EpisodeFormatConfigTests(unittest.TestCase):
             episode_formats.resolve_episode_format(config, now_jst=sunday, override="auto"),
             "daily",
         )
+
+    def test_phase10_trial_mode_is_a_closed_boolean(self):
+        self.assertTrue(phase10_trial.phase10_trial_enabled("true"))
+        self.assertFalse(phase10_trial.phase10_trial_enabled("false"))
+        with self.assertRaises(phase10_trial.Phase10TrialError):
+            phase10_trial.phase10_trial_enabled("yes please")
+
+    def test_phase10_anchor_is_closed_and_matches_public_titles_only(self):
+        self.assertEqual(phase10_trial.phase10_trial_anchor("ai_agents"), "ai_agents")
+        with self.assertRaises(phase10_trial.Phase10TrialError):
+            phase10_trial.phase10_trial_anchor("private custom theme")
+        matched, unmatched = phase10_trial.match_news_for_trial_anchor(
+            [
+                {"title": "Managed Agents update", "content": "unrelated"},
+                {"title": "Other update", "content": "agents only in private body"},
+            ],
+            "ai_agents",
+        )
+        self.assertEqual(len(matched), 1)
+        self.assertEqual(matched[0]["matched_words"], ["ai_agents"])
+        self.assertEqual(len(unmatched), 1)
 
     def test_enabled_sunday_selects_lab_and_weekday_selects_daily(self):
         config = self.enabled_config()
@@ -344,6 +366,121 @@ class LabPipelineIntegrationTests(unittest.TestCase):
         ):
             with self.assertRaises(news_collector.LabSourceError):
                 asyncio.run(pipeline_main.async_main())
+
+    def test_phase10_trial_writes_private_artifacts_without_public_or_notion_updates(self):
+        private = "private-qa-sentinel"
+        term = {
+            "id": "term",
+            "name": "RAG",
+            "content": "private learning memo",
+            "review_count": 0,
+            "last_reviewed": None,
+        }
+        official = {
+            "source": "Google AI Blog",
+            "title": "Official RAG update",
+            "content": "RAG official details",
+            "link": "https://example.test/official?utm_source=rss",
+            "lane": "world",
+            "evidence_role": "official",
+            "matched_words": ["RAG"],
+        }
+        reporting = {
+            "source": "ITmedia AI+",
+            "title": "RAG implementation report",
+            "content": "RAG reporting details",
+            "link": "https://example.test/report",
+            "lane": "japan",
+            "evidence_role": "reporting",
+            "matched_words": ["RAG"],
+        }
+        generated_script = "あ" * 2200
+
+        async def synthesize(_script_path, audio_path):
+            Path(audio_path).write_bytes(b"trial-audio")
+            return True
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with (
+                patch.object(pipeline_main, "__file__", str(root / "main.py")),
+                patch.object(pipeline_main, "load_recent_manifests", return_value=[]),
+                patch.object(pipeline_main, "select_terms_for_review", return_value=[term]),
+                patch.object(
+                    pipeline_main, "collect_latest_news", return_value=[official, reporting]
+                ),
+                patch.object(
+                    pipeline_main,
+                    "match_news_with_words",
+                    return_value=([official, reporting], []),
+                ),
+                patch.object(
+                    pipeline_main, "generate_radio_script", return_value=generated_script
+                ) as generate,
+                patch.object(
+                    pipeline_main, "synthesize_podcast", new=AsyncMock(side_effect=synthesize)
+                ),
+                patch.object(
+                    pipeline_main,
+                    "require_audio_quality",
+                    return_value={
+                        "passed": True,
+                        "issues": [],
+                        "duration_seconds": 600.0,
+                        "mean_volume_db": -18.0,
+                        "max_volume_db": -1.0,
+                        "long_silence_seconds": 0.0,
+                        "long_silence_ratio": 0.0,
+                        "file_size_bytes": 11,
+                    },
+                ) as audio_gate,
+                patch.object(
+                    pipeline_main,
+                    "run_shadow_audio_qa",
+                    return_value={
+                        "status": "completed",
+                        "summary": private,
+                        "overall_score": 4,
+                        "requires_human_review": False,
+                        "issues": [],
+                    },
+                ),
+                patch.object(pipeline_main, "archive_today_podcast") as archive,
+                patch.object(pipeline_main, "generate_podcast_rss") as rss,
+                patch.object(pipeline_main, "write_manifest_atomic") as public_manifest,
+                patch.object(pipeline_main, "write_improvement_proposal") as proposal,
+                patch.object(pipeline_main, "update_term_review_status") as update_notion,
+                patch.dict(
+                    os.environ,
+                    {"PHASE10_TRIAL_MODE": "true", "GITHUB_ACTIONS": "true"},
+                    clear=False,
+                ),
+            ):
+                asyncio.run(pipeline_main.async_main())
+
+            trial_dirs = list((root / "phase10_trials").glob("trial_*"))
+            self.assertEqual(len(trial_dirs), 1)
+            trial_dir = trial_dirs[0]
+            report_text = (trial_dir / "trial_report.json").read_text(encoding="utf-8")
+            report = json.loads(report_text)
+            self.assertTrue((trial_dir / "script.txt").is_file())
+            self.assertTrue((trial_dir / "podcast.mp3").is_file())
+            self.assertEqual(report["episode_format"], "lab")
+            self.assertEqual(report["trial_status"], "ready_for_listening")
+            self.assertNotIn(private, report_text)
+            self.assertNotIn("private learning memo", report_text)
+            self.assertFalse((root / "podcast.xml").exists())
+            self.assertFalse((root / "episodes").exists())
+
+        self.assertEqual(generate.call_args.kwargs["episode_format"], "lab")
+        thresholds = audio_gate.call_args.args[1]
+        self.assertEqual(thresholds.min_duration_seconds, 480.0)
+        self.assertEqual(thresholds.max_duration_seconds, 720.0)
+        archive.assert_not_called()
+        rss.assert_not_called()
+        public_manifest.assert_not_called()
+        proposal.assert_not_called()
+        update_notion.assert_not_called()
 
 
 class PublicEpisodeMetadataTests(unittest.TestCase):

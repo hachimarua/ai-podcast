@@ -16,6 +16,11 @@ on:
         required: false
         type: boolean
         default: false
+      phase10_trial:
+        description: "AI agentsテーマのLabをRSS非公開Artifactとして生成する"
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: daily-ai-podcast-${{ github.ref }}
@@ -63,6 +68,19 @@ jobs:
           echo "Episode history already initialized; skipping bootstrap."
         fi
 
+    - name: Process Notion Inbox
+      if: ${{ github.event_name != 'workflow_dispatch' || (inputs.bootstrap_only != true && inputs.qa_existing_only != true && inputs.phase10_trial != true) }}
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+        NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        NOTION_INBOX_DATABASE_ID: ${{ secrets.NOTION_INBOX_DATABASE_ID }}
+        BASE_URL: "https://hachimarua.github.io/ai-podcast"
+        BGM_VOLUME: "0.30"
+        ALLOW_MOCK_DATA: "false"
+      run: |
+        python process_inbox.py
+
     - name: Run Podcast Pipeline
       if: ${{ github.event_name != 'workflow_dispatch' || (inputs.bootstrap_only != true && inputs.qa_existing_only != true) }}
       env:
@@ -73,12 +91,19 @@ jobs:
         BASE_URL: "https://hachimarua.github.io/ai-podcast"
         BGM_VOLUME: "0.30"
         ALLOW_MOCK_DATA: "false"
+        PHASE10_TRIAL_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.phase10_trial == true }}
+        PHASE10_TRIAL_ANCHOR: ${{ inputs.phase10_trial == true && 'ai_agents' || '' }}
       run: |
-        # 1. 受信箱 (Inbox) の自動要約・振り分けを先に実行
-        python process_inbox.py
-        
-        # 2. メインのポッドキャスト生成・更新を実行
         python main.py
+
+    - name: Upload Phase 10 non-public trial
+      if: ${{ github.event_name == 'workflow_dispatch' && inputs.phase10_trial == true }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: phase10-lab-${{ github.run_id }}-${{ github.run_attempt }}
+        path: phase10_trials/
+        if-no-files-found: error
+        retention-days: 3
 
     - name: Run Gemini QA against latest existing episode only
       if: ${{ github.event_name == 'workflow_dispatch' && inputs.qa_existing_only == true }}
@@ -92,6 +117,7 @@ jobs:
         python gemini_audio_qa.py "$latest_audio" --episode-id "$episode_id" --broadcast-date "$broadcast_date"
 
     - name: Commit and Push changes
+      if: ${{ github.event_name != 'workflow_dispatch' || inputs.phase10_trial != true }}
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"

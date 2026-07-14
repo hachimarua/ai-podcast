@@ -32,6 +32,14 @@ from episode_formats import (
 )
 from gemini_audio_qa import run_shadow_audio_qa, write_improvement_proposal
 from gemini_models import normalize_gemini_model
+from phase10_trial import (
+    build_trial_report,
+    match_news_for_trial_anchor,
+    phase10_trial_anchor,
+    phase10_trial_enabled,
+    trial_paths,
+    write_trial_report_atomic,
+)
 
 
 def terms_requiring_review_update(selected_terms, broadcast_date):
@@ -78,16 +86,23 @@ async def async_main():
     manifests_dir = os.path.join(base_dir, "episode_manifests")
     recent_manifests = load_recent_manifests(manifests_dir, limit=4)
     run_now_jst = datetime.now(JST)
+    trial_mode = phase10_trial_enabled()
+    trial_anchor = phase10_trial_anchor() if trial_mode else None
+    trial_artifacts = trial_paths(base_dir, run_now_jst) if trial_mode else None
     broadcast_date = run_now_jst.strftime("%Y-%m-%d")
     existing_today, history_manifests = split_run_manifests(
         recent_manifests, broadcast_date
     )
     formats_config = load_episode_formats()
     editorial_profile_version = get_approved_profile_version()
-    scheduled_format = resolve_episode_format(
-        formats_config,
-        now_jst=run_now_jst,
-        existing_format=(existing_today or {}).get("episode_format"),
+    scheduled_format = (
+        "lab"
+        if trial_mode
+        else resolve_episode_format(
+            formats_config,
+            now_jst=run_now_jst,
+            existing_format=(existing_today or {}).get("episode_format"),
+        )
     )
     episode_format = scheduled_format
     format_spec = formats_config.formats[episode_format]
@@ -96,6 +111,8 @@ async def async_main():
         f"番組形式: {format_spec.display_name} ({format_spec.duration_label}) "
         f"/ config={formats_config.config_version}"
     )
+    if trial_mode:
+        print("Phase 10非公開トライアル: RSS・episodes・Notionは更新しません。")
     recent_topics = [
         manifest.get("primary_topic", "")
         for manifest in history_manifests
@@ -104,19 +121,27 @@ async def async_main():
     
     # 1. Notion(またはモック)から復習用語を抽出
     print("\n[Step 1] Notionから復習用語を抽出しています...")
-    selected_terms = select_terms_for_review(
-        format_spec.max_review_terms,
-        recent_manifests=history_manifests,
-        preferred_term_keys=(existing_today or {}).get("selected_term_keys"),
-    )
-    if not selected_terms:
-        print("過去3回または直近3日と重ならない復習項目がないため、最新ニュース特集へ切り替えます。")
+    if trial_anchor:
+        selected_terms = []
+        print(
+            f"Phase 10固定テーマ {trial_anchor} を使用するため、"
+            "Notionの復習項目は読み込みません。"
+        )
     else:
-        print(f"【本日の復習用語】: {len(selected_terms)}件を採用しました。")
+        selected_terms = select_terms_for_review(
+            format_spec.max_review_terms,
+            recent_manifests=history_manifests,
+            preferred_term_keys=(existing_today or {}).get("selected_term_keys"),
+        )
+    if not trial_anchor:
+        if not selected_terms:
+            print("過去3回または直近3日と重ならない復習項目がないため、最新ニュース特集へ切り替えます。")
+        else:
+            print(f"【本日の復習用語】: {len(selected_terms)}件を採用しました。")
         
     # 2. ホワイトリストソースからニュースを収集
     print("\n[Step 2] 信頼できるソース(ホワイトリスト)から最新ニュースを収集しています...")
-    all_news = collect_latest_news(max_entries_per_feed=5)
+    all_news = collect_latest_news(max_entries_per_feed=10 if trial_anchor else 5)
     all_news, recent_news_removed = exclude_recent_news(all_news, history_manifests)
     print(
         f"新規ニュース {len(all_news)} 件を採用候補にしました。"
@@ -129,7 +154,10 @@ async def async_main():
     
     # 3. ニュースと用語のマッチング
     print("\n[Step 3] ニュースと復習用語の関連性をチェックしています...")
-    matched, unmatched = match_news_with_words(all_news, selected_terms)
+    if trial_anchor:
+        matched, unmatched = match_news_for_trial_anchor(all_news, trial_anchor)
+    else:
+        matched, unmatched = match_news_with_words(all_news, selected_terms)
     print(f"関連ニュース: {len(matched)} 件 / その他のニュース: {len(unmatched)} 件")
     
     for m in matched:
@@ -141,7 +169,9 @@ async def async_main():
                 matched, history_manifests, max_items=format_spec.max_news_items
             )
         except LabSourceError as exc:
-            if existing_today and existing_today.get("episode_format") == "lab":
+            if trial_mode or (
+                existing_today and existing_today.get("episode_format") == "lab"
+            ):
                 raise
             format_fallback_reason = "insufficient_multi_source_official_basis"
             print(f"[Format Fallback] {exc}; Daily Briefへ切り替えます。")
@@ -234,14 +264,22 @@ async def async_main():
     script_length = validate_script_length(script, format_spec)
 
     # 台本の保存
-    script_path = os.path.join(base_dir, "todays_script.txt")
+    if trial_mode:
+        trial_artifacts["directory"].mkdir(parents=True, exist_ok=False)
+        script_path = str(trial_artifacts["script"])
+    else:
+        script_path = os.path.join(base_dir, "todays_script.txt")
     with open(script_path, "w", encoding="utf-8") as f:
         f.write(script)
     print(f"台本を保存しました: {script_path}")
     
     # 5. 音声合成 (TTS) による対話音声の生成
     print("\n[Step 5] Edge TTSを使用して対話型音声ファイル(MP3)を合成しています...")
-    output_mp3_path = os.path.join(base_dir, "todays_podcast.mp3")
+    output_mp3_path = (
+        str(trial_artifacts["audio"])
+        if trial_mode
+        else os.path.join(base_dir, "todays_podcast.mp3")
+    )
     
     # 音声合成を実行 (非同期処理)
     synthesis_success = await synthesize_podcast(script_path, output_mp3_path)
@@ -263,7 +301,39 @@ async def async_main():
         
     # 6. ポッドキャストXML(RSSフィード)の生成とアーカイブ保存 (GitHub Actions上でのみ本番アーカイブを更新)
     print("\n[Step 6] ポッドキャストRSSフィードを生成し、アーカイブを更新しています...")
-    if os.getenv("GITHUB_ACTIONS") == "true":
+    if trial_mode:
+        public_topic = (
+            broadcast_news[0].get("title", "最新AIニュース")
+            if broadcast_news
+            else "最新AIニュース"
+        )
+        report = build_trial_report(
+            trial_id=trial_artifacts["directory"].name,
+            generated_at=run_now_jst.isoformat(),
+            editorial_profile_version=editorial_profile_version,
+            format_config_version=formats_config.config_version,
+            public_topic=public_topic,
+            news_urls=[item.get("link", "") for item in broadcast_news],
+            script=script,
+            audio_path=output_mp3_path,
+            deterministic_checks={
+                "recent_episode_count": len(history_manifests),
+                "initial_script_similarity": round(first_similarity, 4),
+                "final_script_similarity": round(final_similarity, 4),
+                "duplicate_threshold": duplicate_threshold,
+                "used_news_only_fallback": used_news_only_fallback,
+                "news_selection": news_selection,
+                "audio_quality": audio_quality,
+                "script_length": script_length,
+                "scheduled_format": scheduled_format,
+                "format_fallback_reason": format_fallback_reason,
+                "format_config_version": formats_config.config_version,
+            },
+            qa_result=gemini_qa,
+        )
+        report_path = write_trial_report_atomic(trial_artifacts["report"], report)
+        print(f"Phase 10非公開トライアルを保存しました: {report_path.parent}")
+    elif os.getenv("GITHUB_ACTIONS") == "true":
         archived_filename = archive_today_podcast(now=run_now_jst)
         if archived_filename:
             episode_id = os.path.splitext(archived_filename)[0]
@@ -326,7 +396,9 @@ async def async_main():
     pending_review_terms = terms_requiring_review_update(
         selected_terms, broadcast_date
     )
-    if not selected_terms:
+    if trial_mode:
+        print("Phase 10非公開トライアルのため、Notionの復習履歴は更新しません。")
+    elif not selected_terms:
         print("ニュース特集として生成したため、Notionの復習履歴は更新しません。")
     elif not pending_review_terms:
         print("当日の復習履歴は反映済みのため、Notionを再更新しません。")

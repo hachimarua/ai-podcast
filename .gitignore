@@ -20,6 +20,7 @@ todays_script.txt
 temp_*.mp3
 todays_manifest.json
 obsidian-import-state.json
+phase10_trials/
 
 # OS Files
 .DS_Store
