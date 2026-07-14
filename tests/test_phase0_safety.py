@@ -809,11 +809,11 @@ class ImprovementApplicationTests(unittest.TestCase):
 
     def test_tts_normalizes_agreed_technical_terms(self):
         normalized = audio_generator.apply_pronunciation_dict(
-            "Stateless APIのidempotency、つまり冪等性を確認します"
+            "Stateless APIのidempotency、つまり冪等性をJSONで確認します"
         )
         self.assertEqual(
             normalized,
-            "ステートレス エーピーアイのべき等性、つまりべき等性を確認します",
+            "ステートレス エーピーアイのべき等性、つまりべき等性をジェイソンで確認します",
         )
 
 

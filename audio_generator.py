@@ -202,6 +202,7 @@ def apply_pronunciation_dict(text):
         r'(?i)MCP': 'エムシーピー',
         r'(?i)LLMs': 'エルエルエムズ',
         r'(?i)LLM': 'エルエルエム',
+        r'(?i)(?<![A-Za-z])JSON(?![A-Za-z])': 'ジェイソン',
         r'(?i)APIs': 'エーピーアイズ',
         r'(?i)API': 'エーピーアイ',
         r'(?i)Notion': 'ノーション',
