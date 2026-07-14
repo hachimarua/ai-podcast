@@ -22,7 +22,7 @@ from episode_history import (
     max_recent_similarity,
     write_manifest_atomic,
 )
-from audio_quality import require_audio_quality
+from audio_quality import AudioQualityError, require_audio_quality
 from editorial_profile import get_approved_profile_version
 from episode_formats import (
     EpisodeFormatError,
@@ -343,9 +343,47 @@ async def async_main():
         print("[Error] 音声合成に失敗しました。パイプラインを中断します。")
         sys.exit(1)
 
-    audio_quality = require_audio_quality(
-        output_mp3_path, format_spec.audio_thresholds.to_runtime()
-    )
+    try:
+        audio_quality = require_audio_quality(
+            output_mp3_path, format_spec.audio_thresholds.to_runtime()
+        )
+    except AudioQualityError as exc:
+        if str(exc) != "Generated audio failed deterministic checks: duration_too_short":
+            raise
+        print(
+            "[Duration Gate] 音声が最低尺に届かなかったため、"
+            "同じ出典のまま台本を長めに1回だけ再生成します。"
+        )
+        script = generate_radio_script(
+            selected_terms,
+            selected_matched,
+            selected_general,
+            model_name=model_name,
+            avoid_topics=recent_topics,
+            episode_format=episode_format,
+            spec=format_spec,
+            duration_retry=True,
+        )
+        if not script:
+            raise RuntimeError("Duration retry script generation failed")
+        final_similarity = max_recent_similarity(script, history_manifests)
+        if final_similarity >= duplicate_threshold:
+            raise RuntimeError(
+                f"Duration retry script is too similar to a recent episode ({final_similarity:.2f}); "
+                "publication stopped"
+            )
+        script_length = validate_script_length(script, format_spec)
+        dialogue_style = validate_dialogue_style(script)
+        with open(script_path, "w", encoding="utf-8") as f:
+            f.write(script)
+        synthesis_success = await synthesize_podcast(
+            script_path, output_mp3_path, speech_rate=format_spec.speech_rate
+        )
+        if not synthesis_success:
+            raise RuntimeError("Duration retry audio synthesis failed")
+        audio_quality = require_audio_quality(
+            output_mp3_path, format_spec.audio_thresholds.to_runtime()
+        )
     print(
         "音声品質ゲート通過: "
         f"{audio_quality['duration_seconds']:.1f}秒, "

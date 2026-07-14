@@ -192,6 +192,7 @@ def build_prompt_content(
     spec=None,
     length_retry=False,
     style_retry=False,
+    duration_retry=False,
 ):
     """プロンプトのコンテキスト（一次情報）を組み立てる"""
     spec = spec or _format_spec(episode_format)
@@ -260,6 +261,14 @@ def build_prompt_content(
             "直前の具体語を受けた言い換え、疑問、対比のいずれかで各返答を最初から再構成してください。"
             "同じ相づちや訂正の型を繰り返さないでください。\n"
         )
+    if duration_retry:
+        content += (
+            f"直前の音声は{spec.duration_label}の最低尺に届きませんでした。"
+            "同じ一次情報だけを使い、結論の水増しや同じ説明の反復はせず、"
+            "背景、仕組み、制約、入力ソースで確認できる具体例を補って最初から再構成してください。"
+            f"台本文字数は{spec.prompt_character_max}〜{spec.hard_character_max}文字を目標にし、"
+            f"{spec.hard_character_max}文字を超えないでください。\n"
+        )
     content += "日本での導入・提供開始・活用事例は、記事本文で明確な場合だけそのように説明し、記事にない日本の状況を推測で補わないでください。\n"
     if avoid_topics:
         content += "次の過去3回の主要テーマは、同じ切り口・同じ説明で再利用しないでください:\n"
@@ -278,6 +287,7 @@ def generate_radio_script(
     spec=None,
     length_retry=False,
     style_retry=False,
+    duration_retry=False,
 ):
     """Gemini APIを使用してラジオ台本を生成"""
     spec = spec or _format_spec(episode_format)
@@ -322,6 +332,7 @@ def generate_radio_script(
         spec=spec,
         length_retry=length_retry,
         style_retry=style_retry,
+        duration_retry=duration_retry,
     )
     
     try:
