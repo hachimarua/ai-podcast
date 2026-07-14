@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "config_version": "formats-v1",
+  "config_version": "formats-v2",
   "timezone": "Asia/Tokyo",
   "default_format": "daily",
   "weekly_lab": {
-    "enabled": false,
+    "enabled": true,
     "weekday": "sunday"
   },
   "formats": {
@@ -38,9 +38,9 @@
       "hard_character_max": 3400,
       "max_news_items": 3,
       "max_review_terms": 1,
-      "speech_rate": "+0%",
+      "speech_rate": "+10%",
       "audio_thresholds": {
-        "min_duration_seconds": 480.0,
+        "min_duration_seconds": 450.0,
         "max_duration_seconds": 720.0,
         "min_mean_volume_db": -28.0,
         "max_mean_volume_db": -10.0,

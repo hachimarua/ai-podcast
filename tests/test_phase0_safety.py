@@ -803,17 +803,19 @@ class ImprovementApplicationTests(unittest.TestCase):
         self.assertIn("日付か識別番号か判断できない場合", script_generator.SYSTEM_INSTRUCTION)
         self.assertIn("英単語が途中で切れた形", script_generator.SYSTEM_INSTRUCTION)
         self.assertIn("同音・類音語への置き換えをしない", script_generator.SYSTEM_INSTRUCTION)
-        self.assertIn("短い発話を独立した台詞として繰り返さない", script_generator.SYSTEM_INSTRUCTION)
+        self.assertIn("相手の発言を採点するような言い方", script_generator.SYSTEM_INSTRUCTION)
+        self.assertIn("直前の具体語を受けた内容", script_generator.SYSTEM_INSTRUCTION)
+        self.assertIn("台詞では「深掘り」という表記を使わず", script_generator.SYSTEM_INSTRUCTION)
         self.assertIn("数値と単位の間に読点を挟まないでください", script_generator.SYSTEM_INSTRUCTION)
         self.assertIn("プレースホルダーや仮の表現をそのまま台詞として出力・読み上げさせないでください", script_generator.SYSTEM_INSTRUCTION)
 
     def test_tts_normalizes_agreed_technical_terms(self):
         normalized = audio_generator.apply_pronunciation_dict(
-            "Stateless APIのidempotency、つまり冪等性をJSONで確認します"
+            "Stateless APIのidempotency、つまり冪等性をJSONで深掘りしていきます"
         )
         self.assertEqual(
             normalized,
-            "ステートレス エーピーアイのべき等性、つまりべき等性をジェイソンで確認します",
+            "ステートレス エーピーアイのべき等性、つまりべき等性をジェイソンで詳しく見ていきます",
         )
 
 

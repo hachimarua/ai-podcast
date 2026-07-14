@@ -12,7 +12,7 @@ from news_collector import (
     select_news_for_broadcast,
     select_news_for_lab,
 )
-from script_generator import generate_radio_script
+from script_generator import generate_radio_script, validate_dialogue_style
 from audio_generator import synthesize_podcast
 from podcast_generator import archive_today_podcast, generate_podcast_rss
 from episode_history import (
@@ -289,6 +289,33 @@ async def async_main():
                 "publication stopped"
             )
         script_length = validate_script_length(script, format_spec)
+
+    try:
+        dialogue_style = validate_dialogue_style(script)
+    except EpisodeFormatError:
+        print(
+            "[Dialogue Style Gate] 定型的な返答冒頭が多いため、同じ出典のまま1回だけ再生成します。"
+        )
+        script = generate_radio_script(
+            selected_terms,
+            selected_matched,
+            selected_general,
+            model_name=model_name,
+            avoid_topics=recent_topics,
+            episode_format=episode_format,
+            spec=format_spec,
+            style_retry=True,
+        )
+        if not script:
+            raise RuntimeError("Dialogue style retry script generation failed")
+        final_similarity = max_recent_similarity(script, history_manifests)
+        if final_similarity >= duplicate_threshold:
+            raise RuntimeError(
+                f"Dialogue style retry is too similar to a recent episode ({final_similarity:.2f}); "
+                "publication stopped"
+            )
+        script_length = validate_script_length(script, format_spec)
+        dialogue_style = validate_dialogue_style(script)
 
     # 台本の保存
     if trial_mode:

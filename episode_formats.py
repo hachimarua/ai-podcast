@@ -123,10 +123,12 @@ class EpisodeFormatsConfig(BaseModel):
         if lab.duration_label != "8〜12分" or (
             lab.audio_thresholds.min_duration_seconds,
             lab.audio_thresholds.max_duration_seconds,
-        ) != (480.0, 720.0):
-            raise ValueError("lab label and audio thresholds must remain 8-12 minutes")
-        if lab.speech_rate != "+0%":
-            raise ValueError("lab speech rate is fixed at +0%")
+        ) != (450.0, 720.0):
+            raise ValueError(
+                "lab target must remain 8-12 minutes with 7.5-minute acceptance floor"
+            )
+        if lab.speech_rate != "+10%":
+            raise ValueError("lab speech rate is fixed at +10%")
         if not re.fullmatch(r"formats-v[1-9][0-9]*", self.config_version):
             raise ValueError("config_version must use formats-vN")
         return self

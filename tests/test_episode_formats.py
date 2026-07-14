@@ -26,13 +26,13 @@ class EpisodeFormatConfigTests(unittest.TestCase):
         payload["weekly_lab"]["enabled"] = True
         return episode_formats.EpisodeFormatsConfig.model_validate(payload)
 
-    def test_weekly_lab_is_disabled_until_non_public_phase10_trials(self):
+    def test_weekly_lab_starts_on_approved_sunday(self):
         config = episode_formats.load_episode_formats()
         sunday = datetime(2026, 7, 19, 4, 0, tzinfo=episode_formats.JST)
-        self.assertFalse(config.weekly_lab.enabled)
+        self.assertTrue(config.weekly_lab.enabled)
         self.assertEqual(
             episode_formats.resolve_episode_format(config, now_jst=sunday, override="auto"),
-            "daily",
+            "lab",
         )
 
     def test_phase10_trial_mode_is_a_closed_boolean(self):
@@ -86,15 +86,34 @@ class EpisodeFormatConfigTests(unittest.TestCase):
         daily = config.formats["daily"]
         lab = config.formats["lab"]
         self.assertEqual((daily.audio_thresholds.min_duration_seconds, daily.audio_thresholds.max_duration_seconds), (240.0, 360.0))
-        self.assertEqual((lab.audio_thresholds.min_duration_seconds, lab.audio_thresholds.max_duration_seconds), (480.0, 720.0))
+        self.assertEqual((lab.audio_thresholds.min_duration_seconds, lab.audio_thresholds.max_duration_seconds), (450.0, 720.0))
         self.assertEqual(daily.speech_rate, "+10%")
-        self.assertEqual(lab.speech_rate, "+0%")
+        self.assertEqual(lab.speech_rate, "+10%")
         daily_result = episode_formats.validate_script_length("あ" * 1000, daily)
         lab_result = episode_formats.validate_script_length("あ" * 2200, lab)
         self.assertTrue(daily_result["passed"])
         self.assertTrue(lab_result["passed"])
         with self.assertRaises(episode_formats.EpisodeFormatError):
             episode_formats.validate_script_length("あ" * 1000, lab)
+
+    def test_dialogue_style_allows_occasional_reaction_but_rejects_repetition(self):
+        natural = "\n".join(
+            [
+                "アミ：構造化しても、誤り自体は残るんですね。",
+                "ケンジ：ここは二つに分けて考えます。",
+                "アミ：なるほど、直す仕組みは別に必要なんですね。",
+            ]
+        )
+        self.assertTrue(script_generator.validate_dialogue_style(natural)["passed"])
+        repetitive = "\n".join(
+            [
+                "アミ：そうですね。",
+                "ケンジ：その通りです。",
+                "アミ：そうですね、次へ進みましょう。",
+            ]
+        )
+        with self.assertRaises(episode_formats.EpisodeFormatError):
+            script_generator.validate_dialogue_style(repetitive)
 
     def test_same_day_rerun_does_not_increment_notion_review(self):
         selected_terms = [
@@ -397,9 +416,16 @@ class LabPipelineIntegrationTests(unittest.TestCase):
             "matched_words": ["RAG"],
         }
         generated_script = "あ" * 2200
+        repetitive_script = "\n".join(
+            [
+                "アミ：そうですね。" + "あ" * 700,
+                "ケンジ：その通りです。" + "い" * 700,
+                "アミ：そうですね。" + "う" * 700,
+            ]
+        )
 
         async def synthesize(_script_path, audio_path, speech_rate):
-            self.assertEqual(speech_rate, "+0%")
+            self.assertEqual(speech_rate, "+10%")
             Path(audio_path).write_bytes(b"trial-audio")
             return True
 
@@ -420,7 +446,7 @@ class LabPipelineIntegrationTests(unittest.TestCase):
                 patch.object(
                     pipeline_main,
                     "generate_radio_script",
-                    side_effect=["あ" * 3500, generated_script],
+                    side_effect=["あ" * 3500, repetitive_script, generated_script],
                 ) as generate,
                 patch.object(
                     pipeline_main, "synthesize_podcast", new=AsyncMock(side_effect=synthesize)
@@ -477,11 +503,12 @@ class LabPipelineIntegrationTests(unittest.TestCase):
             self.assertFalse((root / "podcast.xml").exists())
             self.assertFalse((root / "episodes").exists())
 
-        self.assertEqual(generate.call_count, 2)
+        self.assertEqual(generate.call_count, 3)
         self.assertEqual(generate.call_args.kwargs["episode_format"], "lab")
-        self.assertTrue(generate.call_args.kwargs["length_retry"])
+        self.assertTrue(generate.call_args_list[1].kwargs["length_retry"])
+        self.assertTrue(generate.call_args.kwargs["style_retry"])
         thresholds = audio_gate.call_args.args[1]
-        self.assertEqual(thresholds.min_duration_seconds, 480.0)
+        self.assertEqual(thresholds.min_duration_seconds, 450.0)
         self.assertEqual(thresholds.max_duration_seconds, 720.0)
         archive.assert_not_called()
         rss.assert_not_called()
