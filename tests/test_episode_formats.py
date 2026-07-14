@@ -89,6 +89,15 @@ class EpisodeFormatConfigTests(unittest.TestCase):
         self.assertEqual((lab.audio_thresholds.min_duration_seconds, lab.audio_thresholds.max_duration_seconds), (450.0, 720.0))
         self.assertEqual(daily.speech_rate, "+10%")
         self.assertEqual(lab.speech_rate, "+10%")
+        self.assertEqual(
+            (
+                daily.prompt_character_min,
+                daily.prompt_character_max,
+                daily.hard_character_min,
+                daily.hard_character_max,
+            ),
+            (1200, 1400, 900, 2000),
+        )
         daily_result = episode_formats.validate_script_length("あ" * 1000, daily)
         lab_result = episode_formats.validate_script_length("あ" * 2200, lab)
         self.assertTrue(daily_result["passed"])
@@ -512,8 +521,9 @@ class LabPipelineIntegrationTests(unittest.TestCase):
         )
         self.assertIn("最低尺に届きませんでした", prompt)
         self.assertIn(
-            f"{spec.prompt_character_max}〜{spec.hard_character_max}文字", prompt
+            f"{spec.prompt_character_min}〜{spec.prompt_character_max}文字", prompt
         )
+        self.assertIn(f"上限寄りの{spec.prompt_character_max}文字前後", prompt)
         self.assertIn("同じ説明の反復はせず", prompt)
 
     def test_same_day_existing_lab_stops_instead_of_falling_back(self):

@@ -120,6 +120,13 @@ class EpisodeFormatsConfig(BaseModel):
             raise ValueError("daily label and audio thresholds must remain 4-6 minutes")
         if daily.speech_rate != "+10%":
             raise ValueError("daily speech rate is fixed at +10%")
+        if (
+            daily.prompt_character_min,
+            daily.prompt_character_max,
+            daily.hard_character_min,
+            daily.hard_character_max,
+        ) != (1200, 1400, 900, 2000):
+            raise ValueError("daily script target must remain 1200-1400 characters")
         if lab.duration_label != "8〜12分" or (
             lab.audio_thresholds.min_duration_seconds,
             lab.audio_thresholds.max_duration_seconds,

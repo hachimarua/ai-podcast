@@ -374,6 +374,9 @@ async def async_main():
             )
         script_length = validate_script_length(script, format_spec)
         dialogue_style = validate_dialogue_style(script)
+        print(
+            f"[Duration Gate] 再生成台本: {script_length['character_count']}文字"
+        )
         with open(script_path, "w", encoding="utf-8") as f:
             f.write(script)
         synthesis_success = await synthesize_podcast(

@@ -283,7 +283,8 @@ def build_prompt_content(
             f"直前の音声は{spec.duration_label}の最低尺に届きませんでした。"
             "同じ一次情報だけを使い、結論の水増しや同じ説明の反復はせず、"
             "背景、仕組み、制約、入力ソースで確認できる具体例を補って最初から再構成してください。"
-            f"台本文字数は{spec.prompt_character_max}〜{spec.hard_character_max}文字を目標にし、"
+            f"台本文字数は{spec.prompt_character_min}〜{spec.prompt_character_max}文字、"
+            f"特に上限寄りの{spec.prompt_character_max}文字前後を目標にし、"
             f"{spec.hard_character_max}文字を超えないでください。\n"
         )
     content += "日本での導入・提供開始・活用事例は、記事本文で明確な場合だけそのように説明し、記事にない日本の状況を推測で補わないでください。\n"
