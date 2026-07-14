@@ -129,7 +129,7 @@ Apple公式ではショートカット名をSiriへ言って起動する。一�
 - Phase 8では `episode_formats.py` と `config/episode_formats.json` を追加し、1回の実行で形式を固定して台本、文字量、音声品質、Manifest、RSSへ一貫して渡す。
 - 同日再実行では当日回を重複比較から除外し、過去3回は維持する。Notionの復習回数は再加算しない。
 - 公開Manifest/RSS/Actionsログ/品質レポートへNotion原文・生ID・編集プロフィール本文・モデル生成の自由記述QAを出さない。既存の公開品質レポートも閉じた分類・点数・時刻だけへ移行済み。
-- 全96件の単体・統合テストが成功している。
+- 全100件の単体・統合テストが成功している。
 - `weekly_lab.enabled` は `true`、曜日は `sunday`。土曜・月曜はDaily、日曜だけLabとなることを固定日時で確認済み。
 - GitHub Actionsによる日次放送コミットで `origin/main` が進む可能性があるため、実装開始前にfetch・rebaseと未コミット変更の確認を行う。
 
