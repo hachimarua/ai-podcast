@@ -17,6 +17,7 @@
       "hard_character_max": 1600,
       "max_news_items": 2,
       "max_review_terms": 1,
+      "speech_rate": "+10%",
       "audio_thresholds": {
         "min_duration_seconds": 240.0,
         "max_duration_seconds": 360.0,
@@ -37,6 +38,7 @@
       "hard_character_max": 3400,
       "max_news_items": 3,
       "max_review_terms": 1,
+      "speech_rate": "0%",
       "audio_thresholds": {
         "min_duration_seconds": 480.0,
         "max_duration_seconds": 720.0,

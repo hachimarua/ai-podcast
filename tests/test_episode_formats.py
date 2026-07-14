@@ -87,6 +87,8 @@ class EpisodeFormatConfigTests(unittest.TestCase):
         lab = config.formats["lab"]
         self.assertEqual((daily.audio_thresholds.min_duration_seconds, daily.audio_thresholds.max_duration_seconds), (240.0, 360.0))
         self.assertEqual((lab.audio_thresholds.min_duration_seconds, lab.audio_thresholds.max_duration_seconds), (480.0, 720.0))
+        self.assertEqual(daily.speech_rate, "+10%")
+        self.assertEqual(lab.speech_rate, "0%")
         daily_result = episode_formats.validate_script_length("あ" * 1000, daily)
         lab_result = episode_formats.validate_script_length("あ" * 2200, lab)
         self.assertTrue(daily_result["passed"])
@@ -396,7 +398,8 @@ class LabPipelineIntegrationTests(unittest.TestCase):
         }
         generated_script = "あ" * 2200
 
-        async def synthesize(_script_path, audio_path):
+        async def synthesize(_script_path, audio_path, speech_rate):
+            self.assertEqual(speech_rate, "0%")
             Path(audio_path).write_bytes(b"trial-audio")
             return True
 

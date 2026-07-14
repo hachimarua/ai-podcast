@@ -218,7 +218,7 @@ def apply_pronunciation_dict(text):
         
     return result
 
-async def generate_line_audio(text, voice, output_path):
+async def generate_line_audio(text, voice, output_path, speech_rate="+10%"):
     """1行のセリフの音声を生成"""
     sanitized_text = text.strip()
     if not sanitized_text:
@@ -231,8 +231,9 @@ async def generate_line_audio(text, voice, output_path):
     if not sanitized_text.endswith(("。", "！", "？", "!", "?")):
         sanitized_text += "。"
         
-    # 音声合成の実行 (話速を1.1倍速相当の +10% にスピードアップ設定)
-    communicate = edge_tts.Communicate(sanitized_text, voice, rate="+10%")
+    if speech_rate not in {"+10%", "0%"}:
+        raise ValueError("speech_rate must be +10% or 0%")
+    communicate = edge_tts.Communicate(sanitized_text, voice, rate=speech_rate)
     await communicate.save(output_path)
     return True
 
@@ -286,7 +287,7 @@ def concatenate_mp3_files(input_paths, output_path):
         return False
     return os.path.isfile(output_path) and os.path.getsize(output_path) > 0
 
-async def synthesize_podcast(script_path, output_mp3_path):
+async def synthesize_podcast(script_path, output_mp3_path, speech_rate="+10%"):
     """台本から音声ファイルを生成し、FFmpegで結合してポッドキャストMP3を出力"""
     parsed_lines = parse_script_file(script_path)
     if not parsed_lines:
@@ -306,7 +307,9 @@ async def synthesize_podcast(script_path, output_mp3_path):
 
                 temp_line_path = os.path.join(temp_dir, f"line_{idx}.mp3")
                 print(f" -> [{speaker}] を生成中... ({idx+1}/{len(parsed_lines)})")
-                success = await generate_line_audio(text, voice, temp_line_path)
+                success = await generate_line_audio(
+                    text, voice, temp_line_path, speech_rate=speech_rate
+                )
                 if success:
                     temp_files.append(temp_line_path)
 

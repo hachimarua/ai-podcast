@@ -282,7 +282,9 @@ async def async_main():
     )
     
     # 音声合成を実行 (非同期処理)
-    synthesis_success = await synthesize_podcast(script_path, output_mp3_path)
+    synthesis_success = await synthesize_podcast(
+        script_path, output_mp3_path, speech_rate=format_spec.speech_rate
+    )
     if not synthesis_success:
         print("[Error] 音声合成に失敗しました。パイプラインを中断します。")
         sys.exit(1)
