@@ -4,6 +4,7 @@
 
 ## まず見るもの
 
+- [次チャット申し送り](./HANDOFF_NEXT_CHAT.md)
 - [図解一覧](./visuals/README.md)
 - [Phase 7 編集品質ロードマップ](./developer/PHASE7_EDITORIAL_ROADMAP.md)
 - [配信基盤の実装ロードマップ](./developer/IMPLEMENTATION_ROADMAP.md)
@@ -15,4 +16,3 @@
 - 図は原則としてMermaidを埋め込んだMarkdownで管理し、コード変更と同じように差分を追跡する。
 - SVGやPNGは、スライドなどで必要な場合だけ書き出す。編集可能な正本にはしない。
 - 複数プロジェクトを横断する一覧は共有記憶層に置き、図そのものは複製せず、この正本へのリンクだけを登録する。
-
