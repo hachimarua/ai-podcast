@@ -231,8 +231,8 @@ async def generate_line_audio(text, voice, output_path, speech_rate="+10%"):
     if not sanitized_text.endswith(("。", "！", "？", "!", "?")):
         sanitized_text += "。"
         
-    if speech_rate not in {"+10%", "0%"}:
-        raise ValueError("speech_rate must be +10% or 0%")
+    if speech_rate not in {"+10%", "+0%"}:
+        raise ValueError("speech_rate must be +10% or +0%")
     communicate = edge_tts.Communicate(sanitized_text, voice, rate=speech_rate)
     await communicate.save(output_path)
     return True

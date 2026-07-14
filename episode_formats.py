@@ -67,7 +67,7 @@ class FormatSpec(BaseModel):
     hard_character_max: int = Field(gt=0)
     max_news_items: int = Field(ge=1, le=4)
     max_review_terms: int = Field(ge=0, le=3)
-    speech_rate: Literal["+10%", "0%"]
+    speech_rate: Literal["+10%", "+0%"]
     audio_thresholds: AudioThresholdConfig
 
     @model_validator(mode="after")
@@ -125,8 +125,8 @@ class EpisodeFormatsConfig(BaseModel):
             lab.audio_thresholds.max_duration_seconds,
         ) != (480.0, 720.0):
             raise ValueError("lab label and audio thresholds must remain 8-12 minutes")
-        if lab.speech_rate != "0%":
-            raise ValueError("lab speech rate is fixed at 0%")
+        if lab.speech_rate != "+0%":
+            raise ValueError("lab speech rate is fixed at +0%")
         if not re.fullmatch(r"formats-v[1-9][0-9]*", self.config_version):
             raise ValueError("config_version must use formats-vN")
         return self
