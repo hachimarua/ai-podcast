@@ -115,6 +115,72 @@ class EpisodeFormatConfigTests(unittest.TestCase):
         with self.assertRaises(episode_formats.EpisodeFormatError):
             script_generator.validate_dialogue_style(repetitive)
 
+    def test_script_generation_retries_transient_gemini_failure_only(self):
+        class TransientError(Exception):
+            code = 503
+
+        class FakeModels:
+            def __init__(self):
+                self.calls = 0
+
+            def generate_content(self, **_kwargs):
+                self.calls += 1
+                if self.calls == 1:
+                    raise TransientError("high demand")
+                return type("Response", (), {"text": "アミ：生成できました。"})()
+
+        client = type("Client", (), {"models": FakeModels()})()
+        news = {
+            "source": "ITmedia AI+",
+            "title": "AI update",
+            "content": "AI update details",
+            "link": "https://example.test/update",
+            "lane": "japan",
+            "evidence_role": "reporting",
+            "matched_words": [],
+        }
+        with (
+            patch.object(script_generator, "get_gemini_client", return_value=client),
+            patch.object(script_generator.time, "sleep") as sleep,
+        ):
+            script = script_generator.generate_radio_script([], [], [news])
+
+        self.assertEqual(script, "アミ：生成できました。")
+        self.assertEqual(client.models.calls, 2)
+        sleep.assert_called_once_with(5)
+
+    def test_script_generation_does_not_retry_non_transient_failure(self):
+        class InvalidRequestError(Exception):
+            code = 400
+
+        class FakeModels:
+            calls = 0
+
+            @classmethod
+            def generate_content(cls, **_kwargs):
+                cls.calls += 1
+                raise InvalidRequestError("invalid request")
+
+        client = type("Client", (), {"models": FakeModels()})()
+        news = {
+            "source": "ITmedia AI+",
+            "title": "AI update",
+            "content": "AI update details",
+            "link": "https://example.test/update",
+            "lane": "japan",
+            "evidence_role": "reporting",
+            "matched_words": [],
+        }
+        with (
+            patch.object(script_generator, "get_gemini_client", return_value=client),
+            patch.object(script_generator.time, "sleep") as sleep,
+        ):
+            script = script_generator.generate_radio_script([], [], [news])
+
+        self.assertIsNone(script)
+        self.assertEqual(client.models.calls, 1)
+        sleep.assert_not_called()
+
     def test_same_day_rerun_does_not_increment_notion_review(self):
         selected_terms = [
             {"id": "term", "review_count": 1, "last_reviewed": "2026-07-14"}

@@ -1,5 +1,6 @@
 import os
 import re
+import time
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
@@ -110,6 +111,22 @@ FORMULAIC_RESPONSE_OPENERS = (
     "なるほど",
     "確かに",
 )
+
+TRANSIENT_GEMINI_STATUS_CODES = {429, 500, 502, 503, 504}
+
+
+def _gemini_error_status(exc: Exception) -> int | None:
+    """Extract a retryable HTTP-like status without depending on SDK internals."""
+    for attribute in ("code", "status_code"):
+        value = getattr(exc, attribute, None)
+        try:
+            status = int(value)
+        except (TypeError, ValueError):
+            continue
+        if 100 <= status <= 599:
+            return status
+    match = re.search(r"\b(429|500|502|503|504)\b", str(exc))
+    return int(match.group(1)) if match else None
 
 
 def validate_dialogue_style(script: str) -> dict:
@@ -335,19 +352,34 @@ def generate_radio_script(
         duration_retry=duration_retry,
     )
     
-    try:
-        response = client.models.generate_content(
-            model=model_name,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                temperature=0.3,
+    max_attempts = 3
+    for attempt in range(1, max_attempts + 1):
+        try:
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_instruction,
+                    temperature=0.3,
+                )
             )
-        )
-        return response.text
-    except Exception as e:
-        print(f"[Error] Failed to generate script via Gemini: {e}")
-        return None
+            return response.text
+        except Exception as exc:
+            status = _gemini_error_status(exc)
+            if status in TRANSIENT_GEMINI_STATUS_CODES and attempt < max_attempts:
+                delay_seconds = 5 if attempt == 1 else 15
+                print(
+                    f"[Gemini Retry] 一時的なHTTP {status}のため、"
+                    f"{delay_seconds}秒後に再試行します ({attempt}/{max_attempts})。"
+                )
+                time.sleep(delay_seconds)
+                continue
+            print(
+                "[Error] Failed to generate script via Gemini: "
+                f"{type(exc).__name__}"
+                + (f" (HTTP {status})" if status else "")
+            )
+            return None
 
 if __name__ == "__main__":
     print("Script Generator Test Running...")
