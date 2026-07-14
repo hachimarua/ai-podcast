@@ -418,7 +418,9 @@ class LabPipelineIntegrationTests(unittest.TestCase):
                     return_value=([official, reporting], []),
                 ),
                 patch.object(
-                    pipeline_main, "generate_radio_script", return_value=generated_script
+                    pipeline_main,
+                    "generate_radio_script",
+                    side_effect=["あ" * 3500, generated_script],
                 ) as generate,
                 patch.object(
                     pipeline_main, "synthesize_podcast", new=AsyncMock(side_effect=synthesize)
@@ -475,7 +477,9 @@ class LabPipelineIntegrationTests(unittest.TestCase):
             self.assertFalse((root / "podcast.xml").exists())
             self.assertFalse((root / "episodes").exists())
 
+        self.assertEqual(generate.call_count, 2)
         self.assertEqual(generate.call_args.kwargs["episode_format"], "lab")
+        self.assertTrue(generate.call_args.kwargs["length_retry"])
         thresholds = audio_gate.call_args.args[1]
         self.assertEqual(thresholds.min_duration_seconds, 480.0)
         self.assertEqual(thresholds.max_duration_seconds, 720.0)

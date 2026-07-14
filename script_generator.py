@@ -138,6 +138,7 @@ def build_prompt_content(
     avoid_topics=None,
     episode_format="daily",
     spec=None,
+    length_retry=False,
 ):
     """プロンプトのコンテキスト（一次情報）を組み立てる"""
     spec = spec or _format_spec(episode_format)
@@ -193,6 +194,13 @@ def build_prompt_content(
         content += "ニュース1を主題として番組の大半を使い、ニュース2は主題を補強できる場合だけ任意で使ってください。Tipsは必須ではありません。これは5分のラジオ番組1本です。\n"
     else:
         content += "1テーマだけを扱い、公式根拠に基づく手順、期待結果、適用しない条件、安全な中止点を説明してください。\n"
+    if length_retry:
+        content += (
+            f"直前の台本は文字数ゲートを通過しませんでした。内容を機械的に切り詰めず、"
+            f"最初から{spec.prompt_character_min}〜{spec.prompt_character_max}文字を目標に再構成してください。"
+            f"{spec.hard_character_min}文字未満または{spec.hard_character_max}文字超過は不可です。"
+            "冗長な相づちや重複説明を減らし、出力前に概算文字数を確認してください。\n"
+        )
     content += "日本での導入・提供開始・活用事例は、記事本文で明確な場合だけそのように説明し、記事にない日本の状況を推測で補わないでください。\n"
     if avoid_topics:
         content += "次の過去3回の主要テーマは、同じ切り口・同じ説明で再利用しないでください:\n"
@@ -209,6 +217,7 @@ def generate_radio_script(
     avoid_topics=None,
     episode_format="daily",
     spec=None,
+    length_retry=False,
 ):
     """Gemini APIを使用してラジオ台本を生成"""
     spec = spec or _format_spec(episode_format)
@@ -251,6 +260,7 @@ def generate_radio_script(
         avoid_topics=avoid_topics,
         episode_format=episode_format,
         spec=spec,
+        length_retry=length_retry,
     )
     
     try:

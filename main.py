@@ -25,6 +25,7 @@ from episode_history import (
 from audio_quality import require_audio_quality
 from editorial_profile import get_approved_profile_version
 from episode_formats import (
+    EpisodeFormatError,
     JST,
     load_episode_formats,
     resolve_episode_format,
@@ -261,7 +262,33 @@ async def async_main():
             f"Generated script is too similar to a recent episode ({final_similarity:.2f}); publication stopped"
         )
 
-    script_length = validate_script_length(script, format_spec)
+    try:
+        script_length = validate_script_length(script, format_spec)
+    except EpisodeFormatError:
+        if episode_format != "lab":
+            raise
+        print(
+            "[Length Gate] Lab台本が規定文字数外のため、同じ出典のまま1回だけ再生成します。"
+        )
+        script = generate_radio_script(
+            selected_terms,
+            selected_matched,
+            selected_general,
+            model_name=model_name,
+            avoid_topics=recent_topics,
+            episode_format=episode_format,
+            spec=format_spec,
+            length_retry=True,
+        )
+        if not script:
+            raise RuntimeError("Lab length retry script generation failed")
+        final_similarity = max_recent_similarity(script, history_manifests)
+        if final_similarity >= duplicate_threshold:
+            raise RuntimeError(
+                f"Length retry script is too similar to a recent episode ({final_similarity:.2f}); "
+                "publication stopped"
+            )
+        script_length = validate_script_length(script, format_spec)
 
     # 台本の保存
     if trial_mode:
