@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "profile_version": "editorial-v1",
+  "approval_status": "approved",
+  "experience_band": "workflow_builder_operator",
+  "working_modes": [
+    "multi_model_use",
+    "coding_agent_collaboration",
+    "api_workflow_automation",
+    "knowledge_base_operations",
+    "github_delivery",
+    "serverless_operations",
+    "mobile_voice_workflows"
+  ],
+  "available_tools": [
+    "chatgpt_and_codex",
+    "claude",
+    "gemini",
+    "notebooklm",
+    "obsidian",
+    "notion",
+    "github",
+    "cloudflare",
+    "apple_shortcuts"
+  ],
+  "mastered_basics": [
+    "chat_q_and_a",
+    "summarization_rewrite",
+    "basic_prompt_structure",
+    "generic_tool_comparison",
+    "basic_workspace_setup",
+    "basic_no_code_automation"
+  ],
+  "interest_domains": [
+    "ai_agents_and_coding",
+    "workflow_automation",
+    "knowledge_management_and_rag",
+    "reliability_qa",
+    "deployment_operations",
+    "voice_first_workflows"
+  ],
+  "editorial_preferences": [
+    "implementation_first",
+    "evidence_required",
+    "constraints_required",
+    "avoid_beginner_tips",
+    "no_personal_profile_narration"
+  ]
+}

@@ -123,8 +123,10 @@ def inspect_audio(
     }
 
 
-def require_audio_quality(audio_path: str | os.PathLike[str]) -> dict:
-    result = inspect_audio(audio_path)
+def require_audio_quality(
+    audio_path: str | os.PathLike[str], thresholds: AudioThresholds | None = None
+) -> dict:
+    result = inspect_audio(audio_path, thresholds)
     if not result["passed"]:
         raise AudioQualityError(
             "Generated audio failed deterministic checks: " + ", ".join(result["issues"])

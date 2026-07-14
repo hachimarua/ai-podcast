@@ -15,7 +15,70 @@ from google import genai
 from google.genai import types
 from pydantic import BaseModel, Field
 
+from episode_history import public_qa_summary
 from gemini_models import normalize_gemini_model
+
+
+SAFE_IMPROVEMENT_BY_CATEGORY = {
+    "pronunciation": "発音ルールを確認する",
+    "speaker": "話者切替ルールを確認する",
+    "bgm": "BGM音量設定を確認する",
+    "silence": "無音区間の生成条件を確認する",
+    "clipping": "音量ピーク設定を確認する",
+    "pacing": "読み上げ速度と間を確認する",
+    "repetition": "台本の重複検査を確認する",
+    "format": "番組形式の生成条件を確認する",
+    "other": "音声品質を人間が確認する",
+}
+
+
+def _write_json_atomic(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(
+        "w", encoding="utf-8", dir=path.parent, delete=False, prefix=".public-qa-"
+    ) as handle:
+        json.dump(payload, handle, ensure_ascii=False, indent=2, sort_keys=True)
+        handle.write("\n")
+        temporary = Path(handle.name)
+    os.replace(temporary, path)
+
+
+def sanitize_public_proposal(proposal: dict) -> dict:
+    """Remove model-authored narrative while preserving proposal workflow state."""
+    public_qa = public_qa_summary({
+        "status": "completed",
+        "overall_score": proposal.get("overall_score"),
+        "issues": proposal.get("evidence", []),
+    }) or {"issues": []}
+    issues = public_qa.get("issues", [])
+    updated = dict(proposal)
+    updated["summary"] = "音声品質の確認が必要です。"
+    updated["overall_score"] = public_qa.get("overall_score")
+    updated["evidence"] = issues
+    updated["suggested_changes"] = list(dict.fromkeys(
+        SAFE_IMPROVEMENT_BY_CATEGORY[issue["category"]]
+        for issue in issues
+    ))
+    return updated
+
+
+def sanitize_public_report_tree(reports_dir: str | os.PathLike[str]) -> None:
+    """Migrate previously committed QA reports onto the current public boundary."""
+    root = Path(reports_dir)
+    for path in sorted((root / "pending").glob("*.json")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if isinstance(payload, dict):
+            _write_json_atomic(path, sanitize_public_proposal(payload))
+    for path in sorted((root / "evaluations").glob("*.json")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if isinstance(payload, dict):
+            _write_json_atomic(path, public_qa_summary(payload) or {})
 
 
 class AudioIssue(BaseModel):
@@ -146,49 +209,47 @@ def write_improvement_proposal(
     directory.mkdir(parents=True, exist_ok=True)
     proposal_id = f"qa-{episode_id}"
     severity_order = {"info": 0, "warning": 1, "critical": 2}
-    issues = qa_result.get("issues", [])
+    public_qa = public_qa_summary(qa_result) or {"issues": []}
+    issues = public_qa.get("issues", [])
     severity = max(
         (issue.get("severity", "info") for issue in issues),
         key=lambda value: severity_order.get(value, 0),
         default="warning",
     )
-    proposal = {
+    proposal = sanitize_public_proposal({
         "schema_version": 1,
         "proposal_id": proposal_id,
         "episode_id": episode_id,
         "broadcast_date": broadcast_date,
         "severity": severity,
         "category": "audio_quality",
-        "summary": qa_result.get("summary", ""),
-        "overall_score": qa_result.get("overall_score"),
-        "evidence": [
-            {
-                "category": issue.get("category"),
-                "severity": issue.get("severity"),
-                "timestamp": issue.get("timestamp"),
-                "evidence": issue.get("evidence"),
-            }
+        "summary": "音声品質の確認が必要です。",
+        "overall_score": public_qa.get("overall_score"),
+        "evidence": issues,
+        "suggested_changes": list(dict.fromkeys(
+            SAFE_IMPROVEMENT_BY_CATEGORY[issue["category"]]
             for issue in issues
-        ],
-        "suggested_changes": [
-            issue.get("suggested_change")
-            for issue in issues
-            if issue.get("suggested_change")
-        ],
+        )),
         "safe_auto_apply": False,
         "status": "pending",
         "decision_reason": None,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "decided_at": None,
-    }
+    })
     destination = directory / f"{proposal_id}.json"
-    with tempfile.NamedTemporaryFile(
-        "w", encoding="utf-8", dir=directory, delete=False, prefix=".proposal-"
-    ) as handle:
-        json.dump(proposal, handle, ensure_ascii=False, indent=2, sort_keys=True)
-        handle.write("\n")
-        temporary = Path(handle.name)
-    os.replace(temporary, destination)
+    _write_json_atomic(destination, proposal)
+    return destination
+
+
+def write_public_evaluation(
+    qa_result: dict, episode_id: str, reports_dir: str | os.PathLike[str]
+) -> Path:
+    """Persist only closed QA fields in the public report tree."""
+    directory = Path(reports_dir) / "evaluations"
+    directory.mkdir(parents=True, exist_ok=True)
+    destination = directory / f"{episode_id}.json"
+    payload = public_qa_summary(qa_result) or {}
+    _write_json_atomic(destination, payload)
     return destination
 
 
@@ -208,12 +269,7 @@ def main():
         broadcast_date=args.broadcast_date,
         reports_dir=args.reports_dir,
     )
-    summary_path = Path(args.reports_dir) / "evaluations"
-    summary_path.mkdir(parents=True, exist_ok=True)
-    (summary_path / f"{args.episode_id}.json").write_text(
-        json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_public_evaluation(result, args.episode_id, args.reports_dir)
     print(f"Gemini audio QA status: {result.get('status')}")
     print(f"Improvement proposal: {proposal or 'none'}")
 

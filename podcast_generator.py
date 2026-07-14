@@ -1,6 +1,7 @@
 import os
 import re
 import glob
+import json
 import socket
 import shutil
 from datetime import datetime, timezone, timedelta
@@ -8,6 +9,7 @@ from mutagen.mp3 import MP3
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 from dotenv import load_dotenv
+from episode_history import safe_public_text
 
 # 環境変数をロード
 load_dotenv()
@@ -43,7 +45,7 @@ def get_rfc2822_date(filepath):
     # RFC 2822フォーマット: Mon, 02 Jan 2006 15:04:05 -0700
     return dt.strftime("%a, %d %b %Y %H:%M:%S +0900")
 
-def archive_today_podcast():
+def archive_today_podcast(now=None):
     """本日の音声ファイルをepisodesディレクトリに日付付きでアーカイブコピー"""
     base_dir = os.path.dirname(os.path.abspath(__file__))
     source_path = os.path.join(base_dir, "todays_podcast.mp3")
@@ -58,7 +60,7 @@ def archive_today_podcast():
     # 日本時間 (JST) で日付付きのファイル名を作成 (例: episodes/podcast_20260619_073000.mp3)
     # 同日分が既に存在する場合はそのファイルを置き換え、再実行でエピソードを増やさない。
     JST = timezone(timedelta(hours=9))
-    now = datetime.now(JST)
+    now = now or datetime.now(JST)
     date_prefix = now.strftime("%Y%m%d")
     existing_today = sorted(glob.glob(os.path.join(episodes_path, f"podcast_{date_prefix}_*.mp3")))
     if existing_today:
@@ -73,6 +75,31 @@ def archive_today_podcast():
     shutil.copy2(source_path, dest_path)
     print(f"Archived today's podcast to: {dest_path}")
     return dest_filename
+
+
+def _manifest_episode_metadata(base_dir, filename):
+    episode_id = os.path.splitext(filename)[0]
+    path = os.path.join(base_dir, "episode_manifests", f"{episode_id}.json")
+    try:
+        with open(path, "r", encoding="utf-8") as handle:
+            manifest = json.load(handle)
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(manifest, dict):
+        return None
+
+    episode_format = manifest.get("episode_format")
+    if episode_format not in {"daily", "lab"}:
+        return None
+    topic = safe_public_text(
+        manifest.get("public_topic", ""), fallback="最新AIニュース", max_length=160
+    )
+    label = "Daily Brief" if episode_format == "daily" else "AI実装ラボ"
+    duration = "4〜6分" if episode_format == "daily" else "8〜12分"
+    return {
+        "title": f"{label}｜{topic}",
+        "description": f"{label}（{duration}）｜テーマ: {topic}",
+    }
 
 def generate_podcast_rss():
     """episodesフォルダ内のMP3ファイルを元にpodcast.xmlを再構築"""
@@ -137,10 +164,17 @@ def generate_podcast_rss():
         else:
             ep_title = f"AI学習ラジオ ({filename})"
             pub_date = get_rfc2822_date(mp3_path)
+
+        manifest_metadata = _manifest_episode_metadata(base_dir, filename)
+        if manifest_metadata:
+            ep_title = manifest_metadata["title"]
+            ep_description = manifest_metadata["description"]
+        else:
+            ep_description = "本日の復習用語を交えた最新AIニュースの要約解説です。"
             
         item = ET.SubElement(channel, "item")
         ET.SubElement(item, "title").text = ep_title
-        ET.SubElement(item, "description").text = f"本日の復習用語を交えた最新AIニュースの要約解説です。"
+        ET.SubElement(item, "description").text = ep_description
         ET.SubElement(item, "pubDate").text = pub_date
         
         # 音声エンクロージャ (MP3へのURL、サイズ、タイプ)

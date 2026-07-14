@@ -186,7 +186,7 @@ def process_inbox():
         title_list = item.get("properties", {}).get("名前", {}).get("title", [])
         initial_title = title_list[0].get("plain_text", "無題のメモ") if title_list else "無題のメモ"
         
-        print(f"\n[{idx}/{len(inbox_items)}] 処理中: '{initial_title}' ...")
+        print(f"\n[{idx}/{len(inbox_items)}] 受信箱アイテムを処理中...")
         
         # 1. 本文ローデータを取得
         raw_content = fetch_page_content(page_id)
@@ -239,7 +239,7 @@ def process_inbox():
                 JST = timezone(timedelta(hours=9))
                 study_date_str = datetime.now(JST).strftime('%Y-%m-%d')
                 
-            print(f" -> AIによる抽出結果:\n    [用語名]: {study_title}\n    [日付]: {study_date_str}")
+            print(" -> AIによる構造化抽出が完了しました。")
             
             # 3. メインデータベースへ清書登録
             create_url = "https://api.notion.com/v1/pages"

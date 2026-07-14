@@ -149,44 +149,61 @@ def fetch_notion_terms():
         
     return terms
 
-def select_terms_for_review(count=3, recent_manifests=None, today=None):
-    """Deterministically select fresh terms that were not used in recent episodes."""
+def select_terms_for_review(
+    count=3, recent_manifests=None, today=None, preferred_term_keys=None
+):
+    """Select fresh terms, or restore the exact term set for a same-day rerun."""
     terms = fetch_notion_terms()
     if not terms:
         return []
 
     recent_manifests = recent_manifests or []
-    recent_keys = {
-        key
-        for manifest in recent_manifests
-        for key in manifest.get("selected_term_keys", [])
-    }
-    candidates = [
-        term
-        for term in terms
-        if stable_term_key(str(term["id"])) not in recent_keys
-        and not recently_reviewed(term.get("last_reviewed"), today=today, days=3)
-        and max_topic_similarity(term.get("name", ""), recent_manifests)
-        < TOPIC_SIMILARITY_THRESHOLD
-    ]
-
-    # Never-reviewed and lower-review-count records come first. Stable text keys
-    # make the selection reproducible for tests and reruns.
-    candidates.sort(
-        key=lambda term: (
-            term.get("review_count", 0),
-            term.get("last_reviewed") or "",
-            term.get("name", "").casefold(),
-            str(term.get("id", "")),
+    preferred_terms_locked = preferred_term_keys is not None
+    preferred_term_keys = list(dict.fromkeys(preferred_term_keys or []))
+    if preferred_terms_locked:
+        preferred_order = {
+            key: index for index, key in enumerate(preferred_term_keys)
+        }
+        candidates = [
+            term
+            for term in terms
+            if stable_term_key(str(term["id"])) in preferred_order
+        ]
+        candidates.sort(
+            key=lambda term: preferred_order[stable_term_key(str(term["id"]))]
         )
-    )
+    else:
+        recent_keys = {
+            key
+            for manifest in recent_manifests
+            for key in manifest.get("selected_term_keys", [])
+        }
+        candidates = [
+            term
+            for term in terms
+            if stable_term_key(str(term["id"])) not in recent_keys
+            and not recently_reviewed(term.get("last_reviewed"), today=today, days=3)
+            and max_topic_similarity(term.get("name", ""), recent_manifests)
+            < TOPIC_SIMILARITY_THRESHOLD
+        ]
+
+        # Never-reviewed and lower-review-count records come first. Stable text
+        # keys make the fresh selection reproducible.
+        candidates.sort(
+            key=lambda term: (
+                term.get("review_count", 0),
+                term.get("last_reviewed") or "",
+                term.get("name", "").casefold(),
+                str(term.get("id", "")),
+            )
+        )
     selected = candidates[:count]
                     
     # 選出されたレコードに対してのみ、本文（中身のテキスト）をNotionから遅延読み込みする
     # ※APIの負荷軽減および高速化のため
     for s in selected:
         if is_notion_configured() and not s["id"].startswith("mock-"):
-            print(f" -> ページ内容を読み込み中: {s['name']}")
+            print(" -> 選出済み学習ページの内容を読み込み中")
             s["content"] = fetch_page_text_content(s["id"])
         else:
             # モックモード時はcontentは既に存在
@@ -217,7 +234,7 @@ def update_term_review_status(page_id, current_count):
                     break
             with open(MOCK_FILE_PATH, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=4, ensure_ascii=False)
-            print(f"[Mock] Updated {page_id}: count={new_count}, date={today_str}")
+            print(f"[Mock] Updated one review record: count={new_count}, date={today_str}")
         return True
         
     # データベースのページ更新 (PATCH /v1/pages/{page_id})
@@ -238,7 +255,7 @@ def update_term_review_status(page_id, current_count):
     
     session = get_notion_session()
     request_json(session, "PATCH", url, json=payload, safe_to_retry=True)
-    print(f"[Notion DB] Updated record {page_id}: 復習回数={new_count}, 最終復習日={today_str}")
+    print(f"[Notion DB] Updated one review record: 復習回数={new_count}, 最終復習日={today_str}")
     return True
 
 # 動作テスト用

@@ -204,6 +204,8 @@ class NewsSelectionTests(unittest.TestCase):
         tech_one = self.make_news("TechCrunch AI", "world", "tech-one")
         tech_two = self.make_news("TechCrunch AI", "world", "tech-two")
         japan = self.make_news("ITmedia AI+", "japan", "japan-one")
+        for item in (tech_one, tech_two, japan):
+            item["matched_words"] = ["shared-theme"]
         selected, audit = news_collector.select_news_for_broadcast(
             [], [tech_one, tech_two, japan], [],
             now=datetime(2026, 7, 12, tzinfo=timezone.utc),
@@ -217,6 +219,8 @@ class NewsSelectionTests(unittest.TestCase):
         stale_japan = self.make_news(
             "ITmedia AI+", "japan", "stale-japan", "2026-06-01 00:00:00"
         )
+        for item in (tech, google, stale_japan):
+            item["matched_words"] = ["shared-theme"]
         selected, _audit = news_collector.select_news_for_broadcast(
             [], [tech, google, stale_japan], [],
             now=datetime(2026, 7, 12, tzinfo=timezone.utc),
@@ -226,11 +230,21 @@ class NewsSelectionTests(unittest.TestCase):
     def test_notion_match_remains_the_first_priority(self):
         matched = self.make_news("TechCrunch AI", "world", "matched")
         japan = self.make_news("AI Watch", "japan", "japan")
+        matched["matched_words"] = ["shared-theme"]
+        japan["matched_words"] = ["shared-theme"]
         selected, audit = news_collector.select_news_for_broadcast(
             [matched], [japan], [], now=datetime(2026, 7, 12, tzinfo=timezone.utc)
         )
         self.assertEqual([item["source"] for item in selected], ["TechCrunch AI", "AI Watch"])
         self.assertTrue(audit["selected"][0]["matched_notion_terms"])
+
+    def test_unrelated_second_item_is_omitted(self):
+        primary = self.make_news("TechCrunch AI", "world", "model-release")
+        unrelated = self.make_news("AI Watch", "japan", "robotics-event")
+        selected, _audit = news_collector.select_news_for_broadcast(
+            [], [primary, unrelated], [], now=datetime(2026, 7, 12, tzinfo=timezone.utc)
+        )
+        self.assertEqual([item["source"] for item in selected], ["TechCrunch AI"])
 
 
 class DependencyLockTests(unittest.TestCase):
@@ -301,6 +315,16 @@ class EpisodeHistoryTests(unittest.TestCase):
         manifests = [{"news_urls": ["https://example.test/old"]}]
         filtered, removed = episode_history.exclude_recent_news(news, manifests)
         self.assertEqual([item["title"] for item in filtered], ["new"])
+        self.assertEqual(removed, 1)
+
+    def test_recent_news_query_variant_is_excluded_by_canonical_url(self):
+        news = [{
+            "title": "same",
+            "link": "https://example.test/article?utm_source=rss#section",
+        }]
+        manifests = [{"news_urls": ["https://example.test/article"]}]
+        filtered, removed = episode_history.exclude_recent_news(news, manifests)
+        self.assertEqual(filtered, [])
         self.assertEqual(removed, 1)
 
     def test_legacy_episode_date_is_parsed_from_filename(self):
@@ -412,6 +436,11 @@ class DuplicateGateIntegrationTests(unittest.TestCase):
                 ),
                 patch.object(
                     pipeline_main,
+                    "validate_script_length",
+                    return_value={"passed": True, "character_count": 1000},
+                ),
+                patch.object(
+                    pipeline_main,
                     "run_shadow_audio_qa",
                     return_value={
                         "status": "completed",
@@ -515,18 +544,19 @@ class GeminiAudioQATests(unittest.TestCase):
             })
 
     def test_warning_creates_pending_proposal_without_transcript(self):
+        private = "private-audio-sentinel"
         qa_result = {
             "status": "completed",
             "model": "gemini-2.5-flash",
-            "summary": "BGMが一部大きい",
+            "summary": private,
             "overall_score": 3,
             "requires_human_review": True,
             "issues": [{
                 "category": "bgm",
                 "severity": "warning",
                 "timestamp": "02:14",
-                "evidence": "声が一時的に聞き取りにくい",
-                "suggested_change": "BGM音量を少し下げる",
+                "evidence": private,
+                "suggested_change": private,
             }],
         }
         with tempfile.TemporaryDirectory() as tmp:
@@ -540,6 +570,31 @@ class GeminiAudioQATests(unittest.TestCase):
         self.assertEqual(payload["status"], "pending")
         self.assertFalse(payload["safe_auto_apply"])
         self.assertNotIn("transcript", json.dumps(payload, ensure_ascii=False).lower())
+        self.assertNotIn(private, json.dumps(payload, ensure_ascii=False))
+        self.assertEqual(payload["suggested_changes"], ["BGM音量設定を確認する"])
+
+    def test_public_evaluation_removes_all_narrative_qa_text(self):
+        private = "private-evaluation-sentinel"
+        qa_result = {
+            "status": "completed",
+            "overall_score": 3,
+            "summary": private,
+            "requires_human_review": True,
+            "issues": [{
+                "category": "pacing",
+                "severity": "warning",
+                "timestamp": "01:20",
+                "evidence": private,
+                "suggested_change": private,
+            }],
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            path = gemini_audio_qa.write_public_evaluation(
+                qa_result, "episode", tmp
+            )
+            serialized = path.read_text(encoding="utf-8")
+        self.assertNotIn(private, serialized)
+        self.assertIn('"category": "pacing"', serialized)
 
     def test_clean_result_does_not_create_proposal(self):
         qa_result = {

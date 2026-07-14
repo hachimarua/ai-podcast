@@ -6,32 +6,39 @@ from datetime import datetime, timedelta, timezone
 import time
 import requests
 from api_client import request_bytes
+from episode_history import safe_public_news_urls
 
 # 信頼できるAI情報源のホワイトリストRSSフィード
 SOURCE_CONFIG = {
     "TechCrunch AI": {
         "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
         "lane": "world",
+        "evidence_role": "reporting",
     },
     "Google AI Blog": {
         "url": "https://blog.google/technology/ai/rss/",
         "lane": "world",
+        "evidence_role": "official",
     },
     "Hugging Face Blog": {
         "url": "https://huggingface.co/blog/feed.xml",
         "lane": "world",
+        "evidence_role": "official",
     },
     "arXiv cs.AI (Artificial Intelligence)": {
         "url": "https://arxiv.org/rss/cs.AI",
         "lane": "research",
+        "evidence_role": "research",
     },
     "ITmedia AI+": {
         "url": "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml",
         "lane": "japan",
+        "evidence_role": "reporting",
     },
     "AI Watch": {
         "url": "https://ai.watch.impress.co.jp/data/rss/1.0/aiw/feed.rdf",
         "lane": "japan",
+        "evidence_role": "reporting",
     },
 }
 
@@ -116,6 +123,9 @@ def fetch_feed_entries(feed_name, feed_url, max_entries=5):
             entries.append({
                 "source": feed_name,
                 "lane": SOURCE_CONFIG.get(feed_name, {}).get("lane", "world"),
+                "evidence_role": SOURCE_CONFIG.get(feed_name, {}).get(
+                    "evidence_role", "reporting"
+                ),
                 "title": clean_title,
                 "link": entry.get("link", ""),
                 "published": published_dt.strftime("%Y-%m-%d %H:%M:%S"),
@@ -214,7 +224,7 @@ def match_news_with_words(news_list, words):
                     
         if matched_words:
             news_copy = news.copy()
-            news_copy["matched_words"] = list(set(matched_words))
+            news_copy["matched_words"] = list(dict.fromkeys(matched_words))
             matched_news.append(news_copy)
         else:
             unmatched_news.append(news)
@@ -255,7 +265,9 @@ def _recent_source_counts(recent_manifests):
     return counts
 
 
-def select_news_for_broadcast(matched_news, unmatched_news, recent_manifests, *, now=None):
+def select_news_for_broadcast(
+    matched_news, unmatched_news, recent_manifests, *, now=None, max_items=MAX_NEWS_PER_BROADCAST
+):
     """Select at most two source-diverse items for one five-minute broadcast.
 
     A matching item keeps priority.  The second slot prefers a fresh Japanese
@@ -263,6 +275,8 @@ def select_news_for_broadcast(matched_news, unmatched_news, recent_manifests, *,
     a deterministic fallback policy, not a daily quota: stale Japanese items are
     never forced into the programme.
     """
+    if not 1 <= max_items <= 4:
+        raise ValueError("max_items must be between 1 and 4")
     now = now or datetime.now(timezone.utc)
     recent_source_counts = _recent_source_counts(recent_manifests)
     candidates = []
@@ -297,14 +311,34 @@ def select_news_for_broadcast(matched_news, unmatched_news, recent_manifests, *,
         selected.append(candidate)
         reasons.append(reason)
 
+    def related_to_primary(candidate):
+        if not selected:
+            return True
+        primary = selected[0]
+        primary_terms = set(primary.get("matched_words", []))
+        candidate_terms = set(candidate.get("matched_words", []))
+        if primary_terms and candidate_terms and primary_terms & candidate_terms:
+            return True
+
+        def title_tokens(item):
+            title = str(item.get("title", "")).casefold()
+            tokens = set(re.findall(r"[a-z0-9][a-z0-9.+-]{2,}", title))
+            return tokens - {"the", "and", "for", "with", "from", "new", "update", "ai"}
+
+        return bool(title_tokens(primary) & title_tokens(candidate))
+
     if ordered_candidates:
         add(
             ordered_candidates[0],
             "notion_match" if ordered_candidates[0]["_matched_for_review"] else "least_recent_source",
         )
 
-    while len(selected) < MAX_NEWS_PER_BROADCAST:
-        remaining = [item for item in ordered_candidates if item not in selected]
+    while len(selected) < max_items:
+        remaining = [
+            item
+            for item in ordered_candidates
+            if item not in selected and related_to_primary(item)
+        ]
         if not remaining:
             break
 
@@ -349,6 +383,110 @@ def select_news_for_broadcast(matched_news, unmatched_news, recent_manifests, *,
         "japan_freshness_days": JAPAN_NEWS_MAX_AGE_DAYS,
     }
     return selected, audit
+
+
+class LabSourceError(RuntimeError):
+    """Raised when one theme lacks multiple sources and an official basis."""
+
+
+def validate_lab_sources(news_items):
+    """Require a shared anchor, distinct public URLs/sources, and trusted official source."""
+
+    if len(news_items) < 2:
+        raise LabSourceError("lab requires at least two sources")
+    urls = {
+        canonical
+        for item in news_items
+        if (canonical_urls := safe_public_news_urls([item.get("link")]))
+        for canonical in canonical_urls
+    }
+    sources = {item.get("source") for item in news_items if item.get("source")}
+    if len(urls) < 2 or len(sources) < 2:
+        raise LabSourceError("lab requires distinct URLs and sources")
+    common_terms = None
+    trusted_roles = []
+    for item in news_items:
+        terms = set(item.get("matched_words", []))
+        common_terms = terms if common_terms is None else common_terms & terms
+        trusted_roles.append(
+            SOURCE_CONFIG.get(item.get("source"), {}).get("evidence_role", "untrusted")
+        )
+    if not common_terms:
+        raise LabSourceError("lab sources must share one matched theme")
+    if "official" not in trusted_roles:
+        raise LabSourceError("lab requires an official source from trusted configuration")
+    return True
+
+
+def select_news_for_lab(matched_news, recent_manifests, *, max_items=3):
+    """Select one Notion-anchored theme from distinct sources for a non-public lab run."""
+
+    if not 2 <= max_items <= 4:
+        raise ValueError("lab max_items must be between 2 and 4")
+    recent_source_counts = _recent_source_counts(recent_manifests)
+    grouped = {}
+    term_order = []
+    for index, item in enumerate(matched_news):
+        for term in item.get("matched_words", []):
+            if term not in grouped:
+                grouped[term] = []
+                term_order.append(term)
+            candidate = item.copy()
+            candidate["lane"] = candidate.get(
+                "lane", SOURCE_CONFIG.get(candidate.get("source"), {}).get("lane", "world")
+            )
+            candidate["evidence_role"] = SOURCE_CONFIG.get(
+                candidate.get("source"), {}
+            ).get("evidence_role", "untrusted")
+            candidate["_matched_for_review"] = True
+            candidate["_candidate_index"] = index
+            grouped[term].append(candidate)
+
+    for term in term_order:
+        candidates = grouped[term]
+        deduped = []
+        seen_urls = set()
+        seen_sources = set()
+        for candidate in sorted(
+            candidates,
+            key=lambda item: (
+                0 if item.get("evidence_role") == "official" else 1,
+                recent_source_counts[item.get("source", "")],
+                item["_candidate_index"],
+            ),
+        ):
+            url = candidate.get("link")
+            source = candidate.get("source")
+            if not url or url in seen_urls or source in seen_sources:
+                continue
+            seen_urls.add(url)
+            seen_sources.add(source)
+            candidate["_selection_reason"] = (
+                "official_basis"
+                if candidate.get("evidence_role") == "official"
+                else "corroborating_source"
+            )
+            deduped.append(candidate)
+            if len(deduped) >= max_items:
+                break
+
+        if len(deduped) < 2:
+            continue
+        try:
+            validate_lab_sources(deduped)
+        except LabSourceError:
+            continue
+        return deduped, {
+            "anchor_present": True,
+            "selected_sources": [item.get("source", "") for item in deduped],
+            "evidence_roles": [item.get("evidence_role", "reporting") for item in deduped],
+            "official_basis_present": True,
+        }
+
+    raise LabSourceError(
+        "AI implementation lab requires one matched theme, two distinct URLs/sources, "
+        "and at least one official source"
+    )
 
 # 簡易動作テスト用
 if __name__ == "__main__":
