@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜From ML Predictions to Informed Diagnostic Assistance Using the Toulmin Model of Argumentation</title>
+      <description>Daily Brief（4〜6分）｜テーマ: From ML Predictions to Informed Diagnostic Assistance Using the Toulmin Model of Argumentation</description>
+      <pubDate>Wed, 15 Jul 2026 06:53:20 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260715_065320.mp3" length="1816125" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260715_065320.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:07</itunes:duration>
+    </item>
+    <item>
       <title>2026年07月14日 05:19 のAI学習ラジオ</title>
       <description>本日の復習用語を交えた最新AIニュースの要約解説です。</description>
       <pubDate>Tue, 14 Jul 2026 05:19:05 +0900</pubDate>
