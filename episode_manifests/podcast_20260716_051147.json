@@ -1,0 +1,164 @@
+{
+  "audio_sha256": "ec0009b27f30345e194c5f7d0bd72db9e8528bc9618ad61f40e2efd305bf6f3f",
+  "broadcast_date": "2026-07-16",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 249.84,
+      "file_size_bytes": 1863765,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.7,
+      "mean_volume_db": -18.1,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 240.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0781,
+    "format_config_version": "formats-v3",
+    "initial_script_similarity": 0.0781,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 4,
+        "arXiv cs.AI (Artificial Intelligence)": 4
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "TechCrunch AI"
+        }
+      ],
+      "selected_sources": [
+        "TechCrunch AI"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1726,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 249,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260716_051147",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "other",
+        "severity": "warning",
+        "timestamp": "00:23"
+      }
+    ],
+    "overall_score": 4,
+    "pacing_score": 5,
+    "requires_human_review": true,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-07-15T20:13:36.863510+00:00",
+  "news_urls": [
+    "https://techcrunch.com/2026/07/15/amid-hardware-legal-battle-openai-releases-a-230-keyboard-for-codex/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "Amid hardware legal battle, OpenAI releases a $230 keyboard for Codex",
+  "public_topic": "Amid hardware legal battle, OpenAI releases a $230 keyboard for Codex",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    9703437932735449,
+    10374716899364513,
+    23283207402547268,
+    11521214778982576,
+    12509406821491812,
+    165536675470800,
+    2716566947630070,
+    4135326708771888,
+    5964220499439956,
+    3967669317424698,
+    49524391075883409,
+    4283313897516378,
+    14877511405743814,
+    1429089445849674,
+    2285260538844336,
+    1434996821004021,
+    10722091294859747,
+    3004688288363015,
+    2171471987097244,
+    23580485576827711,
+    11143650943281269,
+    36985001960403860,
+    4306995308246049,
+    11591725748991880,
+    5765846795912009,
+    4618391342813000,
+    20544914190397642,
+    713744497435416,
+    11975816942960138,
+    30755425864676396,
+    24503697764802241,
+    12220751025299920,
+    24741318016875600,
+    2778286662332694,
+    27263378417375774,
+    21539025076271818,
+    10378104883701481,
+    10697947398112756,
+    21712303585606538,
+    13427946372763544,
+    17657316974094383,
+    14851531917484785,
+    4810925521655239,
+    17422534512701919,
+    6313739893000385,
+    23551267939232013,
+    35867920369681353,
+    42288227291950551,
+    216813722752005,
+    21337864972998940,
+    40571227628519226,
+    35762072591573520,
+    29955154203341325,
+    5421410012012404,
+    738511611095084,
+    15461807729424134,
+    7049113503306904,
+    2178088302083558,
+    43354170647672026,
+    3628120300419758,
+    2563212829651551,
+    348526630600985,
+    4418633863921627
+  ],
+  "script_sha256": "d8b955834d37faee6432f8978caa0933090ee5a54ef156744c47bdd10d5deb5b",
+  "selected_term_keys": [
+    "fde10e056ba7bd05ab2fe3c7"
+  ],
+  "topic_fingerprint": "b6f14c8093be04c4aa8d6d36"
+}

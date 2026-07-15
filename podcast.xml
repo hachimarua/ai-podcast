@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜Amid hardware legal battle, OpenAI releases a $230 keyboard for Codex</title>
+      <description>Daily Brief（4〜6分）｜テーマ: Amid hardware legal battle, OpenAI releases a $230 keyboard for Codex</description>
+      <pubDate>Thu, 16 Jul 2026 05:11:47 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260716_051147.mp3" length="1863765" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260716_051147.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:09</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜From ML Predictions to Informed Diagnostic Assistance Using the Toulmin Model of Argumentation</title>
       <description>Daily Brief（4〜6分）｜テーマ: From ML Predictions to Informed Diagnostic Assistance Using the Toulmin Model of Argumentation</description>
       <pubDate>Wed, 15 Jul 2026 06:53:20 +0900</pubDate>
