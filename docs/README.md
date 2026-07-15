@@ -7,6 +7,7 @@
 - [次チャット申し送り](./HANDOFF_NEXT_CHAT.md)
 - [図解一覧](./visuals/README.md)
 - [Phase 7 編集品質ロードマップ](./developer/PHASE7_EDITORIAL_ROADMAP.md)
+- [Siriフィードバック導線 実装仕様](./developer/SIRI_FEEDBACK_IMPLEMENTATION.md)
 - [配信基盤の実装ロードマップ](./developer/IMPLEMENTATION_ROADMAP.md)
 
 ## 管理方針

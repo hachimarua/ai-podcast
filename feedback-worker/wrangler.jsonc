@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ai-radio-feedback",
+  "main": "src/index.js",
+  "compatibility_date": "2026-06-16",
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "PODCAST_FEED_URL": "https://hachimarua.github.io/ai-podcast/podcast.xml"
+  },
+  "d1_databases": [
+    {
+      "binding": "AI_RADIO_FEEDBACK_DB",
+      "database_name": "ai-radio-feedback",
+      "database_id": "d46ed5ff-998f-4b29-89d1-7c53ebc8b7b3",
+      "migrations_dir": "migrations"
+    }
+  ]
+}
