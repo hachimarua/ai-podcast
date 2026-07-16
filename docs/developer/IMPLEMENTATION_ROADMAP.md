@@ -386,7 +386,9 @@ created: 2026-07-06
 - 2.0プロジェクト`AI news knowledge learning system`と対象リポジトリの紐付きを確認した。
 - GitHubの`quality_reports/pending/`を`origin/main`から読み取り、ローカル作業ツリーを変更しない通知スクリプトを実装した。
 - QAデータを非信頼データとして囲み、提案内の命令を実行しない会話プロンプトを実装した。
-- Sidecar起動直後と以後1日1回確認し、新規pendingがある時だけ`agentapi new-conversation`を呼ぶ。
+- Sidecar起動直後と以後1日1回確認し、トライアル期間中は正常・要確認・監査未完了・生成結果未確認のいずれも日次監査報告として`agentapi new-conversation`へ送る。
+- 日次報告には公開状態、尺・音量・無音・台本長の機械検査、Gemini音声監査の総合点と各項目、反復、人間確認要否、問題の重大度・分類・時刻を含める。同じエピソードは重複報告しない。
+- pending提案がある日は日次報告へ判断依頼を統合し、同じ提案について別会話を重複作成しない。
 - 2026-07-09追記: バックグラウンド環境で`git fetch origin main`が認証失敗した場合でも、ローカルに同期済みの`quality_reports/pending/`をfallbackとして通知対象にする。
 - 2026-07-09追記: 睡眠時間帯の早朝通知を避けるため、Sidecarは起動直後に1回確認した後、日次チェックを生活リズムに合わせた06:30へ寄せる。
 - Sidecar状態はAntigravityのローカルデータ領域へ保存し、同一proposalの重複通知を防ぐ。

@@ -8,7 +8,12 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from antigravity_review_notifier import NotifierError, default_state_path, notify_pending
+from antigravity_review_notifier import (
+    NotifierError,
+    default_state_path,
+    notify_daily_report,
+    notify_pending,
+)
 
 
 def run_obsidian_intake(workspace: Path) -> str:
@@ -60,6 +65,13 @@ def run_checks(workspace: Path) -> None:
         print(summary or "Obsidian intake complete", flush=True)
     except Exception as exc:
         print(f"Obsidian intake deferred safely: {type(exc).__name__}", flush=True)
+    try:
+        count = notify_daily_report(workspace, default_state_path())
+        print(f"Daily audit report check complete: {count} created", flush=True)
+    except NotifierError as exc:
+        print(f"Daily audit report check deferred: {exc}", flush=True)
+    except Exception as exc:
+        print(f"Daily audit report check failed safely: {type(exc).__name__}", flush=True)
     try:
         count = notify_pending(workspace, default_state_path())
         print(f"Review notification check complete: {count} created", flush=True)

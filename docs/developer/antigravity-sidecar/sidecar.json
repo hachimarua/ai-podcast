@@ -1,6 +1,6 @@
 {
-  "description": "Checks AI learning radio quality proposals and creates one Antigravity review conversation per new proposal.",
-  "display_name": "AIラジオ改善提案",
+  "description": "Creates one daily AI learning radio audit report, including clean results, and opens review conversations for actionable findings.",
+  "display_name": "AIラジオ日次監査",
   "command": "python3",
   "args": [
     "/Users/sakiya/Documents/Antigravity IDE/AI news knowledge learning system/antigravity_sidecar_runner.py",

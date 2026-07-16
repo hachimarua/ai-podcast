@@ -650,6 +650,44 @@ class AntigravityNotifierTests(unittest.TestCase):
             "status": "pending",
         }
 
+    def sample_manifest(self, *, requires_human_review=False):
+        issues = []
+        if requires_human_review:
+            issues = [{
+                "category": "other",
+                "severity": "warning",
+                "timestamp": "00:23",
+            }]
+        return {
+            "episode_id": "podcast_20260716_051147",
+            "broadcast_date": "2026-07-16",
+            "episode_format": "daily",
+            "publish_status": "published",
+            "public_topic": "Codex向けキーボード",
+            "deterministic_checks": {
+                "audio_quality": {
+                    "passed": True,
+                    "duration_seconds": 249.84,
+                    "mean_volume_db": -18.1,
+                    "max_volume_db": -1.7,
+                    "long_silence_seconds": 0,
+                },
+                "script_length": {"passed": True, "character_count": 1726},
+                "final_script_similarity": 0.0781,
+            },
+            "gemini_qa_summary": {
+                "status": "completed",
+                "overall_score": 4,
+                "speech_clarity_score": 5,
+                "dialogue_naturalness_score": 5,
+                "bgm_balance_score": 5,
+                "pacing_score": 5,
+                "has_internal_repetition": False,
+                "requires_human_review": requires_human_review,
+                "issues": issues,
+            },
+        }
+
     def test_prompt_keeps_user_approval_boundary_and_assigns_agreed_work(self):
         prompt = antigravity_review_notifier.build_review_prompt(
             self.sample_proposal(), Path("/tmp/workspace")
@@ -707,6 +745,74 @@ class AntigravityNotifierTests(unittest.TestCase):
                 pending = antigravity_review_notifier.fetch_pending_proposals(workspace)
 
         self.assertEqual([item["proposal_id"] for item in pending], [proposal["proposal_id"]])
+
+    def test_daily_report_prompt_includes_clean_result_scores(self):
+        prompt = antigravity_review_notifier.build_daily_report_prompt(
+            self.sample_manifest(),
+            None,
+            Path("/tmp/workspace"),
+            "2026-07-16",
+        )
+        self.assertIn("【AIラジオ日次監査 2026-07-16】正常", prompt)
+        self.assertIn('"overall_score": 4', prompt)
+        self.assertIn('"speech_clarity_score": 5', prompt)
+        self.assertIn("正常な日も省略せず", prompt)
+        self.assertNotIn("Agreed / Disagree / Later", prompt)
+
+    def test_daily_report_dedupes_episode_and_absorbs_pending_notification(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp) / "workspace"
+            (workspace / ".git").mkdir(parents=True)
+            state_path = Path(tmp) / "state" / "notifier.json"
+            manifest = self.sample_manifest(requires_human_review=True)
+            proposal = {
+                **self.sample_proposal(),
+                "episode_id": manifest["episode_id"],
+                "proposal_id": f"qa-{manifest['episode_id']}",
+            }
+            with (
+                patch.object(
+                    antigravity_review_notifier,
+                    "fetch_latest_manifest",
+                    return_value=manifest,
+                ),
+                patch.object(
+                    antigravity_review_notifier,
+                    "fetch_pending_proposals",
+                    return_value=[proposal],
+                ),
+                patch.object(
+                    antigravity_review_notifier,
+                    "_run",
+                    return_value="conversation-id",
+                ) as agentapi,
+            ):
+                first = antigravity_review_notifier.notify_daily_report(
+                    workspace, state_path, report_date="2026-07-16"
+                )
+                second = antigravity_review_notifier.notify_daily_report(
+                    workspace, state_path, report_date="2026-07-16"
+                )
+
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+        self.assertEqual(first, 1)
+        self.assertEqual(second, 0)
+        self.assertEqual(agentapi.call_count, 1)
+        self.assertIn(manifest["episode_id"], state["daily_reports"])
+        self.assertIn(proposal["proposal_id"], state["notified"])
+        self.assertEqual(state["daily_reports"][manifest["episode_id"]]["verdict"], "要確認")
+
+    def test_daily_report_marks_missing_current_episode(self):
+        stale = self.sample_manifest()
+        stale["broadcast_date"] = "2026-07-15"
+        prompt = antigravity_review_notifier.build_daily_report_prompt(
+            stale,
+            None,
+            Path("/tmp/workspace"),
+            "2026-07-16",
+        )
+        self.assertIn("【AIラジオ日次監査 2026-07-16】生成結果未確認", prompt)
+        self.assertIn('"latest_available_broadcast_date": "2026-07-15"', prompt)
 
     def test_obsidian_intake_runs_as_isolated_child_process(self):
         workspace = Path("/tmp/workspace")
