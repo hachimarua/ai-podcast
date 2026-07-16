@@ -1,0 +1,177 @@
+{
+  "audio_sha256": "5b44a8253602458b731354ba535518f5a73e8bd54c01cd98f6e72558461306c0",
+  "broadcast_date": "2026-07-17",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 261.336,
+      "file_size_bytes": 1890765,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.9,
+      "mean_volume_db": -17.8,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 240.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0938,
+    "format_config_version": "formats-v3",
+    "initial_script_similarity": 0.0938,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 4,
+        "Google AI Blog": 5,
+        "Hugging Face Blog": 5,
+        "ITmedia AI+": 3,
+        "TechCrunch AI": 5,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Google AI Blog"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "different_source",
+          "source": "TechCrunch AI"
+        }
+      ],
+      "selected_sources": [
+        "Google AI Blog",
+        "TechCrunch AI"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1702,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 261,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260717_050412",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "other",
+        "severity": "warning",
+        "timestamp": "02:11"
+      },
+      {
+        "category": "other",
+        "severity": "warning",
+        "timestamp": "02:34"
+      }
+    ],
+    "overall_score": 4,
+    "pacing_score": 5,
+    "requires_human_review": true,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-07-16T20:06:18.207764+00:00",
+  "news_urls": [
+    "https://blog.google/products-and-platforms/products/search/connected-apps/",
+    "https://techcrunch.com/2026/07/16/google-vids-now-lets-you-star-in-your-own-ai-videos/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "Connect more of your apps to Search",
+  "public_topic": "Connect more of your apps to Search",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    9646428412740150,
+    11299898409098398,
+    24417032642292171,
+    1605880008711477,
+    5144545712049693,
+    12142949138697531,
+    41783515943024925,
+    9491449898024493,
+    31060778239108612,
+    7774738575553226,
+    4935273029622067,
+    22762839981550362,
+    9245348621909467,
+    1429089445849674,
+    22526239851766513,
+    4776489332439206,
+    38186443386012564,
+    4190851910636917,
+    16275302897960363,
+    36193908408379550,
+    15512351734894322,
+    34728254562090955,
+    91894745418056148,
+    12333899345299073,
+    9927155400962066,
+    32980396850951191,
+    19327830607956581,
+    29674530878785820,
+    4553052842218198,
+    26504751790564957,
+    3525971129194893,
+    12220751025299920,
+    4154885349474682,
+    2066021563320683,
+    7160451424384544,
+    14762229536507289,
+    10378104883701481,
+    57304246393998322,
+    595913338807484,
+    3114033469473450,
+    8699428948940563,
+    44199495185832498,
+    22978140103425503,
+    52971925361248232,
+    6313739893000385,
+    5805899425887097,
+    14148062381480904,
+    8625337957335331,
+    216813722752005,
+    45081760914059975,
+    16549301153501616,
+    14936658472235453,
+    18748319447379840,
+    10236040699042367,
+    13078683885305336,
+    799191789320225,
+    10272761290374846,
+    1365043250161485,
+    3237683595576282,
+    21182099829653115,
+    5695636560928732,
+    5444465751959934,
+    8091618047224370
+  ],
+  "script_sha256": "3854dacc8d8c22916b1b4b207d20eaf9b060ee2f986758f81c4182ae62819dbf",
+  "selected_term_keys": [
+    "dcb6791c9a822c59b2a7a85e"
+  ],
+  "topic_fingerprint": "8a0652572c8f98ebc4032bab"
+}

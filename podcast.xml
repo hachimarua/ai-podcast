@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜Connect more of your apps to Search</title>
+      <description>Daily Brief（4〜6分）｜テーマ: Connect more of your apps to Search</description>
+      <pubDate>Fri, 17 Jul 2026 05:04:12 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260717_050412.mp3" length="1890765" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260717_050412.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:21</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜Amid hardware legal battle, OpenAI releases a $230 keyboard for Codex</title>
       <description>Daily Brief（4〜6分）｜テーマ: Amid hardware legal battle, OpenAI releases a $230 keyboard for Codex</description>
       <pubDate>Thu, 16 Jul 2026 05:11:47 +0900</pubDate>
