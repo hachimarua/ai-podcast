@@ -1,0 +1,172 @@
+{
+  "audio_sha256": "bebda9836519e75806784b989fe31a9f49d0b3744b26f88fd55d638763c72b82",
+  "broadcast_date": "2026-07-18",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 243.936,
+      "file_size_bytes": 1737165,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.6,
+      "mean_volume_db": -17.7,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 240.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0312,
+    "format_config_version": "formats-v3",
+    "initial_script_similarity": 0.0312,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 5,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 4,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Hugging Face Blog"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "candidate_fallback",
+          "source": "Hugging Face Blog"
+        }
+      ],
+      "selected_sources": [
+        "Hugging Face Blog",
+        "Hugging Face Blog"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1616,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 243,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260718_065650",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 4,
+    "has_internal_repetition": true,
+    "issues": [
+      {
+        "category": "repetition",
+        "severity": "warning",
+        "timestamp": "01:38"
+      }
+    ],
+    "overall_score": 4,
+    "pacing_score": 4,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-07-17T21:59:06.423054+00:00",
+  "news_urls": [
+    "https://huggingface.co/blog/Dharma-AI/newer-models-same-advantages",
+    "https://huggingface.co/blog/nvidia/scale-diffusers-finetuning-nemo-automodel"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "Fine-tune video and image models at scale with NVIDIA NeMo Automodel and 🤗 Diffusers",
+  "public_topic": "Fine-tune video and image models at scale with NVIDIA NeMo Automodel and 🤗 Diffusers",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    2643213988106355,
+    4283548154392171,
+    33362461148924851,
+    36482379072686170,
+    2683722803872827,
+    7823946560945016,
+    11166029343556084,
+    16755259600023374,
+    39454588312683350,
+    13860221339040343,
+    2347305425313509,
+    23161470326475964,
+    2652216965892362,
+    78401278378283625,
+    47943527665835813,
+    802007638727225,
+    17717472672708695,
+    4341124051296378,
+    8829878656440714,
+    41816191868355656,
+    30337171341081871,
+    9949287469426277,
+    30561890593054225,
+    19989434880931966,
+    289954192392331,
+    72972572502219999,
+    52453493562902315,
+    56408977208928833,
+    21257253324908002,
+    36140749155701071,
+    36738972583764017,
+    6773204855845802,
+    6458945216187226,
+    2893974058190797,
+    10601569932122616,
+    15892177761654857,
+    39772376477823601,
+    9782259274278817,
+    30522968103848540,
+    3823658196275176,
+    15554446283173821,
+    12024190641973160,
+    10933381224326122,
+    16317002914797314,
+    25909429246615855,
+    3419196836384605,
+    10444880177207899,
+    331894348322749,
+    38304630756479818,
+    216813722752005,
+    5600560403767090,
+    1386716140523081,
+    10187694828848293,
+    1860804812282411,
+    33615731023742399,
+    10340007925367659,
+    21346190206008147,
+    492590455200362,
+    24265670650311392,
+    31379779458881800,
+    15804331397936728,
+    13639541857041990,
+    9819549462070230,
+    8091618047224370
+  ],
+  "script_sha256": "0e9ede26eb229abf12c1bbee9a3b7ca76550e80ae6eac0af12dd392522e2fb31",
+  "selected_term_keys": [
+    "f4dfed01ead84fcb31a8ea71"
+  ],
+  "topic_fingerprint": "7d228d4bd68a71db90dc54cf"
+}

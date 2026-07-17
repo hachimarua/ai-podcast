@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜Fine-tune video and image models at scale with NVIDIA NeMo Automodel and 🤗 Diffusers</title>
+      <description>Daily Brief（4〜6分）｜テーマ: Fine-tune video and image models at scale with NVIDIA NeMo Automodel and 🤗 Diffusers</description>
+      <pubDate>Sat, 18 Jul 2026 06:56:50 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260718_065650.mp3" length="1737165" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260718_065650.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:03</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜Connect more of your apps to Search</title>
       <description>Daily Brief（4〜6分）｜テーマ: Connect more of your apps to Search</description>
       <pubDate>Fri, 17 Jul 2026 05:04:12 +0900</pubDate>
