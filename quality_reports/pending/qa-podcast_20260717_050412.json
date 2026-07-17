@@ -2,8 +2,8 @@
   "broadcast_date": "2026-07-17",
   "category": "audio_quality",
   "created_at": "2026-07-16T20:06:18.283621+00:00",
-  "decided_at": null,
-  "decision_reason": null,
+  "decided_at": "2026-07-17T11:53:57.862759+00:00",
+  "decision_reason": "聴いていて違和感なかったです",
   "episode_id": "podcast_20260717_050412",
   "evidence": [
     {
@@ -22,7 +22,7 @@
   "safe_auto_apply": false,
   "schema_version": 1,
   "severity": "warning",
-  "status": "pending",
+  "status": "disagreed",
   "suggested_changes": [
     "音声品質を人間が確認する"
   ],
