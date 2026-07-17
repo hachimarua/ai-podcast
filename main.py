@@ -372,7 +372,33 @@ async def async_main():
                 f"Duration retry script is too similar to a recent episode ({final_similarity:.2f}); "
                 "publication stopped"
             )
-        script_length = validate_script_length(script, format_spec)
+        try:
+            script_length = validate_script_length(script, format_spec)
+        except EpisodeFormatError:
+            print(
+                "[Duration Gate] 長尺化した再生成台本が文字数ゲート外のため、"
+                "同じ出典のまま長さを整えて1回だけ再生成します。"
+            )
+            script = generate_radio_script(
+                selected_terms,
+                selected_matched,
+                selected_general,
+                model_name=model_name,
+                avoid_topics=recent_topics,
+                episode_format=episode_format,
+                spec=format_spec,
+                length_retry=True,
+                duration_retry=True,
+            )
+            if not script:
+                raise RuntimeError("Duration length retry script generation failed")
+            final_similarity = max_recent_similarity(script, history_manifests)
+            if final_similarity >= duplicate_threshold:
+                raise RuntimeError(
+                    f"Duration length retry script is too similar to a recent episode "
+                    f"({final_similarity:.2f}); publication stopped"
+                )
+            script_length = validate_script_length(script, format_spec)
         dialogue_style = validate_dialogue_style(script)
         print(
             f"[Duration Gate] 再生成台本: {script_length['character_count']}文字"

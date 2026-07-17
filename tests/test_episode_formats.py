@@ -509,6 +509,76 @@ class LabPipelineIntegrationTests(unittest.TestCase):
         self.assertEqual(audio_gate.call_count, 2)
         self.assertEqual(saved_script, retry_script)
 
+    def test_duration_retry_repairs_an_oversize_script_once_before_publication(self):
+        term = {
+            "id": "term",
+            "name": "RAG",
+            "content": "private",
+            "review_count": 0,
+            "last_reviewed": None,
+        }
+        news = self.reporting_news()
+        first_script = "あ" * 1000
+        oversize_retry_script = "い" * 2135
+        repaired_retry_script = "う" * 1350
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with (
+                patch.object(pipeline_main, "__file__", str(root / "main.py")),
+                patch.object(pipeline_main, "load_recent_manifests", return_value=[]),
+                patch.object(pipeline_main, "select_terms_for_review", return_value=[term]),
+                patch.object(pipeline_main, "collect_latest_news", return_value=[news]),
+                patch.object(
+                    pipeline_main,
+                    "match_news_with_words", return_value=([news], [])
+                ),
+                patch.object(
+                    pipeline_main,
+                    "generate_radio_script",
+                    side_effect=[first_script, oversize_retry_script, repaired_retry_script],
+                ) as generate,
+                patch.object(
+                    pipeline_main,
+                    "synthesize_podcast",
+                    new=AsyncMock(return_value=True),
+                ) as synthesize,
+                patch.object(
+                    pipeline_main,
+                    "require_audio_quality",
+                    side_effect=[
+                        pipeline_main.AudioQualityError(
+                            "Generated audio failed deterministic checks: duration_too_short"
+                        ),
+                        {
+                            "passed": True,
+                            "issues": [],
+                            "duration_seconds": 270.0,
+                            "mean_volume_db": -18.0,
+                            "max_volume_db": -1.0,
+                        },
+                    ],
+                ) as audio_gate,
+                patch.object(
+                    pipeline_main, "run_shadow_audio_qa", return_value={"status": "disabled"}
+                ),
+                patch.object(pipeline_main, "update_term_review_status"),
+                patch.dict(
+                    os.environ,
+                    {"PODCAST_EPISODE_FORMAT": "daily", "GITHUB_ACTIONS": "false"},
+                    clear=False,
+                ),
+            ):
+                asyncio.run(pipeline_main.async_main())
+
+            saved_script = (root / "todays_script.txt").read_text(encoding="utf-8")
+
+        self.assertEqual(generate.call_count, 3)
+        self.assertTrue(generate.call_args.kwargs["duration_retry"])
+        self.assertTrue(generate.call_args.kwargs["length_retry"])
+        self.assertEqual(synthesize.await_count, 2)
+        self.assertEqual(audio_gate.call_count, 2)
+        self.assertEqual(saved_script, repaired_retry_script)
+
     def test_duration_retry_prompt_expands_without_repeating_sources(self):
         spec = episode_formats.load_episode_formats().formats["daily"]
         prompt = script_generator.build_prompt_content(
