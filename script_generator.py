@@ -353,7 +353,10 @@ def generate_radio_script(
         duration_retry=duration_retry,
     )
     
-    max_attempts = 3
+    # Gemini 429/5xx は一過性のことがあるため、品質ゲートを緩めずに
+    # 段階的な待機だけで復旧を試みる。恒久エラーは従来どおり即時停止する。
+    retry_delays = (5, 15, 30, 60)
+    max_attempts = len(retry_delays) + 1
     for attempt in range(1, max_attempts + 1):
         try:
             response = client.models.generate_content(
@@ -368,7 +371,7 @@ def generate_radio_script(
         except Exception as exc:
             status = _gemini_error_status(exc)
             if status in TRANSIENT_GEMINI_STATUS_CODES and attempt < max_attempts:
-                delay_seconds = 5 if attempt == 1 else 15
+                delay_seconds = retry_delays[attempt - 1]
                 print(
                     f"[Gemini Retry] 一時的なHTTP {status}のため、"
                     f"{delay_seconds}秒後に再試行します ({attempt}/{max_attempts})。"

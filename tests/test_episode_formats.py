@@ -190,6 +190,38 @@ class EpisodeFormatConfigTests(unittest.TestCase):
         self.assertEqual(client.models.calls, 1)
         sleep.assert_not_called()
 
+    def test_script_generation_uses_bounded_backoff_for_persistent_transient_failures(self):
+        class RateLimitedError(Exception):
+            code = 429
+
+        class FakeModels:
+            calls = 0
+
+            @classmethod
+            def generate_content(cls, **_kwargs):
+                cls.calls += 1
+                raise RateLimitedError("rate limited")
+
+        client = type("Client", (), {"models": FakeModels()})()
+        news = {
+            "source": "ITmedia AI+",
+            "title": "AI update",
+            "content": "AI update details",
+            "link": "https://example.test/update",
+            "lane": "japan",
+            "evidence_role": "reporting",
+            "matched_words": [],
+        }
+        with (
+            patch.object(script_generator, "get_gemini_client", return_value=client),
+            patch.object(script_generator.time, "sleep") as sleep,
+        ):
+            script = script_generator.generate_radio_script([], [], [news])
+
+        self.assertIsNone(script)
+        self.assertEqual(client.models.calls, 5)
+        self.assertEqual([call.args[0] for call in sleep.call_args_list], [5, 15, 30, 60])
+
     def test_same_day_rerun_does_not_increment_notion_review(self):
         selected_terms = [
             {"id": "term", "review_count": 1, "last_reviewed": "2026-07-14"}
