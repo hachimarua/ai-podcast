@@ -4,7 +4,6 @@ from __future__ import annotations
 
 
 DEFAULT_GEMINI_MODEL = "gemini-3.1-pro-preview"
-DEFAULT_GEMINI_FALLBACK_MODEL = "gemini-2.5-flash"
 
 MODEL_ALIASES = {
     "gemini-3.1-pro": DEFAULT_GEMINI_MODEL,

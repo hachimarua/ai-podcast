@@ -7,11 +7,7 @@ from dotenv import load_dotenv
 
 from editorial_profile import get_approved_profile_instruction
 from episode_formats import EpisodeFormatError, FormatSpec, load_episode_formats
-from gemini_models import (
-    DEFAULT_GEMINI_FALLBACK_MODEL,
-    DEFAULT_GEMINI_MODEL,
-    normalize_gemini_model,
-)
+from gemini_models import DEFAULT_GEMINI_MODEL, normalize_gemini_model
 from news_collector import validate_lab_sources
 
 # 環境変数の読み込み
@@ -171,19 +167,6 @@ def _format_spec(episode_format: str) -> FormatSpec:
     if episode_format not in {"daily", "lab"}:
         raise EpisodeFormatError("episode format must be daily or lab")
     return config.formats[episode_format]
-
-
-def _script_model_candidates(model_name: str) -> tuple[str, ...]:
-    """Keep an explicit model choice strict; recover default preview rate limits safely."""
-    if model_name != DEFAULT_GEMINI_MODEL:
-        return (model_name,)
-    fallback = normalize_gemini_model(
-        os.getenv("GEMINI_FALLBACK_MODEL_NAME"),
-        default=DEFAULT_GEMINI_FALLBACK_MODEL,
-    )
-    if fallback == model_name:
-        return (model_name,)
-    return (model_name, fallback)
 
 
 def build_format_instruction(episode_format: str, spec: FormatSpec) -> str:
@@ -374,45 +357,33 @@ def generate_radio_script(
     # 段階的な待機だけで復旧を試みる。恒久エラーは従来どおり即時停止する。
     retry_delays = (5, 15, 30, 60)
     max_attempts = len(retry_delays) + 1
-    candidates = _script_model_candidates(model_name)
-    for candidate_index, candidate_model in enumerate(candidates):
-        for attempt in range(1, max_attempts + 1):
-            try:
-                response = client.models.generate_content(
-                    model=candidate_model,
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_instruction,
-                        temperature=0.3,
-                    )
+    for attempt in range(1, max_attempts + 1):
+        try:
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_instruction,
+                    temperature=0.3,
                 )
-                return response.text
-            except Exception as exc:
-                status = _gemini_error_status(exc)
-                if status in TRANSIENT_GEMINI_STATUS_CODES and attempt < max_attempts:
-                    delay_seconds = retry_delays[attempt - 1]
-                    print(
-                        f"[Gemini Retry] 一時的なHTTP {status}のため、"
-                        f"{delay_seconds}秒後に再試行します ({attempt}/{max_attempts})。"
-                    )
-                    time.sleep(delay_seconds)
-                    continue
-                if (
-                    status in TRANSIENT_GEMINI_STATUS_CODES
-                    and candidate_index + 1 < len(candidates)
-                ):
-                    print(
-                        f"[Gemini Fallback] HTTP {status}が継続したため、"
-                        f"代替モデル {candidates[candidate_index + 1]} へ切り替えます。"
-                    )
-                    break
+            )
+            return response.text
+        except Exception as exc:
+            status = _gemini_error_status(exc)
+            if status in TRANSIENT_GEMINI_STATUS_CODES and attempt < max_attempts:
+                delay_seconds = retry_delays[attempt - 1]
                 print(
-                    "[Error] Failed to generate script via Gemini: "
-                    f"{type(exc).__name__}"
-                    + (f" (HTTP {status})" if status else "")
+                    f"[Gemini Retry] 一時的なHTTP {status}のため、"
+                    f"{delay_seconds}秒後に再試行します ({attempt}/{max_attempts})。"
                 )
-                return None
-    return None
+                time.sleep(delay_seconds)
+                continue
+            print(
+                "[Error] Failed to generate script via Gemini: "
+                f"{type(exc).__name__}"
+                + (f" (HTTP {status})" if status else "")
+            )
+            return None
 
 if __name__ == "__main__":
     print("Script Generator Test Running...")
