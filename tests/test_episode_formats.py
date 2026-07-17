@@ -213,6 +213,11 @@ class EpisodeFormatConfigTests(unittest.TestCase):
             "matched_words": [],
         }
         with (
+            patch.dict(
+                os.environ,
+                {"GEMINI_FALLBACK_MODEL_NAME": "gemini-3.1-pro-preview"},
+                clear=False,
+            ),
             patch.object(script_generator, "get_gemini_client", return_value=client),
             patch.object(script_generator.time, "sleep") as sleep,
         ):
@@ -220,6 +225,42 @@ class EpisodeFormatConfigTests(unittest.TestCase):
 
         self.assertIsNone(script)
         self.assertEqual(client.models.calls, 5)
+        self.assertEqual([call.args[0] for call in sleep.call_args_list], [5, 15, 30, 60])
+
+    def test_script_generation_falls_back_after_default_model_rate_limit(self):
+        class RateLimitedError(Exception):
+            code = 429
+
+        class FakeModels:
+            def __init__(self):
+                self.models = []
+
+            def generate_content(self, **kwargs):
+                self.models.append(kwargs["model"])
+                if kwargs["model"] == "gemini-3.1-pro-preview":
+                    raise RateLimitedError("rate limited")
+                return type("Response", (), {"text": "アミ：代替モデルで生成しました。"})()
+
+        models = FakeModels()
+        client = type("Client", (), {"models": models})()
+        news = {
+            "source": "ITmedia AI+",
+            "title": "AI update",
+            "content": "AI update details",
+            "link": "https://example.test/update",
+            "lane": "japan",
+            "evidence_role": "reporting",
+            "matched_words": [],
+        }
+        with (
+            patch.object(script_generator, "get_gemini_client", return_value=client),
+            patch.object(script_generator.time, "sleep") as sleep,
+        ):
+            script = script_generator.generate_radio_script([], [], [news])
+
+        self.assertEqual(script, "アミ：代替モデルで生成しました。")
+        self.assertEqual(models.models[-1], "gemini-2.5-flash")
+        self.assertEqual(models.models.count("gemini-3.1-pro-preview"), 5)
         self.assertEqual([call.args[0] for call in sleep.call_args_list], [5, 15, 30, 60])
 
     def test_same_day_rerun_does_not_increment_notion_review(self):
