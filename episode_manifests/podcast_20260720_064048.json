@@ -1,0 +1,163 @@
+{
+  "audio_sha256": "a85eb270cb726a2bcfacc0499f57905f653d1fe6543d6a40fc9a6b7e7055c190",
+  "broadcast_date": "2026-07-20",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 241.08,
+      "file_size_bytes": 1765485,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.6,
+      "mean_volume_db": -18.1,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0469,
+    "format_config_version": "formats-v4",
+    "initial_script_similarity": 0.0469,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 3,
+        "Hugging Face Blog": 3,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "ITmedia AI+"
+        }
+      ],
+      "selected_sources": [
+        "ITmedia AI+"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1673,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 241,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260720_064048",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 4,
+    "has_internal_repetition": true,
+    "issues": [
+      {
+        "category": "repetition",
+        "severity": "warning",
+        "timestamp": "01:19"
+      }
+    ],
+    "overall_score": 4,
+    "pacing_score": 4,
+    "requires_human_review": true,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-07-19T21:42:56.545275+00:00",
+  "news_urls": [
+    "https://www.itmedia.co.jp/aiplus/article/2607/17/2000000202/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "「スマホで動く」270億パラメーターLLM「Bonsai 27B」登場",
+  "public_topic": "「スマホで動く」270億パラメーターLLM「Bonsai 27B」登場",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    17124845348780486,
+    9361674907210845,
+    14531341503641568,
+    82494483140996970,
+    12509406821491812,
+    5347855781585259,
+    26845820571820837,
+    809942411234300,
+    24832059517764598,
+    63228951312140276,
+    23411814207946906,
+    4547984082713046,
+    6541318247524205,
+    1317292835844007,
+    22526239851766513,
+    1434996821004021,
+    3555108326598776,
+    6963718080498665,
+    3437416896412971,
+    5297850691812853,
+    286554452112524,
+    16384374077151950,
+    42441728024360087,
+    2585070247597350,
+    14894644161484559,
+    20420702144742527,
+    37266724802732455,
+    12258845574374476,
+    26695921068402658,
+    20396964654928889,
+    960573081036866,
+    9157663162781755,
+    14110151285521659,
+    12118741610666400,
+    6981867400978848,
+    29278188834079433,
+    4543891634210564,
+    29235733957358863,
+    25490142945197041,
+    17841658285742952,
+    6810818575453907,
+    26417905985249270,
+    3043769273235274,
+    6450021806657204,
+    15366760563263553,
+    22982002146075850,
+    31030815812292745,
+    52172098896767744,
+    1045773568893450,
+    18601942321367577,
+    22013285060073412,
+    28061410634077099,
+    13077188299666072,
+    24650320014129350,
+    13460912326199543,
+    54717603366811534,
+    11785543474947436,
+    1116925804959972,
+    2694301188923010,
+    6251888656598448,
+    13639541857041990,
+    4003933753385210,
+    18282780651965664
+  ],
+  "script_sha256": "fb81f8af33bf7a9d3841dd4ff1d6d4737441886e85796718fca5e40fe146b767",
+  "selected_term_keys": [
+    "aa91de1f1ee537f2e076c901"
+  ],
+  "topic_fingerprint": "b20c460bee96e78a8773539f"
+}
