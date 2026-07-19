@@ -279,8 +279,10 @@ def build_prompt_content(
             "同じ相づちや訂正の型を繰り返さないでください。\n"
         )
     if duration_retry:
+        acceptance_floor_minutes = spec.audio_thresholds.min_duration_seconds / 60
         content += (
-            f"直前の音声は{spec.duration_label}の最低尺に届きませんでした。"
+            f"直前の音声は配信許容下限（{acceptance_floor_minutes:g}分）に届きませんでした。"
+            f"目標尺は{spec.duration_label}です。"
             "同じ一次情報だけを使い、結論の水増しや同じ説明の反復はせず、"
             "背景、仕組み、制約、入力ソースで確認できる具体例を補って最初から再構成してください。"
             f"台本文字数は{spec.prompt_character_min}〜{spec.prompt_character_max}文字、"

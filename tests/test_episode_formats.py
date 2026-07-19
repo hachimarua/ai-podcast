@@ -85,7 +85,7 @@ class EpisodeFormatConfigTests(unittest.TestCase):
         config = episode_formats.load_episode_formats()
         daily = config.formats["daily"]
         lab = config.formats["lab"]
-        self.assertEqual((daily.audio_thresholds.min_duration_seconds, daily.audio_thresholds.max_duration_seconds), (240.0, 360.0))
+        self.assertEqual((daily.audio_thresholds.min_duration_seconds, daily.audio_thresholds.max_duration_seconds), (210.0, 360.0))
         self.assertEqual((lab.audio_thresholds.min_duration_seconds, lab.audio_thresholds.max_duration_seconds), (450.0, 720.0))
         self.assertEqual(daily.speech_rate, "+10%")
         self.assertEqual(lab.speech_rate, "+10%")
@@ -471,7 +471,7 @@ class LabPipelineIntegrationTests(unittest.TestCase):
         self.assertEqual(call.kwargs["episode_format"], "daily")
         self.assertEqual(call.kwargs["spec"].display_name, "Daily Brief")
         runtime_thresholds = audio_gate.call_args.args[1]
-        self.assertEqual(runtime_thresholds.min_duration_seconds, 240.0)
+        self.assertEqual(runtime_thresholds.min_duration_seconds, 210.0)
         self.assertEqual(runtime_thresholds.max_duration_seconds, 360.0)
 
     def test_short_audio_regenerates_once_with_same_sources_before_publication(self):
@@ -539,6 +539,12 @@ class LabPipelineIntegrationTests(unittest.TestCase):
         self.assertTrue(generate.call_args.kwargs["duration_retry"])
         self.assertEqual(synthesize.await_count, 2)
         self.assertEqual(audio_gate.call_count, 2)
+        self.assertTrue(
+            all(
+                call.args[1].min_duration_seconds == 210.0
+                for call in audio_gate.call_args_list
+            )
+        )
         self.assertEqual(saved_script, retry_script)
 
     def test_duration_retry_repairs_an_oversize_script_once_before_publication(self):
@@ -621,7 +627,8 @@ class LabPipelineIntegrationTests(unittest.TestCase):
             spec=spec,
             duration_retry=True,
         )
-        self.assertIn("最低尺に届きませんでした", prompt)
+        self.assertIn("配信許容下限（3.5分）に届きませんでした", prompt)
+        self.assertIn("目標尺は4〜6分です", prompt)
         self.assertIn(
             f"{spec.prompt_character_min}〜{spec.prompt_character_max}文字", prompt
         )

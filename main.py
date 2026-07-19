@@ -351,8 +351,8 @@ async def async_main():
         if str(exc) != "Generated audio failed deterministic checks: duration_too_short":
             raise
         print(
-            "[Duration Gate] 音声が最低尺に届かなかったため、"
-            "同じ出典のまま台本を長めに1回だけ再生成します。"
+            "[Duration Gate] 音声が配信許容下限に届かなかったため、"
+            "同じ出典のまま目標尺へ近づける再構成を1回だけ行います。"
         )
         script = generate_radio_script(
             selected_terms,

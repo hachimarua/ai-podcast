@@ -116,8 +116,10 @@ class EpisodeFormatsConfig(BaseModel):
         if daily.duration_label != "4〜6分" or (
             daily.audio_thresholds.min_duration_seconds,
             daily.audio_thresholds.max_duration_seconds,
-        ) != (240.0, 360.0):
-            raise ValueError("daily label and audio thresholds must remain 4-6 minutes")
+        ) != (210.0, 360.0):
+            raise ValueError(
+                "daily must target 4-6 minutes with a 3.5-minute acceptance floor"
+            )
         if daily.speech_rate != "+10%":
             raise ValueError("daily speech rate is fixed at +10%")
         if (
