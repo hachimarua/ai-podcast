@@ -12,7 +12,12 @@ from news_collector import (
     select_news_for_broadcast,
     select_news_for_lab,
 )
-from script_generator import generate_radio_script, validate_dialogue_style
+from script_generator import (
+    choose_public_topic,
+    generate_radio_script,
+    split_generated_script_output,
+    validate_dialogue_style,
+)
 from audio_generator import synthesize_podcast
 from podcast_generator import archive_today_podcast, generate_podcast_rss
 from episode_history import (
@@ -207,7 +212,7 @@ async def async_main():
     model_name = normalize_gemini_model(os.getenv("GEMINI_MODEL_NAME"))
     print(f"使用モデル: {model_name}")
     
-    script = generate_radio_script(
+    raw_script = generate_radio_script(
         selected_terms,
         selected_matched,
         selected_general,
@@ -216,6 +221,7 @@ async def async_main():
         episode_format=episode_format,
         spec=format_spec,
     )
+    script, generated_public_topic = split_generated_script_output(raw_script)
     
     if not script:
         print("[Error] 台本の生成に失敗しました。")
@@ -240,7 +246,7 @@ async def async_main():
         broadcast_news, news_selection = select_news_for_broadcast(
             [], all_news, history_manifests, max_items=format_spec.max_news_items
         )
-        script = generate_radio_script(
+        raw_script = generate_radio_script(
             [],
             [],
             broadcast_news,
@@ -249,6 +255,7 @@ async def async_main():
             episode_format=episode_format,
             spec=format_spec,
         )
+        script, generated_public_topic = split_generated_script_output(raw_script)
         if not script:
             raise RuntimeError("Duplicate fallback script generation failed")
         selected_terms = []
@@ -270,7 +277,7 @@ async def async_main():
         print(
             "[Length Gate] Lab台本が規定文字数外のため、同じ出典のまま1回だけ再生成します。"
         )
-        script = generate_radio_script(
+        raw_script = generate_radio_script(
             selected_terms,
             selected_matched,
             selected_general,
@@ -280,6 +287,7 @@ async def async_main():
             spec=format_spec,
             length_retry=True,
         )
+        script, generated_public_topic = split_generated_script_output(raw_script)
         if not script:
             raise RuntimeError("Lab length retry script generation failed")
         final_similarity = max_recent_similarity(script, history_manifests)
@@ -296,7 +304,7 @@ async def async_main():
         print(
             "[Dialogue Style Gate] 定型的な返答冒頭が多いため、同じ出典のまま1回だけ再生成します。"
         )
-        script = generate_radio_script(
+        raw_script = generate_radio_script(
             selected_terms,
             selected_matched,
             selected_general,
@@ -306,6 +314,7 @@ async def async_main():
             spec=format_spec,
             style_retry=True,
         )
+        script, generated_public_topic = split_generated_script_output(raw_script)
         if not script:
             raise RuntimeError("Dialogue style retry script generation failed")
         final_similarity = max_recent_similarity(script, history_manifests)
@@ -354,7 +363,7 @@ async def async_main():
             "[Duration Gate] 音声が配信許容下限に届かなかったため、"
             "同じ出典のまま目標尺へ近づける再構成を1回だけ行います。"
         )
-        script = generate_radio_script(
+        raw_script = generate_radio_script(
             selected_terms,
             selected_matched,
             selected_general,
@@ -364,6 +373,7 @@ async def async_main():
             spec=format_spec,
             duration_retry=True,
         )
+        script, generated_public_topic = split_generated_script_output(raw_script)
         if not script:
             raise RuntimeError("Duration retry script generation failed")
         final_similarity = max_recent_similarity(script, history_manifests)
@@ -379,7 +389,7 @@ async def async_main():
                 "[Duration Gate] 長尺化した再生成台本が文字数ゲート外のため、"
                 "同じ出典のまま長さを整えて1回だけ再生成します。"
             )
-            script = generate_radio_script(
+            raw_script = generate_radio_script(
                 selected_terms,
                 selected_matched,
                 selected_general,
@@ -390,6 +400,7 @@ async def async_main():
                 length_retry=True,
                 duration_retry=True,
             )
+            script, generated_public_topic = split_generated_script_output(raw_script)
             if not script:
                 raise RuntimeError("Duration length retry script generation failed")
             final_similarity = max_recent_similarity(script, history_manifests)
@@ -425,11 +436,12 @@ async def async_main():
     # 6. ポッドキャストXML(RSSフィード)の生成とアーカイブ保存 (GitHub Actions上でのみ本番アーカイブを更新)
     print("\n[Step 6] ポッドキャストRSSフィードを生成し、アーカイブを更新しています...")
     if trial_mode:
-        public_topic = (
+        original_topic = (
             broadcast_news[0].get("title", "最新AIニュース")
             if broadcast_news
             else "最新AIニュース"
         )
+        public_topic = choose_public_topic(original_topic, generated_public_topic)
         report = build_trial_report(
             trial_id=trial_artifacts["directory"].name,
             generated_at=run_now_jst.isoformat(),
@@ -462,11 +474,12 @@ async def async_main():
             episode_id = os.path.splitext(archived_filename)[0]
             archived_path = os.path.join(base_dir, "episodes", archived_filename)
             duration_seconds = int(MP3(archived_path).info.length)
-            public_topic = (
+            original_topic = (
                 broadcast_news[0].get("title", "最新AIニュース")
                 if broadcast_news
                 else "最新AIニュース"
             )
+            public_topic = choose_public_topic(original_topic, generated_public_topic)
             primary_topic = public_topic
             used_news = broadcast_news
             manifest = build_manifest(

@@ -6,6 +6,7 @@ from google.genai import types
 from dotenv import load_dotenv
 
 from editorial_profile import get_approved_profile_instruction
+from episode_history import safe_public_text
 from episode_formats import EpisodeFormatError, FormatSpec, load_episode_formats
 from gemini_models import DEFAULT_GEMINI_MODEL, normalize_gemini_model
 from news_collector import validate_lab_sources
@@ -14,6 +15,50 @@ from news_collector import validate_lab_sources
 load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+PUBLIC_TITLE_PREFIX = "【表示タイトル】"
+JAPANESE_CHARACTER_PATTERN = re.compile(r"[ぁ-んァ-ヶ一-龠々]")
+
+
+def split_generated_script_output(value):
+    """Separate the optional public Japanese title from TTS dialogue."""
+    if not value:
+        return value, None
+
+    lines = str(value).splitlines()
+    first_content_index = next(
+        (index for index, line in enumerate(lines) if line.strip()), None
+    )
+    if first_content_index is None:
+        return str(value), None
+
+    first_line = lines[first_content_index].strip()
+    if not first_line.startswith(PUBLIC_TITLE_PREFIX):
+        return str(value), None
+
+    candidate = safe_public_text(
+        first_line[len(PUBLIC_TITLE_PREFIX):], fallback="", max_length=80
+    )
+    if not candidate or not JAPANESE_CHARACTER_PATTERN.search(candidate):
+        candidate = None
+    del lines[first_content_index]
+    dialogue = "\n".join(lines).strip()
+    return dialogue, candidate
+
+
+def choose_public_topic(original_title, generated_japanese_title=None):
+    """Preserve Japanese source titles; translate English titles without extra calls."""
+    original = safe_public_text(
+        original_title, fallback="最新AIニュース", max_length=160
+    )
+    if JAPANESE_CHARACTER_PATTERN.search(original):
+        return original
+    if generated_japanese_title and JAPANESE_CHARACTER_PATTERN.search(
+        generated_japanese_title
+    ):
+        return safe_public_text(
+            generated_japanese_title, fallback=original, max_length=80
+        )
+    return original
 
 def get_gemini_client():
     if not GEMINI_API_KEY or "YOUR_GEMINI" in GEMINI_API_KEY:
@@ -80,7 +125,12 @@ SYSTEM_INSTRUCTION = """
 - 出力後に各台詞を音読するつもりで点検し、記号名の読み上げ、不自然な数字読み、途中で切れた単語、用語のブレや誤読が残っていないことを確認してください。
 
 【出力フォーマット】
-音声合成（TTS）にかけるため、余計な説明文や解説は一切出力せず、以下のキャラクターの台詞のみの形式で出力してください。
+1行目に、RSSとポッドキャスト一覧に表示する日本語タイトルを次の形式で必ず出力してください。
+【表示タイトル】日本語を中心とした60文字以内の見出し
+- タイトルは提供された一次情報にある事実だけで作り、誇張、断定の追加、未確認の日本展開は含めないでください。
+- 製品名、モデル名、会社名などの固有名詞は原語を保ち、意味の確定できる部分だけ自然な日本語にしてください。
+- 「Daily Brief」や「AI実装ラボ」などの番組形式名はタイトル本文に入れないでください。
+2行目以降は音声合成（TTS）にかけるため、余計な説明文や解説は一切出力せず、以下のキャラクターの台詞のみの形式で出力してください。
 ケンジ：[セリフ]
 アミ：[セリフ]
 ケンジ：[セリフ]
@@ -328,14 +378,16 @@ def generate_radio_script(
                 is_technical = True
 
         if is_technical:
-            preview = "ケンジ：皆さん、おはようございます！ケンジです。今日のAI学習ラジオは僕が解説を担当します！\n"
+            preview = f"{PUBLIC_TITLE_PREFIX}RAGで外部情報を回答につなげる仕組み\n"
+            preview += "ケンジ：皆さん、おはようございます！ケンジです。今日のAI学習ラジオは僕が解説を担当します！\n"
             preview += "アミ：おはようございます、アミです。今日はケンジさんが解説なんですね！今朝のテーマは技術的な「RAG」についてですね。\n"
             preview += "アミ：RAGって、外部データを検索して回答精度を高める仕組みですよね。ケンジさん、詳しく教えてください！\n"
             preview += "ケンジ：任せて！RAGというのはね、データベースから必要な情報を持ってきてプロンプトを強化する技術なんだよ。\n"
             preview += "アミ：外部データを先に探してから回答へつなぐので、検索拡張生成と呼ぶんですね。今日も一日、AIの学びを楽しんでいきましょう！\n"
             preview += "ケンジ：いってらっしゃい！"
         else:
-            preview = "アミ：皆さん、おはようございます！アミです。今日のAI学習ラジオは私が解説を担当します！\n"
+            preview = f"{PUBLIC_TITLE_PREFIX}画像生成AIのプロンプトを具体的に伝えるコツ\n"
+            preview += "アミ：皆さん、おはようございます！アミです。今日のAI学習ラジオは私が解説を担当します！\n"
             preview += "ケンジ：おはようございます、ケンジです。今朝のテーマは「画像生成AIのプロンプト」ですね。\n"
             preview += "ケンジ：画像生成ってプロンプトのコツがあるんですか？アミさん、教えてください！\n"
             preview += "アミ：はい！実はプロンプトには具体的なスタイルやキーワードを指定するのがコツなんです。試してみてくださいね。\n"

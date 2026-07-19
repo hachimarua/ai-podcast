@@ -308,6 +308,43 @@ class FormatPromptTests(unittest.TestCase):
             "matched_words": [matched],
         }
 
+    def test_generated_japanese_title_is_separated_from_tts_dialogue(self):
+        script, title = script_generator.split_generated_script_output(
+            "【表示タイトル】NVIDIAの新しい動画生成モデル\n"
+            "アミ：今日は動画生成を見ます。\n"
+            "ケンジ：どこが変わったのですか。"
+        )
+        self.assertEqual(title, "NVIDIAの新しい動画生成モデル")
+        self.assertNotIn("表示タイトル", script)
+        self.assertTrue(script.startswith("アミ："))
+
+    def test_public_topic_preserves_japanese_source_and_translates_english_source(self):
+        generated = "自律型無人機の救助を支える3層学習アーキテクチャ"
+        self.assertEqual(
+            script_generator.choose_public_topic(
+                "Intelligent Three Level Learning Architecture for UAV Search",
+                generated,
+            ),
+            generated,
+        )
+        japanese_source = "スマホで動くBonsai 27Bが登場"
+        self.assertEqual(
+            script_generator.choose_public_topic(japanese_source, "別の日本語見出し"),
+            japanese_source,
+        )
+
+    def test_english_or_missing_generated_title_falls_back_to_source_title(self):
+        source = "Fine-tune video and image models at scale"
+        self.assertEqual(
+            script_generator.choose_public_topic(source, "Generated English title"),
+            source,
+        )
+        script, title = script_generator.split_generated_script_output(
+            "【表示タイトル】Generated English title\nアミ：本編です。"
+        )
+        self.assertIsNone(title)
+        self.assertEqual(script, "アミ：本編です。")
+
     def test_daily_keeps_second_item_optional_and_tips_optional(self):
         prompt = script_generator.build_prompt_content(
             [], [], [self.news("one", "one"), self.news("two", "two")],
@@ -317,6 +354,8 @@ class FormatPromptTests(unittest.TestCase):
         self.assertIn("ニュース2は主題を補強できる場合だけ任意", prompt)
         self.assertIn("Tipsは必須ではありません", prompt)
         self.assertIn("4〜6分", instruction)
+        self.assertIn("【表示タイトル】", instruction)
+        self.assertIn("日本語を中心とした60文字以内", instruction)
         self.assertNotIn("3〜5段階の具体手順", instruction)
 
     def test_lab_requires_one_theme_official_steps_results_and_constraints(self):

@@ -531,6 +531,25 @@ class AudioQualityTests(unittest.TestCase):
             result = audio_quality.inspect_audio(combined, self.short_thresholds())
         self.assertGreater(result["duration_seconds"], 2.0)
 
+    def test_display_title_metadata_is_not_parsed_as_spoken_dialogue(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            script = Path(tmp) / "script.txt"
+            script.write_text(
+                "【表示タイトル】AIモデルの新しい評価方法\n"
+                "アミ：今日は評価方法を見ます。\n"
+                "ケンジ：実務ではどこを確認しますか。\n",
+                encoding="utf-8",
+            )
+            parsed = audio_generator.parse_script_file(script)
+
+        self.assertEqual(
+            parsed,
+            [
+                ("アミ", "今日は評価方法を見ます。"),
+                ("ケンジ", "実務ではどこを確認しますか。"),
+            ],
+        )
+
 
 class GeminiAudioQATests(unittest.TestCase):
     def test_structured_schema_rejects_invalid_score(self):
