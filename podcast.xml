@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜XのAndroidアプリ再構築とSVGを活用したUI管理</title>
+      <description>Daily Brief（4〜6分）｜テーマ: XのAndroidアプリ再構築とSVGを活用したUI管理</description>
+      <pubDate>Tue, 21 Jul 2026 05:23:03 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260721_052303.mp3" length="1684173" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260721_052303.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:06</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜「スマホで動く」270億パラメーターLLM「Bonsai 27B」登場</title>
       <description>Daily Brief（4〜6分）｜テーマ: 「スマホで動く」270億パラメーターLLM「Bonsai 27B」登場</description>
       <pubDate>Mon, 20 Jul 2026 06:40:48 +0900</pubDate>
