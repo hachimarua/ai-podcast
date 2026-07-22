@@ -15,7 +15,7 @@ from mutagen.mp3 import MP3
 from pydantic import BaseModel, Field
 
 from episode_history import build_manifest, write_manifest_atomic
-from gemini_models import DEFAULT_GEMINI_MODEL, normalize_gemini_model
+from gemini_models import DEFAULT_AUDIO_QA_MODEL, normalize_gemini_model
 
 
 class LegacyEpisodeAnalysis(BaseModel):
@@ -112,7 +112,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--limit", type=int, default=3)
     parser.add_argument(
-        "--model", default=os.getenv("GEMINI_AUDIO_QA_MODEL", DEFAULT_GEMINI_MODEL)
+        "--model", default=os.getenv("GEMINI_AUDIO_QA_MODEL", DEFAULT_AUDIO_QA_MODEL)
     )
     args = parser.parse_args()
     created = bootstrap(args.limit, args.model)

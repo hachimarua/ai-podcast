@@ -59,7 +59,8 @@ jobs:
     - name: Bootstrap recent episode history once
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        GEMINI_AUDIO_QA_MODEL: "gemini-3.1-pro"
+        # 2026-07-18: 音声監査はコスト対策でFlashへ（台本生成はProのまま）
+        GEMINI_AUDIO_QA_MODEL: "gemini-2.5-flash"
       run: |
         manifest_count=$(find episode_manifests -maxdepth 1 -name '*.json' | wc -l | tr -d ' ')
         if [ "$manifest_count" -eq 0 ]; then
@@ -91,6 +92,8 @@ jobs:
         BASE_URL: "https://hachimarua.github.io/ai-podcast"
         BGM_VOLUME: "0.30"
         ALLOW_MOCK_DATA: "false"
+        # 2026-07-18: 毎日のシャドー音声監査もFlashで実行（既定値と同じだが明示する）
+        GEMINI_AUDIO_QA_MODEL: "gemini-2.5-flash"
         PHASE10_TRIAL_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.phase10_trial == true }}
         PHASE10_TRIAL_ANCHOR: ${{ inputs.phase10_trial == true && 'ai_agents' || '' }}
       run: |
@@ -109,7 +112,7 @@ jobs:
       if: ${{ github.event_name == 'workflow_dispatch' && inputs.qa_existing_only == true }}
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        GEMINI_AUDIO_QA_MODEL: "gemini-3.1-pro"
+        GEMINI_AUDIO_QA_MODEL: "gemini-2.5-flash"
       run: |
         latest_audio=$(find episodes -maxdepth 1 -name 'podcast_*.mp3' | sort | tail -1)
         episode_id=$(basename "$latest_audio" .mp3)

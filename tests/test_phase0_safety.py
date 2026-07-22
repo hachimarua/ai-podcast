@@ -635,10 +635,14 @@ class GeminiAudioQATests(unittest.TestCase):
         self.assertIsNone(path)
 
     def test_missing_key_is_non_blocking_unavailable_status(self):
-        with patch.dict(os.environ, {"GEMINI_API_KEY": ""}, clear=False):
+        with patch.dict(
+            os.environ,
+            {"GEMINI_API_KEY": "", "GEMINI_AUDIO_QA_MODEL": ""},
+            clear=False,
+        ):
             result = gemini_audio_qa.run_shadow_audio_qa("unused.mp3")
         self.assertEqual(result["status"], "unavailable")
-        self.assertEqual(result["model"], "gemini-3.1-pro-preview")
+        self.assertEqual(result["model"], "gemini-2.5-flash")
         self.assertEqual(result["issues"], [])
 
     def test_legacy_31_pro_alias_normalizes_to_preview_model(self):

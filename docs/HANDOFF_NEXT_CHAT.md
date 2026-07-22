@@ -1,7 +1,32 @@
 # AI学習ラジオ 次チャット申し送り
 
-最終更新: 2026-07-15
+最終更新: 2026-07-18
 現在地: **Phase 7〜10実装済み。Siriフィードバックの受付Worker・D1と3本のショートカットは実装済みで、Watch実機試験が残っている。**
+
+## 2026-07-18 変更: 音声監査モデルをFlash化（APIコスト対策・Claude Code実装）
+
+Gemini API無料枠（$10/月）の圧迫対策として、B案「モデル最適化」を採用した。
+消費の主因は (1) Pro previewでの台本生成＋リトライ、(2) 完成MP3を丸ごとPro previewに入力する毎日のシャドー音声監査、の2つ。TTSはEdge TTSで無料のため関係ない。
+
+**決定事項（ユーザー承認済み）**
+
+- 音声監査（シャドーQA）は `gemini-2.5-flash` に切り替える。`gemini-3.5-flash` 系は503が頻出するため採用しない。
+- 台本生成は品質優先で `gemini-3.1-pro-preview` を維持する（変更なし）。
+- Antigravityサブスク枠（agy）への移行は不採用。Mac常時起動が必要になり、IDE開発とクォータを食い合い、出力の制御性も落ちるため。
+
+**変更ファイル**
+
+- `gemini_models.py` — 監査専用の既定値 `DEFAULT_AUDIO_QA_MODEL = "gemini-2.5-flash"` を追加（台本生成用 `DEFAULT_GEMINI_MODEL` とは分離）
+- `gemini_audio_qa.py` — `run_shadow_audio_qa` のフォールバック既定を Pro preview から `DEFAULT_AUDIO_QA_MODEL` へ変更（従来は環境変数未設定時にProへ落ちていた。毎朝の本番実行がまさにこの経路だった）
+- `bootstrap_episode_history.py` — `--model` の既定フォールバックを同様に変更
+- `.github/workflows/podcast.yml` — `GEMINI_AUDIO_QA_MODEL` を3箇所とも `gemini-2.5-flash` に統一（Run Podcast Pipeline stepには従来未設定だったため明示追加）
+
+**運用・検証（次の1週間）**
+
+- 監査スコアの妥当性を確認する: `episode_manifests/*.json` の `gemini_qa_summary.overall_score` と `quality_reports/evaluations/` を、7/18以前のPro監査時と比較し、スコア傾向や指摘の質が大きく変わらないかを見る。
+- 問題があれば `GEMINI_AUDIO_QA_MODEL` 環境変数で即ロールバック可能（コード変更不要。workflowの値を戻すだけ）。
+- 保留中の追加削減策（未実施・要ユーザー相談): 監査の週1サンプリング化、台本リトライ上限の引き締め、従量課金の有効化。
+- 注意: workflow_dispatchでのテスト実行は本番同様にAPIを消費する。開発中のテストは `ALLOW_MOCK_DATA` を活用する。
 
 ## 新しいチャットで最初に読む順番
 
