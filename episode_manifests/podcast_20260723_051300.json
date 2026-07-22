@@ -1,0 +1,177 @@
+{
+  "audio_sha256": "0efa48705f12aaa15a97f7619478d8819b73081d7eabfdd908087cd79d2fbda9",
+  "broadcast_date": "2026-07-23",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 271.776,
+      "file_size_bytes": 1930221,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -0.7,
+      "mean_volume_db": -18.2,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.1562,
+    "format_config_version": "formats-v4",
+    "initial_script_similarity": 0.0938,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 5,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 4,
+        "arXiv cs.AI (Artificial Intelligence)": 4
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Google AI Blog"
+        },
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "fresh_japan_lane",
+          "source": "AI Watch"
+        }
+      ],
+      "selected_sources": [
+        "Google AI Blog",
+        "AI Watch"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1886,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 271,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260723_051300",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 2,
+    "dialogue_naturalness_score": 4,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "bgm",
+        "severity": "warning",
+        "timestamp": "00:00"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "info",
+        "timestamp": "00:02"
+      }
+    ],
+    "overall_score": 3,
+    "pacing_score": 4,
+    "requires_human_review": true,
+    "speech_clarity_score": 3,
+    "status": "completed"
+  },
+  "generated_at": "2026-07-22T20:19:20.360205+00:00",
+  "news_urls": [
+    "https://ai.watch.impress.co.jp/docs/news/2127056.html",
+    "https://blog.google/products-and-platforms/platforms/android/galaxy-unpacked-2026/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "Googleの最新デバイス向けアップデートと開発効率化ツール",
+  "public_topic": "Googleの最新デバイス向けアップデートと開発効率化ツール",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    8697262231946247,
+    17124845348780486,
+    778157684693858,
+    10956462106292436,
+    6793056249042597,
+    5082630134943987,
+    17014662941669486,
+    52741905822926122,
+    26314650484892951,
+    17801562789139592,
+    26595355985146888,
+    14992668161707846,
+    13985129072437654,
+    446020561774276,
+    1429089445849674,
+    25404706605440722,
+    3250406996063925,
+    13763435765728562,
+    4190851910636917,
+    11118344494447834,
+    51729987368496641,
+    9949287469426277,
+    24507550395951871,
+    43686520217469869,
+    2040074370922567,
+    10975361672607423,
+    32197413387079446,
+    20544914190397642,
+    4422959441990946,
+    29071586819400761,
+    1352477186242222,
+    19699307621454208,
+    1608502405518849,
+    4154885349474682,
+    24474506957325413,
+    9950724177507845,
+    7013278546609423,
+    7044149541869108,
+    10697947398112756,
+    22338876176156075,
+    3114033469473450,
+    1198015230622136,
+    26417905985249270,
+    3808188738328777,
+    5365124849993653,
+    5199475372632008,
+    23551267939232013,
+    12003740962079492,
+    5543406987252004,
+    216813722752005,
+    11111461655610000,
+    2863936518914689,
+    18220171610105074,
+    14341688221604157,
+    15631191070942774,
+    2691209641510438,
+    117319413756043,
+    7049113503306904,
+    9938863509723967,
+    24371921234206080,
+    12498378834689950,
+    13639541857041990,
+    348526630600985,
+    34722802412262464
+  ],
+  "script_sha256": "d0acc817970ffdca2078e3c0cc38335a737717a898af8d1a48fddeb0d8f9b58e",
+  "selected_term_keys": [
+    "e8117a41cba2ccba543717e2"
+  ],
+  "topic_fingerprint": "9df95b9666e848529754626f"
+}
