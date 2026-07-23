@@ -1,0 +1,164 @@
+{
+  "audio_sha256": "f040587c41c81dfee250dec4fea4121620389fe04f61e5a2aec00e3f060729eb",
+  "broadcast_date": "2026-07-24",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 236.424,
+      "file_size_bytes": 1729437,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.4,
+      "mean_volume_db": -18.1,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.125,
+    "format_config_version": "formats-v4",
+    "initial_script_similarity": 0.125,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "ITmedia AI+"
+        }
+      ],
+      "selected_sources": [
+        "ITmedia AI+"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1653,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 236,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260724_051520",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "pronunciation",
+        "severity": "info",
+        "timestamp": "02:55"
+      }
+    ],
+    "overall_score": 4,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-07-23T20:17:01.143015+00:00",
+  "news_urls": [
+    "https://www.itmedia.co.jp/aiplus/article/2607/23/2000000217/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "「スパイダーロボ」登場 がれきを走破、モノに「触って判断」も 災害現場で活用へ 国内ベンチャー",
+  "public_topic": "「スパイダーロボ」登場 がれきを走破、モノに「触って判断」も 災害現場で活用へ 国内ベンチャー",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    949657932159045,
+    21837981314131213,
+    1768050898494987,
+    1605880008711477,
+    8002880680619984,
+    9304662703056129,
+    21884662895170899,
+    13890262987787547,
+    9648108115934027,
+    4427358792977455,
+    14992668161707846,
+    13950860549545162,
+    513146810394487,
+    1429089445849674,
+    2285260538844336,
+    2728892310432662,
+    38186443386012564,
+    1022967434512825,
+    357053064959735,
+    10655232609676054,
+    9949287469426277,
+    56708667471800559,
+    3065338076429154,
+    1561916001744723,
+    29898136014542614,
+    2611261554578319,
+    19432446182960714,
+    11928853432899697,
+    4736123207973396,
+    9637710362626301,
+    7747510875500868,
+    9157663162781755,
+    343286355575150,
+    22558631780233336,
+    6240287142116705,
+    2214937436575785,
+    10378104883701481,
+    20366779648996228,
+    95691416700097562,
+    9282403543431938,
+    10591336970751705,
+    10933381224326122,
+    5918629840786540,
+    10612008577560369,
+    11524855521937546,
+    10444880177207899,
+    9882061246289862,
+    21812425163018148,
+    216813722752005,
+    24136370515192615,
+    24051711824664860,
+    18716479416836220,
+    315360289699213,
+    9062986516485030,
+    13460912326199543,
+    19265629206150449,
+    1391251857635012,
+    2178088302083558,
+    24419554770722781,
+    6799660152537975,
+    198004950031846,
+    3970400794750889,
+    4418633863921627
+  ],
+  "script_sha256": "1ec4342ea5562880659f53d3030b7de5ded72f955c8dc5adf52ed868757b750c",
+  "selected_term_keys": [
+    "310d5daf6819ce2bd3a28e1d"
+  ],
+  "topic_fingerprint": "7c3c17092021ebd2219dc5e1"
+}
