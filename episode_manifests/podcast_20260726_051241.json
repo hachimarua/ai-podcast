@@ -1,0 +1,189 @@
+{
+  "audio_sha256": "162f7297358718f1e0212fe0f6afb0134e38d209d283d4fa76aa034ecb6f8308",
+  "broadcast_date": "2026-07-26",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 288.024,
+      "file_size_bytes": 1970853,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -2.3,
+      "mean_volume_db": -18.3,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0625,
+    "format_config_version": "formats-v4",
+    "format_fallback_reason": "insufficient_multi_source_official_basis",
+    "initial_script_similarity": 0.0625,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 5,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 4
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Hugging Face Blog"
+        }
+      ],
+      "selected_sources": [
+        "Hugging Face Blog"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "lab",
+    "script_length": {
+      "character_count": 1987,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 288,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260726_051241",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 4,
+    "dialogue_naturalness_score": 3,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "pronunciation",
+        "severity": "warning",
+        "timestamp": "03:34"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "warning",
+        "timestamp": "03:58"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "warning",
+        "timestamp": "04:17"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "critical",
+        "timestamp": "04:36"
+      },
+      {
+        "category": "pacing",
+        "severity": "info",
+        "timestamp": "unknown"
+      },
+      {
+        "category": "bgm",
+        "severity": "info",
+        "timestamp": "unknown"
+      }
+    ],
+    "overall_score": 3,
+    "pacing_score": 3,
+    "requires_human_review": true,
+    "speech_clarity_score": 4,
+    "status": "completed"
+  },
+  "generated_at": "2026-07-25T20:14:51.983170+00:00",
+  "news_urls": [
+    "https://huggingface.co/blog/nunchaku-diffusers"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "Hugging FaceのDiffusersに4ビット推論「Nunchaku」が導入",
+  "public_topic": "Hugging FaceのDiffusersに4ビット推論「Nunchaku」が導入",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    2643213988106355,
+    9619422856042833,
+    16560106499070959,
+    14531341503641568,
+    66385951646894618,
+    5082630134943987,
+    5347855781585259,
+    42499696882335262,
+    17726881159107488,
+    18091842507118129,
+    52231859815476395,
+    8233785886125664,
+    27575217576368182,
+    12336321058863550,
+    34191231694858903,
+    2785397219429988,
+    4776489332439206,
+    4341124051296378,
+    460496789689142,
+    20351364607866699,
+    11722094573817001,
+    22648271331360367,
+    7504759751004537,
+    6446687469104273,
+    38111571528199076,
+    16422454071052477,
+    14555207095909921,
+    20964866415773248,
+    2760667142725895,
+    22899397469544350,
+    4171197671869774,
+    12775654792281931,
+    34457651440195952,
+    7073956744606224,
+    8391799933091329,
+    20624954046981476,
+    1153805832457558,
+    4348149943488722,
+    12007026167505437,
+    7949685013792287,
+    85761987646462092,
+    8699428948940563,
+    12131275178895062,
+    5750887823387381,
+    23962925154822639,
+    1003382978550821,
+    37600564047992333,
+    24986164639351158,
+    13981540251072276,
+    6763533088374338,
+    27593161720792573,
+    6842693622523777,
+    8832555680381814,
+    61303221146007550,
+    64369544318968284,
+    13460912326199543,
+    5133279476900669,
+    19992453699316574,
+    2803532801166864,
+    952870476524417,
+    4628446525983256,
+    13639541857041990,
+    348526630600985,
+    34722802412262464
+  ],
+  "script_sha256": "499eb1dc5b9dbda4b86f4f40efd3e44b72d11d1662b2d573d6abbe7b9c74ce22",
+  "selected_term_keys": [
+    "6e3ed1e2599299ff09e1e31a"
+  ],
+  "topic_fingerprint": "8f8b24dcd1b9ab47f7749fe2"
+}

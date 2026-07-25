@@ -1,0 +1,52 @@
+{
+  "broadcast_date": "2026-07-26",
+  "category": "audio_quality",
+  "created_at": "2026-07-25T20:14:52.030253+00:00",
+  "decided_at": null,
+  "decision_reason": null,
+  "episode_id": "podcast_20260726_051241",
+  "evidence": [
+    {
+      "category": "pronunciation",
+      "severity": "warning",
+      "timestamp": "03:34"
+    },
+    {
+      "category": "pronunciation",
+      "severity": "warning",
+      "timestamp": "03:58"
+    },
+    {
+      "category": "pronunciation",
+      "severity": "warning",
+      "timestamp": "04:17"
+    },
+    {
+      "category": "pronunciation",
+      "severity": "critical",
+      "timestamp": "04:36"
+    },
+    {
+      "category": "pacing",
+      "severity": "info",
+      "timestamp": "unknown"
+    },
+    {
+      "category": "bgm",
+      "severity": "info",
+      "timestamp": "unknown"
+    }
+  ],
+  "overall_score": 3,
+  "proposal_id": "qa-podcast_20260726_051241",
+  "safe_auto_apply": false,
+  "schema_version": 1,
+  "severity": "critical",
+  "status": "pending",
+  "suggested_changes": [
+    "発音ルールを確認する",
+    "読み上げ速度と間を確認する",
+    "BGM音量設定を確認する"
+  ],
+  "summary": "音声品質の確認が必要です。"
+}

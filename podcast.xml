@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜Hugging FaceのDiffusersに4ビット推論「Nunchaku」が導入</title>
+      <description>Daily Brief（4〜6分）｜テーマ: Hugging FaceのDiffusersに4ビット推論「Nunchaku」が導入</description>
+      <pubDate>Sun, 26 Jul 2026 05:12:41 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260726_051241.mp3" length="1970853" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260726_051241.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:48</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜アンスロピックがオーパスファイブを発表、コストと制限を緩和</title>
       <description>Daily Brief（4〜6分）｜テーマ: アンスロピックがオーパスファイブを発表、コストと制限を緩和</description>
       <pubDate>Sat, 25 Jul 2026 05:22:22 +0900</pubDate>
