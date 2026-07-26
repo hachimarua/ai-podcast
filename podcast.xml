@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜Galaxy Unpacked 2026発表と、具体例で読み解くAIデバイスの活用</title>
+      <description>Daily Brief（4〜6分）｜テーマ: Galaxy Unpacked 2026発表と、具体例で読み解くAIデバイスの活用</description>
+      <pubDate>Mon, 27 Jul 2026 07:13:55 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260727_071355.mp3" length="1548933" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260727_071355.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>03:35</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜Hugging FaceのDiffusersに4ビット推論「Nunchaku」が導入</title>
       <description>Daily Brief（4〜6分）｜テーマ: Hugging FaceのDiffusersに4ビット推論「Nunchaku」が導入</description>
       <pubDate>Sun, 26 Jul 2026 05:12:41 +0900</pubDate>

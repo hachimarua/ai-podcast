@@ -1,0 +1,171 @@
+{
+  "audio_sha256": "77e98a969ac8d40fd259ce203406a1e5104de97158869c067d8a810277f6f544",
+  "broadcast_date": "2026-07-27",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 215.592,
+      "file_size_bytes": 1548933,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.1,
+      "mean_volume_db": -17.8,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.1094,
+    "format_config_version": "formats-v4",
+    "initial_script_similarity": 0.1094,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 5,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Google AI Blog"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "different_source",
+          "source": "Hugging Face Blog"
+        }
+      ],
+      "selected_sources": [
+        "Google AI Blog",
+        "Hugging Face Blog"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1459,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 215,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260727_071355",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "pronunciation",
+        "severity": "warning",
+        "timestamp": "00:29"
+      }
+    ],
+    "overall_score": 4,
+    "pacing_score": 5,
+    "requires_human_review": true,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-07-26T22:15:40.332317+00:00",
+  "news_urls": [
+    "https://blog.google/products-and-platforms/platforms/android/galaxy-unpacked-2026/",
+    "https://huggingface.co/blog/security-incident-july-2026"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "Galaxy Unpacked 2026発表と、具体例で読み解くAIデバイスの活用",
+  "public_topic": "Galaxy Unpacked 2026発表と、具体例で読み解くAIデバイスの活用",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    17124845348780486,
+    33362461148924851,
+    18577482416486219,
+    1605880008711477,
+    5082630134943987,
+    20625075087765408,
+    49303325016859306,
+    7997874466570487,
+    21385942986869245,
+    2347305425313509,
+    3908941417392510,
+    8984181388776033,
+    4581022311287555,
+    18995694017822335,
+    9064823982735684,
+    3250406996063925,
+    48577099218432854,
+    12348295088232826,
+    4752631401492104,
+    17543865739631052,
+    57826218610123687,
+    11674338591880425,
+    30109024358014315,
+    2585070247597350,
+    16422454071052477,
+    4133709574779944,
+    1120624405089683,
+    9065497107367178,
+    1242265384926321,
+    12466093966632097,
+    16663913872919339,
+    12220751025299920,
+    2665084574794182,
+    24474506957325413,
+    45441670755379313,
+    32765187988181736,
+    4543891634210564,
+    4824839054718774,
+    20691698131259149,
+    4267402328902911,
+    8699428948940563,
+    5024590328555135,
+    3595362848863743,
+    13251774516652223,
+    11524855521937546,
+    53196848933227849,
+    19028519277469017,
+    3384314289347311,
+    216813722752005,
+    31991400521629007,
+    12895296473214298,
+    16241030132488367,
+    315360289699213,
+    32366771873246510,
+    8903259182617264,
+    5133279476900669,
+    7152315889090250,
+    56008008307405670,
+    24371921234206080,
+    3628120300419758,
+    13639541857041990,
+    3970400794750889,
+    4418633863921627
+  ],
+  "script_sha256": "923b480408f2e357f4085b72aac17e9b2c7e094b3fd4ab49a849dbe8592fbf0b",
+  "selected_term_keys": [
+    "f4dfed01ead84fcb31a8ea71"
+  ],
+  "topic_fingerprint": "0fe31145e3946b7465f52d96"
+}
