@@ -793,6 +793,7 @@ class AntigravityNotifierTests(unittest.TestCase):
                 "episode_id": manifest["episode_id"],
                 "proposal_id": f"qa-{manifest['episode_id']}",
             }
+            native_calls = []
             with (
                 patch.object(
                     antigravity_review_notifier,
@@ -811,10 +812,16 @@ class AntigravityNotifierTests(unittest.TestCase):
                 ) as agentapi,
             ):
                 first = antigravity_review_notifier.notify_daily_report(
-                    workspace, state_path, report_date="2026-07-16"
+                    workspace,
+                    state_path,
+                    report_date="2026-07-16",
+                    native_notifier=lambda title, message: native_calls.append((title, message)),
                 )
                 second = antigravity_review_notifier.notify_daily_report(
-                    workspace, state_path, report_date="2026-07-16"
+                    workspace,
+                    state_path,
+                    report_date="2026-07-16",
+                    native_notifier=lambda title, message: native_calls.append((title, message)),
                 )
 
             state = json.loads(state_path.read_text(encoding="utf-8"))
@@ -824,6 +831,11 @@ class AntigravityNotifierTests(unittest.TestCase):
         self.assertIn(manifest["episode_id"], state["daily_reports"])
         self.assertIn(proposal["proposal_id"], state["notified"])
         self.assertEqual(state["daily_reports"][manifest["episode_id"]]["verdict"], "要確認")
+        self.assertEqual(len(native_calls), 1)
+        self.assertEqual(
+            state["native_alerts"][manifest["episode_id"]]["status"],
+            "sent",
+        )
 
     def test_daily_report_marks_missing_current_episode(self):
         stale = self.sample_manifest()
@@ -836,6 +848,111 @@ class AntigravityNotifierTests(unittest.TestCase):
         )
         self.assertIn("【AIラジオ日次監査 2026-07-16】生成結果未確認", prompt)
         self.assertIn('"latest_available_broadcast_date": "2026-07-15"', prompt)
+
+    def test_existing_alert_report_backfills_native_notification_once(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp) / "workspace"
+            (workspace / ".git").mkdir(parents=True)
+            state_path = Path(tmp) / "state" / "notifier.json"
+            state_path.parent.mkdir(parents=True)
+            state_path.write_text(
+                json.dumps(
+                    {
+                        "notified": {},
+                        "daily_reports": {
+                            "missing:2026-07-16": {
+                                "notified_at": "2026-07-15T21:30:00+00:00",
+                                "verdict": "生成結果未確認",
+                            }
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            native_calls = []
+            with patch.object(
+                antigravity_review_notifier,
+                "fetch_latest_manifest",
+                return_value=None,
+            ):
+                first = antigravity_review_notifier.notify_daily_report(
+                    workspace,
+                    state_path,
+                    report_date="2026-07-16",
+                    native_notifier=lambda title, message: native_calls.append((title, message)),
+                )
+                second = antigravity_review_notifier.notify_daily_report(
+                    workspace,
+                    state_path,
+                    report_date="2026-07-16",
+                    native_notifier=lambda title, message: native_calls.append((title, message)),
+                )
+
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(first, 0)
+        self.assertEqual(second, 0)
+        self.assertEqual(len(native_calls), 1)
+        self.assertEqual(state["native_alerts"]["missing:2026-07-16"]["status"], "sent")
+
+    def test_sidecar_startup_rechecks_same_day_missing_generation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp) / "workspace"
+            workspace.mkdir()
+            state_path = Path(tmp) / "notifier.json"
+            today = datetime.now().astimezone().date().isoformat()
+            state_path.write_text(
+                json.dumps(
+                    {
+                        "daily_reports": {
+                            f"missing:{today}": {
+                                "verdict": "生成結果未確認",
+                                "notified_at": datetime.now(timezone.utc).isoformat(),
+                            }
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with patch.object(
+                antigravity_sidecar_runner,
+                "notify_daily_report",
+                return_value=1,
+            ) as notify:
+                count = antigravity_sidecar_runner.recheck_missing_generation_on_startup(
+                    workspace,
+                    state_path,
+                )
+
+        self.assertEqual(count, 1)
+        notify.assert_called_once_with(workspace, state_path, report_date=today)
+
+    def test_human_review_is_recorded_for_existing_daily_report(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            state_path = Path(tmp) / "notifier.json"
+            state_path.write_text(
+                json.dumps(
+                    {
+                        "daily_reports": {
+                            "podcast_20260727_071355": {
+                                "verdict": "要確認",
+                                "notified_at": datetime.now(timezone.utc).isoformat(),
+                            }
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            antigravity_review_notifier.record_human_review(
+                state_path,
+                "podcast_20260727_071355",
+                note="聴取確認済み",
+            )
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+
+        review = state["human_reviews"]["podcast_20260727_071355"]
+        self.assertEqual(review["status"], "confirmed")
+        self.assertEqual(review["note"], "聴取確認済み")
 
     def test_obsidian_intake_runs_as_isolated_child_process(self):
         workspace = Path("/tmp/workspace")

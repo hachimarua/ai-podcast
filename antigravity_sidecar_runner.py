@@ -11,9 +11,11 @@ from pathlib import Path
 from antigravity_review_notifier import (
     NotifierError,
     default_state_path,
+    load_state,
     notify_daily_report,
     notify_pending,
 )
+from daily_schedule import claim_daily_run, finish_daily_run, poll_delay
 
 
 def run_obsidian_intake(workspace: Path) -> str:
@@ -81,28 +83,87 @@ def run_checks(workspace: Path) -> None:
         print(f"Review notification check failed safely: {type(exc).__name__}", flush=True)
 
 
+def recheck_missing_generation_on_startup(
+    workspace: Path,
+    state_path: Path | None = None,
+) -> int:
+    """On restart only, re-audit a same-day result that was previously missing."""
+    state_path = state_path or default_state_path()
+    today = datetime.now().astimezone().date().isoformat()
+    prior = load_state(state_path).get("daily_reports", {}).get(f"missing:{today}")
+    if not isinstance(prior, dict) or prior.get("verdict") != "生成結果未確認":
+        return 0
+    return notify_daily_report(workspace, state_path, report_date=today)
+
+
 def run_loop(
     workspace: Path,
     interval_seconds: int,
     *,
     daily_check_time: tuple[int, int] | None = None,
+    schedule_state_path: Path | None = None,
 ) -> None:
     print(f"AI radio review sidecar started: {workspace}", flush=True)
+    if daily_check_time:
+        hour, minute = daily_check_time
+        schedule_state_path = schedule_state_path or default_state_path().with_name(
+            "ai-radio-schedule-state.json"
+        )
+        print(f"Wall-clock scheduler armed for {hour:02d}:{minute:02d}", flush=True)
+        try:
+            recovered = recheck_missing_generation_on_startup(workspace)
+            if recovered:
+                print("Same-day recovery audit report created", flush=True)
+        except NotifierError as exc:
+            print(f"Same-day recovery audit deferred: {exc}", flush=True)
+        except Exception as exc:
+            print(f"Same-day recovery audit failed safely: {type(exc).__name__}", flush=True)
+        previous_tick = None
+        while True:
+            now = datetime.now().astimezone()
+            daily_run = claim_daily_run(
+                schedule_state_path,
+                "ai-radio-review",
+                daily_check_time,
+                now,
+                previous_tick=previous_tick,
+            )
+            if daily_run is not None:
+                try:
+                    run_checks(workspace)
+                    finish_daily_run(
+                        schedule_state_path,
+                        daily_run,
+                        success=True,
+                        completed_at=datetime.now().astimezone(),
+                    )
+                    print(
+                        f"Daily review complete: trigger={daily_run.trigger} "
+                        f"delay_seconds={daily_run.delay_seconds}",
+                        flush=True,
+                    )
+                except Exception as exc:
+                    finish_daily_run(
+                        schedule_state_path,
+                        daily_run,
+                        success=False,
+                        completed_at=datetime.now().astimezone(),
+                        error_type=type(exc).__name__,
+                    )
+                    print(f"Review sidecar failed safely: {type(exc).__name__}", flush=True)
+            previous_tick = now
+            time.sleep(poll_delay(daily_check_time, now))
+
     while True:
         run_checks(workspace)
-        if daily_check_time:
-            sleep_seconds = seconds_until_next_daily_check(daily_check_time)
-            hour, minute = daily_check_time
-            print(f"Next review notification check scheduled for {hour:02d}:{minute:02d}", flush=True)
-        else:
-            sleep_seconds = interval_seconds
-        time.sleep(sleep_seconds)
+        time.sleep(interval_seconds)
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--workspace", type=Path, required=True)
     parser.add_argument("--interval-seconds", type=int, default=86400)
+    parser.add_argument("--schedule-state-path", type=Path, default=None)
     parser.add_argument(
         "--daily-check-time",
         type=parse_daily_check_time,
@@ -114,6 +175,7 @@ def main():
         args.workspace,
         max(300, args.interval_seconds),
         daily_check_time=args.daily_check_time,
+        schedule_state_path=args.schedule_state_path,
     )
 
 

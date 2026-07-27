@@ -10,14 +10,40 @@ import subprocess
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Callable
 
 
 PENDING_PREFIX = "quality_reports/pending/"
 MANIFEST_PREFIX = "episode_manifests/"
+NATIVE_ALERT_VERDICTS = {"要確認", "異常", "監査未完了", "生成結果未確認"}
 
 
 class NotifierError(RuntimeError):
     pass
+
+
+NativeNotifier = Callable[[str, str], None]
+
+
+def send_native_notification(title: str, message: str) -> None:
+    """Show a sound-enabled macOS notification without adding a new service."""
+    script = """
+on run argv
+  display notification (item 2 of argv) with title (item 1 of argv) sound name "Glass"
+end run
+""".strip()
+    result = subprocess.run(
+        ["/usr/bin/osascript", "-e", script, title, message],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        timeout=15,
+        check=False,
+    )
+    if result.returncode != 0:
+        detail = (result.stderr or result.stdout).strip().splitlines()
+        suffix = f": {detail[-1][:240]}" if detail else ""
+        raise NotifierError(f"macOS notification failed ({result.returncode}){suffix}")
 
 
 def _run(command: list[str], *, cwd: Path, timeout: int = 60) -> str:
@@ -327,15 +353,29 @@ Sidecarの日次チェックは実行済みです。正常な日も省略せず�
 
 def load_state(state_path: Path) -> dict:
     if not state_path.exists():
-        return {"notified": {}, "daily_reports": {}}
+        return {
+            "notified": {},
+            "daily_reports": {},
+            "native_alerts": {},
+            "human_reviews": {},
+        }
     try:
         state = json.loads(state_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
-        return {"notified": {}, "daily_reports": {}}
+        return {
+            "notified": {},
+            "daily_reports": {},
+            "native_alerts": {},
+            "human_reviews": {},
+        }
     if not isinstance(state.get("notified"), dict):
         state["notified"] = {}
     if not isinstance(state.get("daily_reports"), dict):
         state["daily_reports"] = {}
+    if not isinstance(state.get("native_alerts"), dict):
+        state["native_alerts"] = {}
+    if not isinstance(state.get("human_reviews"), dict):
+        state["human_reviews"] = {}
     return state
 
 
@@ -348,6 +388,28 @@ def save_state_atomic(state_path: Path, state: dict) -> None:
         handle.write("\n")
         temporary = Path(handle.name)
     os.replace(temporary, state_path)
+
+
+def record_human_review(
+    state_path: Path,
+    report_key: str,
+    *,
+    note: str = "",
+) -> None:
+    """Record an explicit human listening confirmation without changing the audit."""
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    lock_path = state_path.with_suffix(".lock")
+    with open(lock_path, "w", encoding="utf-8") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        state = load_state(state_path)
+        if report_key not in state["daily_reports"]:
+            raise NotifierError(f"Unknown daily report: {report_key}")
+        state["human_reviews"][report_key] = {
+            "status": "confirmed",
+            "confirmed_at": datetime.now(timezone.utc).isoformat(),
+            "note": note[:200],
+        }
+        save_state_atomic(state_path, state)
 
 
 def notify_pending(
@@ -388,6 +450,7 @@ def notify_daily_report(
     state_path: Path,
     *,
     report_date: str | None = None,
+    native_notifier: NativeNotifier | None = None,
 ) -> int:
     """Create one report per episode, including clean and unavailable outcomes."""
     workspace = workspace.resolve()
@@ -403,6 +466,38 @@ def notify_daily_report(
         manifest = fetch_latest_manifest(workspace)
         is_current = bool(manifest and manifest.get("broadcast_date") == today)
         report_key = manifest["episode_id"] if is_current else f"missing:{today}"
+        verdict = classify_daily_audit(manifest, today)
+
+        # Antigravityの会話は履歴として蓄積されるため、異常系だけは別経路で
+        # 音付き通知も出す。report_key単位で重複を防ぎ、会話作成に失敗しても
+        # ネイティブ通知の成否を先に永続化する。
+        previous_alert = state["native_alerts"].get(report_key)
+        if verdict in NATIVE_ALERT_VERDICTS and (
+            not isinstance(previous_alert, dict)
+            or previous_alert.get("status") != "sent"
+        ):
+            alert = {
+                "report_date": today,
+                "verdict": verdict,
+                "status": "prepared",
+                "attempted_at": datetime.now(timezone.utc).isoformat(),
+            }
+            state["native_alerts"][report_key] = alert
+            save_state_atomic(state_path, state)
+            try:
+                (native_notifier or send_native_notification)(
+                    "運用ステータス盤",
+                    f"AIラジオ: {verdict}。運用ステータス盤を確認してください。",
+                )
+            except Exception as exc:
+                alert["status"] = "failed"
+                alert["error_type"] = type(exc).__name__
+                alert["error_message"] = str(exc)[:300]
+            else:
+                alert["status"] = "sent"
+                alert["sent_at"] = datetime.now(timezone.utc).isoformat()
+            save_state_atomic(state_path, state)
+
         if report_key in state["daily_reports"]:
             return 0
 
@@ -425,8 +520,9 @@ def notify_daily_report(
         output = _run(["agentapi", "new-conversation", prompt], cwd=workspace, timeout=120)
         notified_at = datetime.now(timezone.utc).isoformat()
         report_state = {
+            "report_date": today,
             "notified_at": notified_at,
-            "verdict": classify_daily_audit(manifest, today),
+            "verdict": verdict,
             "agentapi_output": output[:500],
         }
         state["daily_reports"][report_key] = report_state
