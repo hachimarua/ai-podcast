@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜サム・アルトマン氏の減速発言と、AIの安全を守るシーキューアールエス設計</title>
+      <description>Daily Brief（4〜6分）｜テーマ: サム・アルトマン氏の減速発言と、AIの安全を守るシーキューアールエス設計</description>
+      <pubDate>Wed, 29 Jul 2026 05:17:20 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260729_051720.mp3" length="2062989" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260729_051720.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:36</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜NVIDIA、「オープンなAIセキュリティ」掲げる業界連合 Microsoftなど30社超が参加</title>
       <description>Daily Brief（4〜6分）｜テーマ: NVIDIA、「オープンなAIセキュリティ」掲げる業界連合 Microsoftなど30社超が参加</description>
       <pubDate>Tue, 28 Jul 2026 05:24:11 +0900</pubDate>

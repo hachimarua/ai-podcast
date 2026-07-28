@@ -1,0 +1,164 @@
+{
+  "audio_sha256": "1182dfe7e2bd2e503eed4e10fa187b0b1898680db948c6a5a68bbb87fc2f61e1",
+  "broadcast_date": "2026-07-29",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 276.888,
+      "file_size_bytes": 2062989,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -2.3,
+      "mean_volume_db": -18.5,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.125,
+    "format_config_version": "formats-v4",
+    "initial_script_similarity": 0.125,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 4,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "TechCrunch AI"
+        }
+      ],
+      "selected_sources": [
+        "TechCrunch AI"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1853,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 276,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260729_051720",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 4,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "other",
+        "severity": "info",
+        "timestamp": "03:53"
+      }
+    ],
+    "overall_score": 4,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-07-28T20:19:53.460277+00:00",
+  "news_urls": [
+    "https://techcrunch.com/2026/07/28/sam-altman-is-ready-to-decelerate/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "サム・アルトマン氏の減速発言と、AIの安全を守るシーキューアールエス設計",
+  "public_topic": "サム・アルトマン氏の減速発言と、AIの安全を守るシーキューアールエス設計",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    17124845348780486,
+    33362461148924851,
+    1768050898494987,
+    12397643744573838,
+    24927007531073393,
+    14755689141384819,
+    2716566947630070,
+    4310427341443047,
+    34109930605674078,
+    7177896466103777,
+    24537313186380058,
+    7981062541256898,
+    28784403232173322,
+    15665015157941101,
+    22526239851766513,
+    1434996821004021,
+    9287568328990185,
+    37876758327498007,
+    9421554069890306,
+    3162967028987210,
+    4220038965554639,
+    30559335727166941,
+    5729886355521471,
+    4417301380100258,
+    20534193395878028,
+    4685738668343254,
+    429249812360064,
+    21439594027200575,
+    3050945414550230,
+    30300587248896610,
+    24503697764802241,
+    12220751025299920,
+    2404975549601913,
+    6686364881568878,
+    11533365528061997,
+    30838865140557776,
+    9010296784973068,
+    1602350261105982,
+    11843487849296302,
+    68543690595692208,
+    8699428948940563,
+    277076541938318,
+    9508558918544779,
+    5980532301651235,
+    11524855521937546,
+    5854053312479168,
+    38929610398321782,
+    33095127198416125,
+    6763533088374338,
+    9590714618497781,
+    30250065227238867,
+    20682010586502687,
+    315360289699213,
+    19956046691017645,
+    13460912326199543,
+    5141987862966868,
+    23778150217392882,
+    2178088302083558,
+    14242283288549608,
+    11793617117052474,
+    3120315539755859,
+    3970400794750889,
+    5315503073265062
+  ],
+  "script_sha256": "bb1d57b9b54703aca1db5e46ec6ca7d09fe59cf08cab1ab5935e1aae991a19ef",
+  "selected_term_keys": [
+    "e6c62006c725859181206826"
+  ],
+  "topic_fingerprint": "35b59926ca0eb6572b7c222c"
+}
