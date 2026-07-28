@@ -6,6 +6,7 @@
 
 - [次チャット申し送り](./HANDOFF_NEXT_CHAT.md)
 - [図解一覧](./visuals/README.md)
+- [学習ノート取り込み（Gem → Obsidian → Notion → 放送）](./developer/LEARNING_NOTE_INTAKE.md)
 - [Phase 7 編集品質ロードマップ](./developer/PHASE7_EDITORIAL_ROADMAP.md)
 - [Siriフィードバック導線 実装仕様](./developer/SIRI_FEEDBACK_IMPLEMENTATION.md)
 - [配信基盤の実装ロードマップ](./developer/IMPLEMENTATION_ROADMAP.md)
