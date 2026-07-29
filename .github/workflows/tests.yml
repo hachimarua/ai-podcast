@@ -1,0 +1,52 @@
+name: Tests
+
+# 放送用ワークフローとは独立させ、変更のたびに本番と同じ Python でテストを走らせる。
+# 外部APIは呼ばないため Secrets は渡さない。日次の成果物コミットは [skip ci] で除外される。
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  unittest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        # 放送を実行する podcast.yml と同じバージョンに揃える
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Check dependency consistency
+      run: pip check
+
+    - name: Run unit tests
+      env:
+        # テストはモックのみを使う。実データへ切り替わらないことを明示する。
+        ALLOW_MOCK_DATA: "false"
+      run: |
+        status=0
+        for file in tests/test_*.py; do
+          echo "::group::$file"
+          PYTHONPATH=. python "$file" || status=1
+          echo "::endgroup::"
+        done
+        exit $status
