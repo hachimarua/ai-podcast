@@ -190,8 +190,32 @@ def already_in_notion(
     )
 
 
+def _split_on_line_boundaries(text: str, limit: int = 1800) -> list[str]:
+    """Chunk without cutting a line, so Notion round-trips the markdown intact."""
+    chunks: list[str] = []
+    current: list[str] = []
+    length = 0
+    for line in text.split("\n"):
+        while len(line) > limit:
+            if current:
+                chunks.append("\n".join(current))
+                current, length = [], 0
+            chunks.append(line[:limit])
+            line = line[limit:]
+        addition = len(line) + (1 if current else 0)
+        if current and length + addition > limit:
+            chunks.append("\n".join(current))
+            current, length = [], 0
+            addition = len(line)
+        current.append(line)
+        length += addition
+    if current:
+        chunks.append("\n".join(current))
+    return chunks or [""]
+
+
 def _paragraph_blocks(text: str) -> list[dict]:
-    chunks = [text[index : index + 1800] for index in range(0, len(text), 1800)]
+    chunks = _split_on_line_boundaries(text)
     return [
         {
             "object": "block",
