@@ -1,0 +1,177 @@
+{
+  "audio_sha256": "7cd7d839fbe27f7c061965d514a2c126429e894fb0f77737b5af69239247bca7",
+  "broadcast_date": "2026-07-30",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 262.824,
+      "file_size_bytes": 1869093,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.1,
+      "mean_volume_db": -18.2,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0781,
+    "format_config_version": "formats-v4",
+    "initial_script_similarity": 0.0781,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 5,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 4,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "research",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "arXiv cs.AI (Artificial Intelligence)"
+        },
+        {
+          "lane": "research",
+          "matched_notion_terms": false,
+          "reason": "candidate_fallback",
+          "source": "arXiv cs.AI (Artificial Intelligence)"
+        }
+      ],
+      "selected_sources": [
+        "arXiv cs.AI (Artificial Intelligence)",
+        "arXiv cs.AI (Artificial Intelligence)"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1774,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 262,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260730_051348",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "pronunciation",
+        "severity": "info",
+        "timestamp": "00:10"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "info",
+        "timestamp": "00:12"
+      }
+    ],
+    "overall_score": 4,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 4,
+    "status": "completed"
+  },
+  "generated_at": "2026-07-29T20:15:45.774065+00:00",
+  "news_urls": [
+    "https://arxiv.org/abs/2607.24758",
+    "https://arxiv.org/abs/2607.24763"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "AIの「アライメント偽装」問題と、評価環境での振る舞いの変化",
+  "public_topic": "AIの「アライメント偽装」問題と、評価環境での振る舞いの変化",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    3746239176436163,
+    17124845348780486,
+    626056863188159,
+    9834357016800537,
+    2683722803872827,
+    5556310976694449,
+    13844055065829238,
+    14935481719985879,
+    4511362503007921,
+    59836012494741889,
+    23710163657958981,
+    17655315387251319,
+    8984181388776033,
+    36198766597060117,
+    6337852729141248,
+    6918767350344763,
+    1166417469542842,
+    24433910490194126,
+    4190851910636917,
+    27239980227756120,
+    71017735246964985,
+    9949287469426277,
+    8014423382208791,
+    1096892854349190,
+    2917533687520633,
+    45076727725483990,
+    28741246995556547,
+    110289149216576,
+    815312306809977,
+    3802823797014272,
+    31214041952087912,
+    2947534350146494,
+    4739238128247552,
+    5197632396322580,
+    29337229236505012,
+    21238272387870744,
+    5566610978637026,
+    3216738420151019,
+    10697947398112756,
+    28809678315042817,
+    7112457258175560,
+    7665148753078737,
+    1028293417631626,
+    9252497459973309,
+    28077470903103722,
+    11524855521937546,
+    17922245250785505,
+    2975410838845329,
+    17800785355210194,
+    5044841082384492,
+    8180075090257931,
+    40323390062373877,
+    607302179849341,
+    315360289699213,
+    828532658097835,
+    2575463197139035,
+    8254414437293945,
+    23010533839051680,
+    17702362617969218,
+    26991433928231916,
+    4273480635725722,
+    11849216075269952,
+    3970400794750889,
+    3726755170162151
+  ],
+  "script_sha256": "a6b00eeb4e4104aceb7f8d6f3ab0a87d2b427b820301e1552a15ee005ef2409b",
+  "selected_term_keys": [
+    "6363b9fa20fa643937913e26"
+  ],
+  "topic_fingerprint": "e35b2c0ba977cc64b4e1f4d5"
+}
