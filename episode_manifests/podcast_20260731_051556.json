@@ -1,0 +1,172 @@
+{
+  "audio_sha256": "d47dc66f80a4185b4707a4b4c72961b0df2bc9b0cf8b92ecff66bbca7b3c469e",
+  "broadcast_date": "2026-07-31",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 251.784,
+      "file_size_bytes": 1849821,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.5,
+      "mean_volume_db": -18.2,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0938,
+    "format_config_version": "formats-v4",
+    "initial_script_similarity": 0.0938,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 5,
+        "Hugging Face Blog": 5,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5,
+        "arXiv cs.AI (Artificial Intelligence)": 3
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Google AI Blog"
+        },
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "fresh_japan_lane",
+          "source": "AI Watch"
+        }
+      ],
+      "selected_sources": [
+        "Google AI Blog",
+        "AI Watch"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1685,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 251,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260731_051556",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 4,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "pronunciation",
+        "severity": "info",
+        "timestamp": "00:31"
+      }
+    ],
+    "overall_score": 4,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-07-30T20:17:40.098499+00:00",
+  "news_urls": [
+    "https://ai.watch.impress.co.jp/docs/news/2129303.html",
+    "https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api-3-6-flash-hooks/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "プルリクエストの復習とGemini APIによる本番向けAIエージェント開発",
+  "public_topic": "プルリクエストの復習とGemini APIによる本番向けAIエージェント開発",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    1514171398613860,
+    9646428412740150,
+    21837981314131213,
+    1768050898494987,
+    2683722803872827,
+    6278758150811130,
+    20625075087765408,
+    10502490361111429,
+    7827228437613609,
+    25098300266951431,
+    20479965292478528,
+    14849894123494117,
+    18078646466461072,
+    33034061331209874,
+    8243724715466631,
+    10890060189816324,
+    4776489332439206,
+    6224906113598926,
+    25414104810648298,
+    11118344494447834,
+    6262686300149199,
+    7067010952261532,
+    4206267442064374,
+    24555436276941360,
+    8735344252142342,
+    36163495191225148,
+    10730759312354849,
+    15039680586691702,
+    21439594027200575,
+    51648917539922159,
+    6977325330587684,
+    5007334238003162,
+    13515901656717863,
+    6834687658953047,
+    24474506957325413,
+    3961246867162181,
+    7102987469618433,
+    29445033266833463,
+    14283963885502534,
+    11003260505574548,
+    32222591868402056,
+    5870741701887695,
+    1065897487463778,
+    11173972984618706,
+    47163174902520503,
+    18194712039125291,
+    5854053312479168,
+    26557678655178183,
+    5543406987252004,
+    4032497639232214,
+    23511029211295897,
+    12561534306490220,
+    18631849200391649,
+    1459424818047535,
+    7365846353136083,
+    13460912326199543,
+    8254414437293945,
+    53458720315320170,
+    3809383068610512,
+    24371921234206080,
+    5415925964987980,
+    198004950031846,
+    11868492554069225,
+    39290917539387539
+  ],
+  "script_sha256": "a4de5943f412164a54d5d9693f3e07636503bece1171c8f66be6dbca450ec22b",
+  "selected_term_keys": [
+    "885e12843492f32f8cc13e24"
+  ],
+  "topic_fingerprint": "f50a7ccda3e3867898a300a9"
+}
