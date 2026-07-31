@@ -51,13 +51,40 @@ class SaveLearningNoteTests(unittest.TestCase):
         self.assertIn("学習日: 2026-07-28", notes[0].content)
         self.assertIn("結果整合性", notes[0].content)
 
-    def test_clipboard_without_a_term_heading_is_refused(self):
+    def test_plain_text_without_a_heading_is_saved_as_raw(self):
         with tempfile.TemporaryDirectory() as tmp:
             vault = self.make_vault(Path(tmp))
-            with self.assertRaises(save_learning_note.SaveNoteError):
-                save_learning_note.save_note("ただのコピペ。\n用語の見出しがない。", vault=vault)
-            remaining = list((vault / "20_Dev_開発" / "Learning").iterdir())
-        self.assertEqual(remaining, [])
+            path = save_learning_note.save_note(
+                "サイドチャットの回答をそのままコピーした。見出しは付いていない。",
+                vault=vault,
+                today=date(2026, 8, 1),
+            )
+            text = path.read_text(encoding="utf-8")
+            notes = obsidian_inbox_adapter.scan_promoted_notes(vault)
+
+        self.assertEqual(path.name, "2026-08-01_サイドチャットの回答をそのままコピーした.md")
+        self.assertIn("format: raw\n", text)
+        self.assertIn("サイドチャットの回答", text)
+        self.assertEqual(len(notes), 1)
+        self.assertFalse(notes[0].structured)
+        self.assertTrue(notes[0].notion_inbox_title.startswith("Obsidian未整形｜"))
+
+    def test_a_headed_note_still_takes_the_structured_route(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            vault = self.make_vault(Path(tmp))
+            save_learning_note.save_note(GEM_ANSWER, vault=vault, today=date(2026, 7, 28))
+            notes = obsidian_inbox_adapter.scan_promoted_notes(vault)
+        self.assertTrue(notes[0].structured)
+        self.assertEqual(notes[0].notion_inbox_title.split("｜")[0], "Obsidian")
+
+    def test_a_provisional_title_never_swallows_a_whole_paragraph(self):
+        long_line = "あ" * 200
+        self.assertEqual(
+            len(save_learning_note.provisional_title(long_line)),
+            save_learning_note.PROVISIONAL_TITLE_CHARACTERS,
+        )
+        self.assertEqual(save_learning_note.provisional_title("- **要点**: 冪等性の話"), "要点")
+        self.assertEqual(save_learning_note.provisional_title("   "), save_learning_note.FALLBACK_TITLE)
 
     def test_empty_and_oversized_clipboards_are_refused(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -236,6 +263,46 @@ class InboxProcessingTests(unittest.TestCase):
         self.assertEqual(created, [])
         archive.assert_not_called()
         self.assertIn("本文が空", output)
+
+    def test_unstructured_promoted_note_is_named_and_organised_by_gemini(self):
+        created, archive, _ = self.run_inbox(
+            title="Obsidian未整形｜サイドチャットの回答をそのままコピーした｜ob-1234",
+            body="学習日: 2026-08-01\n\n冪等性のある設計にすると再送しても壊れない。",
+            gemini_payload={
+                "title": "冪等性",
+                "summary": "- 同じ要求を何度送っても結果が変わらない設計。",
+                "study_date": "2026-08-01",
+                "is_learning_material": True,
+            },
+        )
+        self.assertEqual(len(created), 1)
+        self.assertEqual(created[0]["title"], "冪等性")
+        self.assertEqual(created[0]["initial_title"].split("｜")[0], "Obsidian未整形")
+        archive.assert_called_once()
+
+    def test_content_judged_unrelated_is_ignored_instead_of_registered(self):
+        created, archive, output = self.run_inbox(
+            title="Obsidian未整形｜今日は朝から雨で気分が乗らない｜ob-5678",
+            body="今日は朝から雨で気分が乗らない。夕飯は鍋にした。",
+            gemini_payload={
+                "title": "日記",
+                "summary": "- 天気と夕飯の記録。",
+                "study_date": "today",
+                "is_learning_material": False,
+            },
+        )
+        self.assertEqual(created, [])
+        archive.assert_not_called()
+        self.assertIn("学習素材ではない", output)
+
+    def test_a_missing_relevance_judgement_still_registers(self):
+        created, archive, _ = self.run_inbox(
+            title="手入力のメモ",
+            body="ベクトル検索の話",
+            gemini_payload={"title": "ベクトル検索", "summary": "- 近い意味を探す。", "study_date": "today"},
+        )
+        self.assertEqual(len(created), 1)
+        archive.assert_called_once()
 
     def test_malformed_promoted_note_stays_in_the_inbox(self):
         created, archive, _ = self.run_inbox(

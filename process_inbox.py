@@ -27,6 +27,8 @@ HEADERS = {
 
 # Obsidianから昇格したノートは obsidian_inbox_adapter.py が
 # 「Obsidian｜<用語>｜<source_key>」というタイトルで受信箱へ入れる。
+# 見出しの無い貼り付けは「Obsidian未整形｜…」で入り、この接頭辞に一致しないため
+# 手入力のメモと同じくGeminiで用語名と要約を付けてから登録される。
 OBSIDIAN_TITLE_PREFIX = "Obsidian｜"
 OBSIDIAN_TITLE_SEPARATOR = "｜"
 STUDY_DATE_LINE = re.compile(r"^学習日:\s*(\d{4}-\d{2}-\d{2})\s*$")
@@ -41,6 +43,15 @@ class StructuredStudyLog(BaseModel):
     title: str = Field(description="学習した技術や用語の簡潔な名前。例: 'RAG', 'Model Context Protocol', 'Fine-Tuning'")
     summary: str = Field(description="学習内容の分かりやすい解説要約（日本語）。マークダウン形式で、箇条書きなどを用いて綺麗に整理すること。")
     study_date: str = Field(description="学習した日付。YYYY-MM-DDの形式。ローデータ内に日付が見当たらない場合は 'today' とする")
+    is_learning_material: bool = Field(
+        default=True,
+        description=(
+            "学習項目として登録する価値があるなら true。"
+            "IT・AI・開発・技術・仕事の進め方など、学べる中身が少しでもあれば true にする。"
+            "日記、予定、買い物メモ、雑談、体調や気分の記録、患者・診療の記録など、"
+            "明らかに学習素材でないものだけ false にする。迷ったら true。"
+        ),
+    )
 
 def get_gemini_client():
     if not GEMINI_API_KEY or "YOUR_GEMINI" in GEMINI_API_KEY:
@@ -338,6 +349,10 @@ def process_inbox():
                         "チャットログや乱雑なメモから、最も重要な技術単語(Title)を1つ特定し、"
                         "その仕組みやポイントを日本語の整理された箇条書き形式の"
                         "マークダウン(Summary)に変換してください。"
+                        "説明の要点は削らず、元の内容が持つ情報量を保ったまま整理します。"
+                        "また、そもそも学習素材として登録する価値があるかを"
+                        "is_learning_material で判定してください。門戸は広く取り、"
+                        "学べる中身が少しでもあれば true にします。"
                     ),
                     temperature=0.2
                 )
@@ -352,6 +367,12 @@ def process_inbox():
             # プレースホルダーがそのまま学習項目にならないよう受信箱へ残す
             if is_junk_value(study_title) or is_junk_value(study_summary):
                 print(" -> [Skip] 要約が空か情報なしのため受信箱へ残します。")
+                skipped.append(idx)
+                continue
+
+            # 日記や買い物メモが紛れ込んでも放送候補にしない（受信箱には残して見返せる）
+            if result_json.get("is_learning_material", True) is False:
+                print(" -> [Skip] 学習素材ではないと判定したため受信箱へ残します。")
                 skipped.append(idx)
                 continue
             study_title = study_title.strip()[:200]
