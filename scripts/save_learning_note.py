@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
-"""Save a Gem study answer as a promoted Obsidian learning note.
+"""Save a study answer from any AI chat as a promoted Obsidian learning note.
 
 The clipboard text is written into the vault's Learning directory with the
 frontmatter that obsidian_inbox_adapter.py requires.  Nothing else in the vault
-is read or modified, and an unrecognised clipboard is refused rather than saved.
+is read or modified.
+
+A clipboard that opens with `# 用語名` is already in the final shape and is kept
+verbatim (`format: structured`).  Plain prose from a side chat is accepted too
+and marked `format: raw`, so the intake stage can name and organise it later.
+Only an empty or oversized clipboard is refused here: judging what is worth
+keeping happens downstream, where the whole text is available.
 """
 
 from __future__ import annotations
@@ -22,6 +28,11 @@ LEARNING_RELATIVE_PATH = Path("20_Dev_開発") / "Learning"
 MAX_NOTE_CHARACTERS = 20_000
 UNSAFE_FILENAME_CHARS = re.compile(r'[\\/:*?"<>|\x00-\x1f]')
 FENCE_LINE = re.compile(r"^```[\w-]*$")
+PROVISIONAL_TITLE_CHARACTERS = 40
+FALLBACK_TITLE = "学習メモ"
+LIST_MARKER = re.compile(r"^\s*(?:[-*+•・>]|\d+[.)])\s+")
+INLINE_MARKUP = re.compile(r"[*_`#\[\]]+")
+SENTENCE_BREAK = re.compile(r"[。．.!?！？:：、,]")
 
 
 class SaveNoteError(RuntimeError):
@@ -50,15 +61,32 @@ def strip_outer_fence(text: str) -> str:
     return text.strip()
 
 
-def extract_title(body: str) -> str:
-    """The保存用ブロック must open with a level 1 heading naming the term."""
+def provisional_title(line: str) -> str:
+    """Name a headingless note from its opening line, for the filename only."""
+    text = INLINE_MARKUP.sub("", LIST_MARKER.sub("", line)).strip(" 　-–—:：")
+    if not text:
+        return FALLBACK_TITLE
+    head = text[: PROVISIONAL_TITLE_CHARACTERS + 1]
+    boundary = SENTENCE_BREAK.search(head)
+    if boundary and boundary.start():
+        return head[: boundary.start()]
+    return text[:PROVISIONAL_TITLE_CHARACTERS].strip() or FALLBACK_TITLE
+
+
+def derive_title(body: str) -> tuple[str, bool]:
+    """Return the note title and whether the clipboard was already structured.
+
+    `# 用語名` on the first line means the保存用ブロック shape, which downstream
+    registers verbatim.  Anything else keeps a provisional title and is handed
+    to the intake stage to be named properly.
+    """
     for line in body.splitlines():
         if not line.strip():
             continue
         if line.startswith("# ") and line[2:].strip():
-            return line[2:].strip()[:120]
-        break
-    raise SaveNoteError("先頭が「# 用語名」で始まっていません。保存用ブロックだけをコピーしてください")
+            return line[2:].strip()[:120], True
+        return provisional_title(line), False
+    raise SaveNoteError("クリップボードが空です")
 
 
 def safe_stem(title: str) -> str:
@@ -66,14 +94,14 @@ def safe_stem(title: str) -> str:
     return stem[:60] or "learning_note"
 
 
-def build_note(title: str, body: str, created: date) -> str:
-    del title
+def build_note(body: str, created: date, *, structured: bool) -> str:
     return (
         "---\n"
         "type: learning_note\n"
         "ai_radio: true\n"
         f"created: {created.isoformat()}\n"
-        "source: gemini_gem\n"
+        "source: clipboard\n"
+        f"format: {'structured' if structured else 'raw'}\n"
         "---\n"
         f"{body.strip()}\n"
     )
@@ -111,9 +139,9 @@ def save_note(text: str, *, vault: Path, today: date | None = None) -> Path:
     if not learning_root.is_dir():
         raise SaveNoteError(f"Learningフォルダが見つかりません: {learning_root}")
 
-    title = extract_title(body)
+    title, structured = derive_title(body)
     path = unique_path(learning_root, f"{today.isoformat()}_{safe_stem(title)}")
-    write_atomic(path, build_note(title, body, today))
+    write_atomic(path, build_note(body, today, structured=structured))
     return path
 
 

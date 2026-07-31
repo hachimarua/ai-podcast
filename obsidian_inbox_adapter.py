@@ -26,6 +26,10 @@ load_dotenv()
 DEFAULT_VAULT = Path.home() / "Documents" / "Obsidian" / "MainVault"
 LEARNING_RELATIVE_PATH = Path("20_Dev_開発") / "Learning"
 MAX_NOTE_CHARACTERS = 20_000
+# 整形済みノートはAIを通さず登録し、未整形ノートは受信箱側で用語名と要約を付ける。
+STRUCTURED_TITLE_PREFIX = "Obsidian｜"
+UNSTRUCTURED_TITLE_PREFIX = "Obsidian未整形｜"
+DATED_STEM = re.compile(r"^\d{4}-\d{2}-\d{2}_")
 
 
 class ObsidianIntakeError(RuntimeError):
@@ -40,10 +44,12 @@ class PromotedNote:
     title: str
     content: str
     content_sha256: str
+    structured: bool = True
 
     @property
     def notion_inbox_title(self) -> str:
-        return f"Obsidian｜{self.title}｜{self.source_key}"[:200]
+        prefix = STRUCTURED_TITLE_PREFIX if self.structured else UNSTRUCTURED_TITLE_PREFIX
+        return f"{prefix}{self.title}｜{self.source_key}"[:200]
 
 
 def _frontmatter_and_body(text: str) -> tuple[dict[str, str], str]:
@@ -65,7 +71,15 @@ def _note_title(path: Path, body: str) -> str:
     for line in body.splitlines():
         if line.startswith("# ") and line[2:].strip():
             return line[2:].strip()[:120]
-    return path.stem[:120]
+    # 見出しの無いノートはファイル名が仮の題。日付は学習日として別に運ぶので落とす。
+    return (DATED_STEM.sub("", path.stem) or path.stem)[:120]
+
+
+def _is_structured(metadata: dict[str, str], body: str) -> bool:
+    """`# 用語名` で始まる保存用ブロックだけを、AIを通さない経路へ流す。"""
+    if metadata.get("format") == "raw":
+        return False
+    return any(line.startswith("# ") and line[2:].strip() for line in body.splitlines())
 
 
 def scan_promoted_notes(vault: Path) -> list[PromotedNote]:
@@ -91,6 +105,7 @@ def scan_promoted_notes(vault: Path) -> list[PromotedNote]:
         body = body.strip()
         if not body:
             raise ObsidianIntakeError(f"Promoted note is empty: {path.name}")
+        structured = _is_structured(metadata, body)
         created = metadata.get("created", "")
         if re.fullmatch(r"\d{4}-\d{2}-\d{2}", created):
             body = f"学習日: {created}\n\n{body}"
@@ -107,6 +122,7 @@ def scan_promoted_notes(vault: Path) -> list[PromotedNote]:
                 title=_note_title(path, body),
                 content=body,
                 content_sha256=hashlib.sha256(body.encode("utf-8")).hexdigest(),
+                structured=structured,
             )
         )
     return notes
