@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜GPUの稼働率管理と軽量データベースSQLiteの活用法</title>
+      <description>Daily Brief（4〜6分）｜テーマ: GPUの稼働率管理と軽量データベースSQLiteの活用法</description>
+      <pubDate>Sat, 01 Aug 2026 05:25:02 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260801_052502.mp3" length="1634757" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260801_052502.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>03:49</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜プルリクエストの復習とGemini APIによる本番向けAIエージェント開発</title>
       <description>Daily Brief（4〜6分）｜テーマ: プルリクエストの復習とGemini APIによる本番向けAIエージェント開発</description>
       <pubDate>Fri, 31 Jul 2026 05:15:56 +0900</pubDate>

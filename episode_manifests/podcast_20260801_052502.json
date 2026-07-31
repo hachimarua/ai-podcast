@@ -1,0 +1,169 @@
+{
+  "audio_sha256": "5bdbbcde6ff3f7c62534e6c164843207e40a62d681272ddc5dae13ef997da638",
+  "broadcast_date": "2026-08-01",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 229.896,
+      "file_size_bytes": 1634757,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.5,
+      "mean_volume_db": -18.0,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0625,
+    "format_config_version": "formats-v4",
+    "initial_script_similarity": 0.0625,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 5,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Hugging Face Blog"
+        }
+      ],
+      "selected_sources": [
+        "Hugging Face Blog"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1539,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 229,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260801_052502",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 3,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "pronunciation",
+        "severity": "info",
+        "timestamp": "00:20"
+      },
+      {
+        "category": "clipping",
+        "severity": "critical",
+        "timestamp": "03:41"
+      }
+    ],
+    "overall_score": 3,
+    "pacing_score": 4,
+    "requires_human_review": true,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-07-31T20:27:55.927954+00:00",
+  "news_urls": [
+    "https://huggingface.co/blog/Dharma-AI/gpu-management"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "GPUの稼働率管理と軽量データベースSQLiteの活用法",
+  "public_topic": "GPUの稼働率管理と軽量データベースSQLiteの活用法",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    17124845348780486,
+    2778015835860073,
+    9110922949382035,
+    21915504399542263,
+    7823946560945016,
+    22995897563712448,
+    6715555125273198,
+    4511362503007921,
+    48933726447392877,
+    3967669317424698,
+    14992668161707846,
+    4871687124283499,
+    15807691482958704,
+    48913956702022662,
+    17010160885902111,
+    53546676345381147,
+    51945382665889549,
+    5822894336920546,
+    14078028198841440,
+    770571134726460,
+    4336717183720665,
+    1088467160816508,
+    4306995308246049,
+    17199355164774274,
+    23430000161496674,
+    22047242125606,
+    1120624405089683,
+    19228830948411691,
+    207429802677579,
+    10333005856112858,
+    7747510875500868,
+    35459947767814495,
+    4154885349474682,
+    15386968407382683,
+    6240287142116705,
+    65589922405856376,
+    36969551033919002,
+    11298021946294363,
+    15614840682781851,
+    63420334280032131,
+    21117436138005688,
+    4667362046387443,
+    9508558918544779,
+    9244477498077011,
+    13910066578860446,
+    1727046966316814,
+    24986164639351158,
+    3827831282613955,
+    31550173370419499,
+    15652103719457633,
+    8346216231565469,
+    35762072591573520,
+    315360289699213,
+    30385179126156529,
+    10517399447029805,
+    11399607611590215,
+    3729121915946857,
+    7878949696359174,
+    5525062071816336,
+    23955026370870375,
+    13639541857041990,
+    9215612376505436,
+    4418633863921627
+  ],
+  "script_sha256": "34feab5f55481f726452dabc2f4aad9db17c642f66536b68d0bdb6acf38baf63",
+  "selected_term_keys": [
+    "310d5daf6819ce2bd3a28e1d"
+  ],
+  "topic_fingerprint": "6c4912aa1fefa38aab19a880"
+}
