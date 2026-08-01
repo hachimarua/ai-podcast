@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜ChatGPTの特定領域活用と研究者10万人への最上位モデル提供</title>
+      <description>Daily Brief（4〜6分）｜テーマ: ChatGPTの特定領域活用と研究者10万人への最上位モデル提供</description>
+      <pubDate>Sun, 02 Aug 2026 05:11:19 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260802_051119.mp3" length="1789029" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260802_051119.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:02</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜GPUの稼働率管理と軽量データベースSQLiteの活用法</title>
       <description>Daily Brief（4〜6分）｜テーマ: GPUの稼働率管理と軽量データベースSQLiteの活用法</description>
       <pubDate>Sat, 01 Aug 2026 05:25:02 +0900</pubDate>

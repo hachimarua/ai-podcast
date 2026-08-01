@@ -1,0 +1,172 @@
+{
+  "audio_sha256": "c549747d4f22b6e0bf0f3906d098af209d7074fdb5bb0a466dc87ea45c0d191d",
+  "broadcast_date": "2026-08-02",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 242.352,
+      "file_size_bytes": 1789029,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.5,
+      "mean_volume_db": -17.5,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0469,
+    "format_config_version": "formats-v4",
+    "format_fallback_reason": "insufficient_multi_source_official_basis",
+    "initial_script_similarity": 0.0625,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": true,
+          "reason": "notion_match",
+          "source": "TechCrunch AI"
+        },
+        {
+          "lane": "japan",
+          "matched_notion_terms": true,
+          "reason": "fresh_japan_lane",
+          "source": "ITmedia AI+"
+        }
+      ],
+      "selected_sources": [
+        "TechCrunch AI",
+        "ITmedia AI+"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "lab",
+    "script_length": {
+      "character_count": 1569,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 242,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260802_051119",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "pronunciation",
+        "severity": "info",
+        "timestamp": "02:55"
+      }
+    ],
+    "overall_score": 4,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 4,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-01T20:14:30.225385+00:00",
+  "news_urls": [
+    "https://techcrunch.com/2026/08/01/sam-altman-is-still-making-the-case-for-parenting-via-chatgpt/",
+    "https://www.itmedia.co.jp/aiplus/article/2607/31/2000000333/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "ChatGPTの特定領域活用と研究者10万人への最上位モデル提供",
+  "public_topic": "ChatGPTの特定領域活用と研究者10万人への最上位モデル提供",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    436447906968547,
+    4283548154392171,
+    21837981314131213,
+    1716913137633815,
+    11728917263303080,
+    7823946560945016,
+    53289011015086967,
+    13686024887905682,
+    89173346984342542,
+    17162058588951215,
+    11242201542489766,
+    4935273029622067,
+    7194885698457647,
+    2283179512021159,
+    54200447127061065,
+    1260347977050988,
+    2728892310432662,
+    27735939074247510,
+    4190851910636917,
+    930547541246055,
+    2667745042273253,
+    1506526720440378,
+    24266737230329962,
+    384932926923785,
+    11591725748991880,
+    16422454071052477,
+    12186982709019338,
+    55033664265126857,
+    8612549177608776,
+    36438261904828830,
+    19188745938551298,
+    7316690137363096,
+    26217231847434512,
+    4154885349474682,
+    27969835527184428,
+    14881632250044812,
+    12379433097202518,
+    1496800898790716,
+    4824839054718774,
+    3375985366357142,
+    829114126338684,
+    12024190641973160,
+    16077117636440894,
+    5750887823387381,
+    91809558490044,
+    3962303973959989,
+    22519480933593020,
+    1026060742538800,
+    4730770361432859,
+    216813722752005,
+    12777149043723467,
+    3154668199684817,
+    13476582407555612,
+    46352331119573443,
+    12286197972123797,
+    13460912326199543,
+    19824217875503762,
+    3509097798513585,
+    1884006279962521,
+    2552998449194326,
+    4273480635725722,
+    4095949163175886,
+    3970400794750889,
+    20536108069093950
+  ],
+  "script_sha256": "c22ea89667462f01e186d4fb45cb0f5d669e0ac098ce92564ac9ba755a2f1689",
+  "selected_term_keys": [
+    "8f9074776fffb1db594bfef5"
+  ],
+  "topic_fingerprint": "89611ff1fc6b2003ff7cf2d6"
+}
