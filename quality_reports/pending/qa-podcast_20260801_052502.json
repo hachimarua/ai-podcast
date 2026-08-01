@@ -2,8 +2,8 @@
   "broadcast_date": "2026-08-01",
   "category": "audio_quality",
   "created_at": "2026-07-31T20:27:55.981306+00:00",
-  "decided_at": null,
-  "decision_reason": null,
+  "decided_at": "2026-08-01T09:25:56.264153+00:00",
+  "decision_reason": "大丈夫でした",
   "episode_id": "podcast_20260801_052502",
   "evidence": [
     {
@@ -22,7 +22,7 @@
   "safe_auto_apply": false,
   "schema_version": 1,
   "severity": "critical",
-  "status": "pending",
+  "status": "disagreed",
   "suggested_changes": [
     "発音ルールを確認する",
     "音量ピーク設定を確認する"
