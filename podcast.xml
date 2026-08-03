@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜自律型AIエージェントの階層設計とシーアイシーディーから学ぶ継続的実行の仕組み</title>
+      <description>Daily Brief（4〜6分）｜テーマ: 自律型AIエージェントの階層設計とシーアイシーディーから学ぶ継続的実行の仕組み</description>
+      <pubDate>Tue, 04 Aug 2026 05:29:39 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260804_052939.mp3" length="2014341" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260804_052939.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:34</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜xAIの画像生成アプリ訴訟とCQRSによる読み書き分離設計</title>
       <description>Daily Brief（4〜6分）｜テーマ: xAIの画像生成アプリ訴訟とCQRSによる読み書き分離設計</description>
       <pubDate>Mon, 03 Aug 2026 05:11:55 +0900</pubDate>
