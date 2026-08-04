@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜生成AIと数理最適化技術で、生産ラインの構成を自動立案する技術を開発</title>
+      <description>Daily Brief（4〜6分）｜テーマ: 生成AIと数理最適化技術で、生産ラインの構成を自動立案する技術を開発</description>
+      <pubDate>Wed, 05 Aug 2026 05:27:05 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260805_052705.mp3" length="2007405" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260805_052705.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:40</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜自律型AIエージェントの階層設計とシーアイシーディーから学ぶ継続的実行の仕組み</title>
       <description>Daily Brief（4〜6分）｜テーマ: 自律型AIエージェントの階層設計とシーアイシーディーから学ぶ継続的実行の仕組み</description>
       <pubDate>Tue, 04 Aug 2026 05:29:39 +0900</pubDate>

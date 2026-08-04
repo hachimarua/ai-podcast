@@ -1,0 +1,194 @@
+{
+  "audio_sha256": "9f9c2f657e277da869b625b43ef46fab4a5a4e2cc8de1abbad55fc7b04d0c645",
+  "broadcast_date": "2026-08-05",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 280.8,
+      "file_size_bytes": 2007405,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.2,
+      "mean_volume_db": -17.7,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0625,
+    "format_config_version": "formats-v4",
+    "initial_script_similarity": 0.0625,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 5,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5,
+        "arXiv cs.AI (Artificial Intelligence)": 4
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "AI Watch"
+        }
+      ],
+      "selected_sources": [
+        "AI Watch"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1847,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 280,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260805_052705",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 3,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "pronunciation",
+        "severity": "info",
+        "timestamp": "01:07"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "info",
+        "timestamp": "01:14"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "info",
+        "timestamp": "02:12"
+      },
+      {
+        "category": "pacing",
+        "severity": "info",
+        "timestamp": "00:49"
+      },
+      {
+        "category": "pacing",
+        "severity": "info",
+        "timestamp": "02:41"
+      },
+      {
+        "category": "pacing",
+        "severity": "info",
+        "timestamp": "03:29"
+      },
+      {
+        "category": "other",
+        "severity": "info",
+        "timestamp": "unknown"
+      }
+    ],
+    "overall_score": 4,
+    "pacing_score": 3,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-04T20:29:22.707391+00:00",
+  "news_urls": [
+    "https://ai.watch.impress.co.jp/docs/news/2130536.html"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "生成AIと数理最適化技術で、生産ラインの構成を自動立案する技術を開発",
+  "public_topic": "生成AIと数理最適化技術で、生産ラインの構成を自動立案する技術を開発",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    8316399673001941,
+    1033850234154406,
+    6377487362457122,
+    9080225734417954,
+    2683722803872827,
+    5082630134943987,
+    1806229865935177,
+    4601668267900168,
+    13218710019621957,
+    27863482409578690,
+    20479965292478528,
+    31669897074072648,
+    14783939529526517,
+    4181737521563882,
+    17391389790862162,
+    28438760117212228,
+    1434996821004021,
+    44626104791005487,
+    17323705634300896,
+    229803983754283,
+    9956804825301411,
+    286554452112524,
+    14708600272465483,
+    27947131298143841,
+    12333899345299073,
+    617704521622180,
+    18444518742916697,
+    905035156496167,
+    6105496772980967,
+    6713316936252196,
+    64202815248521070,
+    11169494862216711,
+    12220751025299920,
+    24379583176813716,
+    9099966054453732,
+    11533365528061997,
+    5415063915412842,
+    10378104883701481,
+    19975109810503892,
+    7891998837840742,
+    3114033469473450,
+    2684655718379288,
+    25660183717675613,
+    9069931150054288,
+    5402913537140713,
+    17258006978283707,
+    14085213915153335,
+    14343483641551491,
+    5543406987252004,
+    216813722752005,
+    14111083298087600,
+    8346216231565469,
+    15255857409337508,
+    315360289699213,
+    27971014062668198,
+    7050395057009360,
+    49291456521513951,
+    16853905234264848,
+    10996248938971326,
+    20527909324611283,
+    14042874512145519,
+    4229018177187934,
+    1943023605618428,
+    30229218354237720
+  ],
+  "script_sha256": "a7e083bbe882b7de78c48b55fdda6ccc885ffa5e4f3100fa28f770495e4fde16",
+  "selected_term_keys": [
+    "b93927b4435d794d17464196"
+  ],
+  "topic_fingerprint": "d0624628d176a5cc242f6fdc"
+}
