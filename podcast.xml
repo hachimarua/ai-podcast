@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜「準国産」うたう人型ロボ登場 本体価格は500万円から 目指すは「純国産」</title>
+      <description>Daily Brief（4〜6分）｜テーマ: 「準国産」うたう人型ロボ登場 本体価格は500万円から 目指すは「純国産」</description>
+      <pubDate>Thu, 06 Aug 2026 05:28:45 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260806_052845.mp3" length="1678317" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260806_052845.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>03:55</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜生成AIと数理最適化技術で、生産ラインの構成を自動立案する技術を開発</title>
       <description>Daily Brief（4〜6分）｜テーマ: 生成AIと数理最適化技術で、生産ラインの構成を自動立案する技術を開発</description>
       <pubDate>Wed, 05 Aug 2026 05:27:05 +0900</pubDate>
