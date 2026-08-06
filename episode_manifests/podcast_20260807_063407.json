@@ -1,0 +1,164 @@
+{
+  "audio_sha256": "3b1acc997a4f44cf3335fd303f5ba448233528622da98ba90d069344dbb685d1",
+  "broadcast_date": "2026-08-07",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 212.664,
+      "file_size_bytes": 1555965,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.8,
+      "mean_volume_db": -18.3,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.125,
+    "format_config_version": "formats-v4",
+    "initial_script_similarity": 0.125,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 5,
+        "Hugging Face Blog": 5,
+        "ITmedia AI+": 4,
+        "TechCrunch AI": 5,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "TechCrunch AI"
+        }
+      ],
+      "selected_sources": [
+        "TechCrunch AI"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1447,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 212,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260807_063407",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 4,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "pronunciation",
+        "severity": "warning",
+        "timestamp": "00:54"
+      }
+    ],
+    "overall_score": 4,
+    "pacing_score": 4,
+    "requires_human_review": true,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-06T21:38:09.064817+00:00",
+  "news_urls": [
+    "https://techcrunch.com/2026/08/06/openai-brings-unlimited-chatgpt-text-chats-to-free-users/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "ChatGPT無料版の無制限チャット化と裏側を支えるキューの仕組み",
+  "public_topic": "ChatGPT無料版の無制限チャット化と裏側を支えるキューの仕組み",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    10259585407895290,
+    9619422856042833,
+    490305752435790,
+    1768050898494987,
+    39579838362789457,
+    31035848960980094,
+    17022722183626929,
+    108094085534219623,
+    28717284268439010,
+    24166896694720728,
+    18619979934556095,
+    35272176965420446,
+    4388613654836574,
+    25778906031601920,
+    47684505651136765,
+    6996490096348614,
+    3250406996063925,
+    4901223567657005,
+    47770751296910755,
+    16403033411134590,
+    27024813025138009,
+    3240253983137260,
+    12636268591637911,
+    20726401636371361,
+    9630020493980826,
+    23430000161496674,
+    18444518742916697,
+    20544914190397642,
+    29193770425842565,
+    4736123207973396,
+    31214041952087912,
+    33921838088044988,
+    12220751025299920,
+    4154885349474682,
+    9099966054453732,
+    34460563099656661,
+    2074049739761580,
+    10378104883701481,
+    2957965676335832,
+    2113729683550366,
+    15554446283173821,
+    19572871784838516,
+    79636107187962,
+    9069931150054288,
+    44290376595597192,
+    11728927412792842,
+    23551267939232013,
+    63892716718646864,
+    631103193672087,
+    216813722752005,
+    27251492007603620,
+    2659942713721870,
+    35762072591573520,
+    33979945514350284,
+    7365846353136083,
+    6266593094452526,
+    5544280995105320,
+    16853905234264848,
+    2178088302083558,
+    43354170647672026,
+    20311639261547803,
+    4229018177187934,
+    348526630600985,
+    6379974387997258
+  ],
+  "script_sha256": "5a2e7a74b0a83c1136910bc5182ff2107a648cd27e42455862108f14de0a9817",
+  "selected_term_keys": [
+    "0bb2e464d55cee52bb3f409c"
+  ],
+  "topic_fingerprint": "4317e50caab5aa8d06ef7f3a"
+}
