@@ -18,6 +18,10 @@ from typing import Callable
 PENDING_PREFIX = "quality_reports/pending/"
 MANIFEST_PREFIX = "episode_manifests/"
 DEFAULT_FEED_URL = "https://hachimarua.github.io/ai-podcast/podcast.xml"
+DEFAULT_RUNS_URL_BASE = (
+    "https://api.github.com/repos/hachimarua/ai-podcast/actions/workflows/"
+    "podcast.yml/runs"
+)
 FEED_TIMEOUT_SECONDS = 20
 # 「配信未達」はリスナーに何も届いていない状態なので、要確認と同じく赤扱いにする。
 NATIVE_ALERT_VERDICTS = {
@@ -37,6 +41,7 @@ DEGRADATION_ACTIONS = {
 }
 DEGRADATION_STAGES = {
     "dialogue_style_gate": "対話スタイルゲート（定型的な返答冒頭の検査）",
+    "script_length_gate": "台本文字数ゲート（規定の文字数範囲の検査）",
 }
 
 
@@ -61,6 +66,51 @@ def check_feed_delivery(episode_id: str | None, feed_url: str | None = None) -> 
         return result
     result["status"] = "reachable"
     result["episode_present"] = episode_id in body
+    return result
+
+
+def check_workflow_health(window_hours: int = 24, runs_url: str | None = None) -> dict:
+    """Report whether today's episode needed a rescue to exist at all.
+
+    Auditing only the finished artifact cannot tell a run that succeeded first try
+    from one the user had to re-run by hand at dawn; both leave the same manifest.
+    Anything unreachable is reported as "unknown" so the audit still runs offline.
+    """
+    url = (
+        runs_url
+        or os.getenv("PODCAST_RUNS_URL")
+        or f"{DEFAULT_RUNS_URL_BASE}?per_page=20"
+    )
+    result = {"status": "unknown", "needed_recovery": None}
+    try:
+        request = urllib.request.Request(
+            url, headers={"Accept": "application/vnd.github+json"}
+        )
+        with urllib.request.urlopen(request, timeout=FEED_TIMEOUT_SECONDS) as response:
+            payload = json.loads(response.read().decode("utf-8", errors="replace"))
+    except (urllib.error.URLError, OSError, ValueError) as exc:
+        result["error"] = type(exc).__name__
+        return result
+
+    cutoff = datetime.now(timezone.utc).timestamp() - window_hours * 3600
+    recent = []
+    for run in payload.get("workflow_runs", []) or []:
+        created = str(run.get("created_at") or "")
+        try:
+            created_ts = datetime.fromisoformat(created.replace("Z", "+00:00")).timestamp()
+        except ValueError:
+            continue
+        if created_ts >= cutoff:
+            recent.append(run)
+
+    failed = [run for run in recent if run.get("conclusion") == "failure"]
+    max_attempt = max((int(run.get("run_attempt") or 1) for run in recent), default=1)
+    result["status"] = "reachable"
+    result["runs_checked"] = len(recent)
+    result["failed_run_count"] = len(failed)
+    result["max_run_attempt"] = max_attempt
+    result["needed_recovery"] = bool(failed) or max_attempt > 1
+    result["failed_run_urls"] = [run.get("html_url") for run in failed][:5]
     return result
 
 
@@ -338,6 +388,7 @@ def classify_daily_audit(
     manifest: dict | None,
     report_date: str,
     delivery: dict | None = None,
+    workflow: dict | None = None,
 ) -> str:
     if not manifest or manifest.get("broadcast_date") != report_date:
         return "生成結果未確認"
@@ -345,10 +396,17 @@ def classify_daily_audit(
     checks = manifest.get("deterministic_checks", {})
     audio = checks.get("audio_quality", {})
     script_length = checks.get("script_length", {})
+    degradations = checks.get("degradations") or []
+    # 意図して通した文字数外は「注意」で扱う。記録のない文字数外だけが「異常」。
+    length_was_waived = any(
+        entry.get("stage") == "script_length_gate"
+        for entry in degradations
+        if isinstance(entry, dict)
+    )
     if (
         manifest.get("publish_status") != "published"
         or audio.get("passed") is not True
-        or script_length.get("passed") is not True
+        or (script_length.get("passed") is not True and not length_was_waived)
     ):
         return "異常"
 
@@ -364,8 +422,9 @@ def classify_daily_audit(
         for issue in qa.get("issues", [])
     ):
         return "要確認"
-    # 品質ゲートを一段落として配信を通した日。停止はしていないので黄信号として扱う。
-    if checks.get("degradations"):
+    # 品質ゲートを一段落として配信を通した日、または自動実行が一度失敗して
+    # 手動復旧した日。停止はしていないので黄信号として扱う。
+    if degradations or (workflow and workflow.get("needed_recovery")):
         return "注意"
     return "正常"
 
@@ -376,8 +435,9 @@ def build_daily_report_prompt(
     workspace: Path,
     report_date: str,
     delivery: dict | None = None,
+    workflow: dict | None = None,
 ) -> str:
-    verdict = classify_daily_audit(manifest, report_date, delivery)
+    verdict = classify_daily_audit(manifest, report_date, delivery, workflow)
     current_manifest = (
         manifest if manifest and manifest.get("broadcast_date") == report_date else None
     )
@@ -398,6 +458,7 @@ def build_daily_report_prompt(
             "gemini_qa": current_manifest.get("gemini_qa_summary", {}),
             "degradations": describe_degradations(checks.get("degradations")),
             "feed_delivery": delivery or {},
+            "workflow_health": workflow or {},
             "pending_proposal_id": proposal.get("proposal_id") if proposal else None,
         }
     else:
@@ -408,6 +469,7 @@ def build_daily_report_prompt(
             "latest_available_broadcast_date": (
                 manifest.get("broadcast_date") if manifest else None
             ),
+            "workflow_health": workflow or {},
         }
 
     prompt = f"""
@@ -434,6 +496,10 @@ Sidecarの日次チェックは実行済みです。正常な日も省略せず�
   `episode_present` が false のときは「リスナーには届いていない」ことを最初に書き、
   エピソード自体は出来ているがGitHub Pagesの配信が止まっている可能性が高いと伝えてください。
   `status` が "unknown" のときは配信確認ができなかったと明記し、届いたと断定しないでください。
+- `workflow_health.needed_recovery` が true のときは、最終的に配信できていても
+  「今朝の自動実行は一度失敗し、復旧を経て配信された」ことを必ず書いてください。
+  `failed_run_count` と `max_run_attempt` を添え、失敗したrunのURLがあれば示してください。
+  成果物が揃っているからといって、この事実を省略しないでください。
 - 「生成結果未確認」「監査未完了」「配信未達」を正常扱いにせず、何が確認できなかったかを明記してください。
 - pending提案がない場合は、判断を求めず「対応不要」または「監視継続」で締めてください。
 """.strip()
@@ -561,7 +627,8 @@ def notify_daily_report(
         delivery = (
             check_feed_delivery(manifest.get("episode_id")) if is_current else None
         )
-        verdict = classify_daily_audit(manifest, today, delivery)
+        workflow = check_workflow_health()
+        verdict = classify_daily_audit(manifest, today, delivery, workflow)
 
         # Antigravityの会話は履歴として蓄積されるため、異常系だけは別経路で
         # 音付き通知も出す。report_key単位で重複を防ぎ、会話作成に失敗しても
@@ -611,7 +678,9 @@ def notify_daily_report(
                 None,
             )
 
-        prompt = build_daily_report_prompt(manifest, proposal, workspace, today, delivery)
+        prompt = build_daily_report_prompt(
+            manifest, proposal, workspace, today, delivery, workflow
+        )
         output = _run(["agentapi", "new-conversation", prompt], cwd=workspace, timeout=120)
         notified_at = datetime.now(timezone.utc).isoformat()
         report_state = {

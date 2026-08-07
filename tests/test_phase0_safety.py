@@ -882,6 +882,122 @@ class AntigravityNotifierTests(unittest.TestCase):
         self.assertTrue(present["episode_present"])
         self.assertFalse(absent["episode_present"])
 
+    def test_manual_rescue_is_reported_even_when_the_artifact_looks_clean(self):
+        manifest = self.sample_manifest()
+        workflow = {
+            "status": "reachable",
+            "needed_recovery": True,
+            "failed_run_count": 1,
+            "max_run_attempt": 2,
+            "failed_run_urls": ["https://example.test/run/1"],
+        }
+        # 成果物は完璧でも、手で救出した朝を「正常」で流さない。
+        self.assertEqual(
+            antigravity_review_notifier.classify_daily_audit(
+                manifest, "2026-07-16", None, workflow
+            ),
+            "注意",
+        )
+        prompt = antigravity_review_notifier.build_daily_report_prompt(
+            manifest, None, Path("/tmp/workspace"), "2026-07-16", None, workflow
+        )
+        self.assertIn("【AIラジオ日次監査 2026-07-16】注意", prompt)
+        self.assertIn("復旧を経て配信された", prompt)
+        self.assertIn("https://example.test/run/1", prompt)
+
+    def test_clean_run_without_retries_stays_normal(self):
+        workflow = {
+            "status": "reachable",
+            "needed_recovery": False,
+            "failed_run_count": 0,
+            "max_run_attempt": 1,
+        }
+        self.assertEqual(
+            antigravity_review_notifier.classify_daily_audit(
+                self.sample_manifest(), "2026-07-16", None, workflow
+            ),
+            "正常",
+        )
+
+    def test_waived_script_length_is_caution_but_an_unexplained_one_is_abnormal(self):
+        waived = self.sample_manifest()
+        waived["deterministic_checks"]["script_length"] = {
+            "passed": False,
+            "character_count": 2020,
+            "hard_max": 2000,
+        }
+        waived["deterministic_checks"]["degradations"] = [
+            {
+                "stage": "script_length_gate",
+                "reason": "retry_length_rejected",
+                "action": "published_initial_script",
+            }
+        ]
+        self.assertEqual(
+            antigravity_review_notifier.classify_daily_audit(waived, "2026-07-16"),
+            "注意",
+        )
+        unexplained = self.sample_manifest()
+        unexplained["deterministic_checks"]["script_length"] = {
+            "passed": False,
+            "character_count": 2020,
+        }
+        self.assertEqual(
+            antigravity_review_notifier.classify_daily_audit(unexplained, "2026-07-16"),
+            "異常",
+        )
+
+    def test_workflow_health_reports_unknown_on_network_failure(self):
+        with patch.object(
+            antigravity_review_notifier.urllib.request,
+            "urlopen",
+            side_effect=OSError("boom"),
+        ):
+            result = antigravity_review_notifier.check_workflow_health()
+        self.assertEqual(result["status"], "unknown")
+        self.assertIsNone(result["needed_recovery"])
+        # 取得できないだけで「注意」に落とさない。
+        self.assertEqual(
+            antigravity_review_notifier.classify_daily_audit(
+                self.sample_manifest(), "2026-07-16", None, result
+            ),
+            "正常",
+        )
+
+    def test_workflow_health_flags_a_second_attempt(self):
+        now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        payload = json.dumps(
+            {
+                "workflow_runs": [
+                    {
+                        "created_at": now,
+                        "run_attempt": 2,
+                        "conclusion": "success",
+                        "html_url": "https://example.test/run/2",
+                    }
+                ]
+            }
+        ).encode("utf-8")
+
+        class FakeResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self):
+                return payload
+
+        with patch.object(
+            antigravity_review_notifier.urllib.request,
+            "urlopen",
+            return_value=FakeResponse(),
+        ):
+            result = antigravity_review_notifier.check_workflow_health()
+        self.assertTrue(result["needed_recovery"])
+        self.assertEqual(result["max_run_attempt"], 2)
+
     def test_human_review_still_outranks_a_degraded_publication(self):
         manifest = self.sample_manifest(requires_human_review=True)
         manifest["deterministic_checks"]["degradations"] = [

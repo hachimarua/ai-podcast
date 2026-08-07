@@ -48,9 +48,9 @@ PUBLIC_CHECK_STRINGS = PUBLIC_NEWS_SOURCES | {
     "duration_too_short", "duration_too_long", "mean_volume_too_quiet",
     "mean_volume_too_loud", "peak_too_high", "too_much_long_silence",
     # 配信を優先して品質ゲートを一段落としたときの記録。自由文は載せず列挙値だけを通す。
-    "dialogue_style_gate", "retry_generation_failed", "retry_still_formulaic",
-    "retry_too_similar", "retry_length_rejected", "published_initial_script",
-    "published_style_retry_script",
+    "dialogue_style_gate", "script_length_gate", "retry_generation_failed",
+    "retry_still_formulaic", "retry_too_similar", "retry_length_rejected",
+    "published_initial_script", "published_style_retry_script",
 }
 
 

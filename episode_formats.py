@@ -190,7 +190,12 @@ def count_script_characters(script: str) -> int:
     return len(re.sub(r"\s+", "", script or ""))
 
 
-def validate_script_length(script: str, spec: FormatSpec) -> dict:
+def validate_script_length(script: str, spec: FormatSpec, *, enforce: bool = True) -> dict:
+    """Measure script length against the format, raising unless ``enforce`` is off.
+
+    ``enforce=False`` lets a caller that has decided to publish anyway still record
+    the real numbers instead of losing them to the exception.
+    """
     count = count_script_characters(script)
     result = {
         "passed": spec.hard_character_min <= count <= spec.hard_character_max,
@@ -200,7 +205,7 @@ def validate_script_length(script: str, spec: FormatSpec) -> dict:
         "target_min": spec.prompt_character_min,
         "target_max": spec.prompt_character_max,
     }
-    if not result["passed"]:
+    if not result["passed"] and enforce:
         raise EpisodeFormatError(
             f"generated script length {count} is outside "
             f"{spec.hard_character_min}-{spec.hard_character_max}"

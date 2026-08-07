@@ -517,6 +517,65 @@ class LabPipelineIntegrationTests(unittest.TestCase):
         self.assertEqual(runtime_thresholds.min_duration_seconds, 210.0)
         self.assertEqual(runtime_thresholds.max_duration_seconds, 360.0)
 
+    def test_daily_script_slightly_over_the_limit_still_reaches_listeners(self):
+        # 2026-08-08の実障害: daily台本が2020字(上限2000)になり、再生成もできず
+        # 配信そのものが止まった。20字の超過で放送を落とさない。
+        term = {
+            "id": "term",
+            "name": "RAG",
+            "content": "private",
+            "review_count": 0,
+            "last_reviewed": None,
+        }
+        news = self.reporting_news()
+        oversize_script = "あ" * 2020
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with (
+                patch.object(pipeline_main, "__file__", str(root / "main.py")),
+                patch.object(pipeline_main, "load_recent_manifests", return_value=[]),
+                patch.object(pipeline_main, "select_terms_for_review", return_value=[term]),
+                patch.object(pipeline_main, "collect_latest_news", return_value=[news]),
+                patch.object(
+                    pipeline_main, "match_news_with_words", return_value=([news], [])
+                ),
+                # 再生成もGemini側の不調で返ってこない最悪ケース。
+                patch.object(
+                    pipeline_main,
+                    "generate_radio_script",
+                    side_effect=[oversize_script, None],
+                ) as generate,
+                patch.object(
+                    pipeline_main, "synthesize_podcast", new=AsyncMock(return_value=True)
+                ),
+                patch.object(
+                    pipeline_main,
+                    "require_audio_quality",
+                    return_value={
+                        "passed": True,
+                        "duration_seconds": 300.0,
+                        "mean_volume_db": -18.0,
+                        "max_volume_db": -1.0,
+                    },
+                ),
+                patch.object(
+                    pipeline_main, "run_shadow_audio_qa", return_value={"status": "disabled"}
+                ),
+                patch.object(pipeline_main, "update_term_review_status"),
+                patch.dict(
+                    os.environ,
+                    {"PODCAST_EPISODE_FORMAT": "daily", "GITHUB_ACTIONS": "false"},
+                    clear=False,
+                ),
+            ):
+                asyncio.run(pipeline_main.async_main())
+
+            saved = (root / "todays_script.txt").read_text(encoding="utf-8")
+
+        self.assertEqual(saved, oversize_script)
+        self.assertEqual(generate.call_count, 2)
+        self.assertTrue(generate.call_args.kwargs["length_retry"])
+
     def test_short_audio_regenerates_once_with_same_sources_before_publication(self):
         term = {
             "id": "term",

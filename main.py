@@ -273,12 +273,17 @@ async def async_main():
 
     try:
         script_length = validate_script_length(script, format_spec)
-    except EpisodeFormatError:
-        if episode_format != "lab":
-            raise
+    except EpisodeFormatError as length_error:
         print(
-            "[Length Gate] Lab台本が規定文字数外のため、同じ出典のまま1回だけ再生成します。"
+            f"[Length Gate] 台本が規定文字数外のため({length_error})、"
+            "同じ出典のまま1回だけ再生成します。"
         )
+        # 再生成が採用できなくても、尺そのものは後段の音声品質ゲートが見る。
+        # 数十文字の超過で配信を落とさない。
+        fallback_script = script
+        fallback_public_topic = generated_public_topic
+        fallback_similarity = final_similarity
+
         raw_script = generate_radio_script(
             selected_terms,
             selected_matched,
@@ -289,16 +294,41 @@ async def async_main():
             spec=format_spec,
             length_retry=True,
         )
-        script, generated_public_topic = split_generated_script_output(raw_script)
-        if not script:
-            raise RuntimeError("Lab length retry script generation failed")
-        final_similarity = max_recent_similarity(script, history_manifests)
-        if final_similarity >= duplicate_threshold:
-            raise RuntimeError(
-                f"Length retry script is too similar to a recent episode ({final_similarity:.2f}); "
-                "publication stopped"
+        retry_script, retry_public_topic = split_generated_script_output(raw_script)
+
+        length_rejection = None
+        if not retry_script:
+            length_rejection = "retry_generation_failed"
+        else:
+            retry_similarity = max_recent_similarity(retry_script, history_manifests)
+            if retry_similarity >= duplicate_threshold:
+                length_rejection = "retry_too_similar"
+            else:
+                try:
+                    script_length = validate_script_length(retry_script, format_spec)
+                except EpisodeFormatError:
+                    length_rejection = "retry_length_rejected"
+
+        if length_rejection:
+            print(
+                f"[Length Gate] 再生成を採用できませんでした ({length_rejection})。"
+                "初回台本のまま配信を優先します。尺は音声品質ゲートで確認します。"
             )
-        script_length = validate_script_length(script, format_spec)
+            script = fallback_script
+            generated_public_topic = fallback_public_topic
+            final_similarity = fallback_similarity
+            script_length = validate_script_length(script, format_spec, enforce=False)
+            degradations.append(
+                {
+                    "stage": "script_length_gate",
+                    "reason": length_rejection,
+                    "action": "published_initial_script",
+                }
+            )
+        else:
+            script = retry_script
+            generated_public_topic = retry_public_topic
+            final_similarity = retry_similarity
 
     try:
         dialogue_style = validate_dialogue_style(script)
