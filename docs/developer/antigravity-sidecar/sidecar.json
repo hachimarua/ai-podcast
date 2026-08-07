@@ -3,9 +3,9 @@
   "display_name": "AIラジオ日次監査",
   "command": "python3",
   "args": [
-    "/Users/sakiya/Documents/Antigravity IDE/AI news knowledge learning system/antigravity_sidecar_runner.py",
+    "/Users/sakiya/Documents/Antigravity 2.0/AI news knowledge learning system/antigravity_sidecar_runner.py",
     "--workspace",
-    "/Users/sakiya/Documents/Antigravity IDE/AI news knowledge learning system",
+    "/Users/sakiya/Documents/Antigravity 2.0/AI news knowledge learning system",
     "--daily-check-time",
     "06:30"
   ],
