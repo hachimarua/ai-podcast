@@ -17,6 +17,45 @@ PENDING_PREFIX = "quality_reports/pending/"
 MANIFEST_PREFIX = "episode_manifests/"
 NATIVE_ALERT_VERDICTS = {"要確認", "異常", "監査未完了", "生成結果未確認"}
 
+# manifestには列挙値しか載らないので、人向けの説明はここで組み立てる。
+DEGRADATION_REASONS = {
+    "retry_generation_failed": "台本の再生成がGemini側の一時障害で失敗した",
+    "retry_still_formulaic": "再生成しても定型的な返答冒頭が解消しなかった",
+    "retry_too_similar": "再生成した台本が直近エピソードと似すぎていた",
+    "retry_length_rejected": "再生成した台本が規定文字数から外れた",
+}
+DEGRADATION_ACTIONS = {
+    "published_initial_script": "初回台本のまま配信を優先した",
+    "published_style_retry_script": "再生成した台本のまま配信を優先した",
+}
+DEGRADATION_STAGES = {
+    "dialogue_style_gate": "対話スタイルゲート（定型的な返答冒頭の検査）",
+}
+
+
+def describe_degradations(entries: object) -> list[dict]:
+    """Turn manifest degradation codes into report-ready Japanese notes."""
+    if not isinstance(entries, list):
+        return []
+    described = []
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        reason = entry.get("reason")
+        action = entry.get("action")
+        stage = entry.get("stage")
+        described.append(
+            {
+                "stage": stage,
+                "reason": reason,
+                "action": action,
+                "stage_label": DEGRADATION_STAGES.get(stage, "不明な検査"),
+                "reason_label": DEGRADATION_REASONS.get(reason, "詳細不明の理由"),
+                "action_label": DEGRADATION_ACTIONS.get(action, "配信を継続した"),
+            }
+        )
+    return described
+
 
 class NotifierError(RuntimeError):
     pass
@@ -286,6 +325,9 @@ def classify_daily_audit(manifest: dict | None, report_date: str) -> str:
         for issue in qa.get("issues", [])
     ):
         return "要確認"
+    # 品質ゲートを一段落として配信を通した日。停止はしていないので黄信号として扱う。
+    if checks.get("degradations"):
+        return "注意"
     return "正常"
 
 
@@ -314,6 +356,7 @@ def build_daily_report_prompt(
             "script_length": checks.get("script_length", {}),
             "final_script_similarity": checks.get("final_script_similarity"),
             "gemini_qa": current_manifest.get("gemini_qa_summary", {}),
+            "degradations": describe_degradations(checks.get("degradations")),
             "pending_proposal_id": proposal.get("proposal_id") if proposal else None,
         }
     else:
@@ -342,6 +385,10 @@ Sidecarの日次チェックは実行済みです。正常な日も省略せず�
 - 本日分がある場合は、公開状態、機械検査（尺・平均/最大音量・長時間無音・台本長）、
   Gemini音声監査（総合、明瞭度、対話自然さ、BGM、テンポ、反復、人間確認要否）を簡潔に示してください。
 - 問題がある場合は、重大度、分類、タイムスタンプを示してください。
+- `degradations` が空でない場合は「配信を優先した判断」という見出しを必ず設け、各項目について
+  どの検査か(stage_label)、何が起きたか(reason_label)、どう対処したか(action_label)を1件ずつ書いてください。
+  配信自体は成功しているので、失敗として扱わず「こういう事情があったが配信を優先した」という
+  注意（黄信号）として報告してください。次回放送で様子を見る点も一言添えてください。
 - 「生成結果未確認」または「監査未完了」を正常扱いにせず、何が確認できなかったかを明記してください。
 - pending提案がない場合は、判断を求めず「対応不要」または「監視継続」で締めてください。
 """.strip()

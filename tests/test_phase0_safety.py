@@ -782,6 +782,42 @@ class AntigravityNotifierTests(unittest.TestCase):
         self.assertIn("正常な日も省略せず", prompt)
         self.assertNotIn("Agreed / Disagree / Later", prompt)
 
+    def test_degraded_publication_is_reported_as_caution_not_failure(self):
+        manifest = self.sample_manifest()
+        manifest["deterministic_checks"]["degradations"] = [
+            {
+                "stage": "dialogue_style_gate",
+                "reason": "retry_generation_failed",
+                "action": "published_initial_script",
+            }
+        ]
+        self.assertEqual(
+            antigravity_review_notifier.classify_daily_audit(manifest, "2026-07-16"),
+            "注意",
+        )
+        prompt = antigravity_review_notifier.build_daily_report_prompt(
+            manifest, None, Path("/tmp/workspace"), "2026-07-16"
+        )
+        self.assertIn("【AIラジオ日次監査 2026-07-16】注意", prompt)
+        self.assertIn("retry_generation_failed", prompt)
+        self.assertIn("published_initial_script", prompt)
+        self.assertIn("配信を優先した判断", prompt)
+        # 列挙値だけのmanifestから、人が読める説明が復元できること。
+        self.assertIn("台本の再生成がGemini側の一時障害で失敗した", prompt)
+        self.assertIn("初回台本のまま配信を優先した", prompt)
+        # 配信自体は成功しているので、赤扱いのネイティブ通知には昇格させない。
+        self.assertNotIn("注意", antigravity_review_notifier.NATIVE_ALERT_VERDICTS)
+
+    def test_human_review_still_outranks_a_degraded_publication(self):
+        manifest = self.sample_manifest(requires_human_review=True)
+        manifest["deterministic_checks"]["degradations"] = [
+            {"stage": "dialogue_style_gate", "reason": "retry_generation_failed"}
+        ]
+        self.assertEqual(
+            antigravity_review_notifier.classify_daily_audit(manifest, "2026-07-16"),
+            "要確認",
+        )
+
     def test_daily_report_dedupes_episode_and_absorbs_pending_notification(self):
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp) / "workspace"

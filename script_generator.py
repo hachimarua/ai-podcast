@@ -179,8 +179,12 @@ def _gemini_error_status(exc: Exception) -> int | None:
     return int(match.group(1)) if match else None
 
 
-def validate_dialogue_style(script: str) -> dict:
-    """Reject repeated AI-like response openers while allowing occasional use."""
+def validate_dialogue_style(script: str, *, enforce: bool = True) -> dict:
+    """Reject repeated AI-like response openers while allowing occasional use.
+
+    With ``enforce=False`` the same measurements are returned without raising, so a
+    caller that has decided to publish a degraded script can still record the numbers.
+    """
     lines = []
     for raw_line in str(script or "").splitlines():
         match = re.match(r"^(?:ケンジ|アミ)\s*[:：]\s*(.+)$", raw_line.strip())
@@ -203,7 +207,7 @@ def validate_dialogue_style(script: str) -> dict:
         "allowed_formulaic_opener_count": allowed_opener_count,
         "repeated_formulaic_opener_count": repeated_opener_count,
     }
-    if not passed:
+    if not passed and enforce:
         raise EpisodeFormatError(
             "generated dialogue repeats formulaic response openers "
             f"({opener_count} used, {allowed_opener_count} allowed, "

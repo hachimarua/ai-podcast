@@ -113,6 +113,8 @@ async def async_main():
     episode_format = scheduled_format
     format_spec = formats_config.formats[episode_format]
     format_fallback_reason = None
+    # 配信を止めずに品質を一段落として通したときの記録。日次監査で「注意」として報告される。
+    degradations: list[dict] = []
     print(
         f"番組形式: {format_spec.display_name} ({format_spec.duration_label}) "
         f"/ config={formats_config.config_version}"
@@ -300,10 +302,16 @@ async def async_main():
 
     try:
         dialogue_style = validate_dialogue_style(script)
-    except EpisodeFormatError:
+    except EpisodeFormatError as style_error:
         print(
             "[Dialogue Style Gate] 定型的な返答冒頭が多いため、同じ出典のまま1回だけ再生成します。"
         )
+        # 再生成が失敗しても初回台本は健全なので、配信を止めずにそのまま採用する。
+        fallback_script = script
+        fallback_public_topic = generated_public_topic
+        fallback_similarity = final_similarity
+        fallback_length = script_length
+
         raw_script = generate_radio_script(
             selected_terms,
             selected_matched,
@@ -314,17 +322,61 @@ async def async_main():
             spec=format_spec,
             style_retry=True,
         )
-        script, generated_public_topic = split_generated_script_output(raw_script)
-        if not script:
-            raise RuntimeError("Dialogue style retry script generation failed")
-        final_similarity = max_recent_similarity(script, history_manifests)
-        if final_similarity >= duplicate_threshold:
-            raise RuntimeError(
-                f"Dialogue style retry is too similar to a recent episode ({final_similarity:.2f}); "
-                "publication stopped"
+        retry_script, retry_public_topic = split_generated_script_output(raw_script)
+
+        # 記録は列挙値だけにする。public_deterministic_checks が自由文を落とすため。
+        retry_rejection = None
+        retry_detail = ""
+        if not retry_script:
+            retry_rejection = "retry_generation_failed"
+        else:
+            retry_similarity = max_recent_similarity(retry_script, history_manifests)
+            if retry_similarity >= duplicate_threshold:
+                retry_rejection = "retry_too_similar"
+                retry_detail = f"類似度 {retry_similarity:.2f}"
+            else:
+                try:
+                    retry_length = validate_script_length(retry_script, format_spec)
+                except EpisodeFormatError as retry_length_error:
+                    retry_rejection = "retry_length_rejected"
+                    retry_detail = str(retry_length_error)
+
+        if retry_rejection:
+            print(
+                f"[Dialogue Style Gate] 再生成を採用できませんでした ({retry_rejection}"
+                + (f": {retry_detail}" if retry_detail else "")
+                + f")。初回台本のまま配信を優先します。理由: {style_error}"
             )
-        script_length = validate_script_length(script, format_spec)
-        dialogue_style = validate_dialogue_style(script)
+            script = fallback_script
+            generated_public_topic = fallback_public_topic
+            final_similarity = fallback_similarity
+            script_length = fallback_length
+            dialogue_style = validate_dialogue_style(script, enforce=False)
+            degradations.append(
+                {
+                    "stage": "dialogue_style_gate",
+                    "reason": retry_rejection,
+                    "action": "published_initial_script",
+                }
+            )
+        else:
+            script = retry_script
+            generated_public_topic = retry_public_topic
+            final_similarity = retry_similarity
+            script_length = retry_length
+            dialogue_style = validate_dialogue_style(script, enforce=False)
+            if not dialogue_style["passed"]:
+                print(
+                    "[Dialogue Style Gate] 再生成後も定型的な冒頭が残りました。"
+                    "配信を優先してこのまま進めます。"
+                )
+                degradations.append(
+                    {
+                        "stage": "dialogue_style_gate",
+                        "reason": "retry_still_formulaic",
+                        "action": "published_style_retry_script",
+                    }
+                )
 
     # 台本の保存
     if trial_mode:
@@ -463,6 +515,7 @@ async def async_main():
                 "scheduled_format": scheduled_format,
                 "format_fallback_reason": format_fallback_reason,
                 "format_config_version": formats_config.config_version,
+                "degradations": degradations,
             },
             qa_result=gemini_qa,
         )
@@ -503,6 +556,7 @@ async def async_main():
                     "scheduled_format": scheduled_format,
                     "format_fallback_reason": format_fallback_reason,
                     "format_config_version": formats_config.config_version,
+                    "degradations": degradations,
                 },
                 publish_status="published",
                 gemini_qa_summary=gemini_qa,

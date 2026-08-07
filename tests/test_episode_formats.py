@@ -123,6 +123,10 @@ class EpisodeFormatConfigTests(unittest.TestCase):
         )
         with self.assertRaises(episode_formats.EpisodeFormatError):
             script_generator.validate_dialogue_style(repetitive)
+        # 配信を優先すると決めた呼び出し側は、同じ計測値を例外なしで受け取れる。
+        measured = script_generator.validate_dialogue_style(repetitive, enforce=False)
+        self.assertFalse(measured["passed"])
+        self.assertGreater(measured["repeated_formulaic_opener_count"], 0)
 
     def test_script_generation_retries_transient_gemini_failure_only(self):
         class TransientError(Exception):
@@ -822,6 +826,111 @@ class LabPipelineIntegrationTests(unittest.TestCase):
         public_manifest.assert_not_called()
         proposal.assert_not_called()
         update_notion.assert_not_called()
+
+    def test_style_retry_outage_publishes_initial_script_and_records_the_reason(self):
+        term = {
+            "id": "term",
+            "name": "RAG",
+            "content": "private learning memo",
+            "review_count": 0,
+            "last_reviewed": None,
+        }
+        official = {
+            "source": "Google AI Blog",
+            "title": "Official RAG update",
+            "content": "RAG official details",
+            "link": "https://example.test/official?utm_source=rss",
+            "lane": "world",
+            "evidence_role": "official",
+            "matched_words": ["RAG"],
+        }
+        reporting = {
+            "source": "ITmedia AI+",
+            "title": "RAG implementation report",
+            "content": "RAG reporting details",
+            "link": "https://example.test/report",
+            "lane": "japan",
+            "evidence_role": "reporting",
+            "matched_words": ["RAG"],
+        }
+        repetitive_script = "\n".join(
+            [
+                "アミ：そうですね。" + "あ" * 700,
+                "ケンジ：その通りです。" + "い" * 700,
+                "アミ：そうですね。" + "う" * 700,
+            ]
+        )
+
+        async def synthesize(_script_path, audio_path, speech_rate):
+            del speech_rate
+            Path(audio_path).write_bytes(b"trial-audio")
+            return True
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with (
+                patch.object(pipeline_main, "__file__", str(root / "main.py")),
+                patch.object(pipeline_main, "load_recent_manifests", return_value=[]),
+                patch.object(pipeline_main, "select_terms_for_review", return_value=[term]),
+                patch.object(
+                    pipeline_main, "collect_latest_news", return_value=[official, reporting]
+                ),
+                patch.object(
+                    pipeline_main,
+                    "match_news_with_words",
+                    return_value=([official, reporting], []),
+                ),
+                # 2本目(style_retry)はGeminiの503でNoneが返る状況を再現する。
+                patch.object(
+                    pipeline_main,
+                    "generate_radio_script",
+                    side_effect=[repetitive_script, None],
+                ) as generate,
+                patch.object(
+                    pipeline_main, "synthesize_podcast", new=AsyncMock(side_effect=synthesize)
+                ),
+                patch.object(
+                    pipeline_main,
+                    "require_audio_quality",
+                    return_value={
+                        "passed": True,
+                        "issues": [],
+                        "duration_seconds": 600.0,
+                        "mean_volume_db": -18.0,
+                        "max_volume_db": -1.0,
+                        "long_silence_seconds": 0.0,
+                        "long_silence_ratio": 0.0,
+                        "file_size_bytes": 11,
+                    },
+                ),
+                patch.object(
+                    pipeline_main,
+                    "run_shadow_audio_qa",
+                    return_value={"status": "disabled"},
+                ),
+                patch.object(pipeline_main, "update_term_review_status"),
+                patch.dict(
+                    os.environ,
+                    {"PHASE10_TRIAL_MODE": "true", "GITHUB_ACTIONS": "true"},
+                    clear=False,
+                ),
+            ):
+                asyncio.run(pipeline_main.async_main())
+
+            trial_dir = next((root / "phase10_trials").glob("trial_*"))
+            report = json.loads((trial_dir / "trial_report.json").read_text(encoding="utf-8"))
+            # 再生成が落ちても配信は止めず、初回台本をそのまま使う。
+            self.assertEqual(
+                (trial_dir / "script.txt").read_text(encoding="utf-8"), repetitive_script
+            )
+
+        self.assertEqual(generate.call_count, 2)
+        self.assertTrue(generate.call_args.kwargs["style_retry"])
+        degradations = report["deterministic_checks"]["degradations"]
+        self.assertEqual(len(degradations), 1)
+        self.assertEqual(degradations[0]["stage"], "dialogue_style_gate")
+        self.assertEqual(degradations[0]["reason"], "retry_generation_failed")
+        self.assertEqual(degradations[0]["action"], "published_initial_script")
 
 
 class PublicEpisodeMetadataTests(unittest.TestCase):

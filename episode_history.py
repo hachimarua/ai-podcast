@@ -38,6 +38,7 @@ PUBLIC_CHECK_KEYS = {
     "max_mean_volume_db", "max_peak_volume_db", "max_long_silence_ratio",
     "silence_noise_db", "silence_min_seconds", "character_count", "hard_min",
     "hard_max", "target_min", "target_max", "legacy_bootstrap",
+    "degradations", "stage", "action",
 }
 PUBLIC_CHECK_STRINGS = PUBLIC_NEWS_SOURCES | {
     "daily", "lab", "world", "japan", "research", "official", "reporting",
@@ -46,6 +47,10 @@ PUBLIC_CHECK_STRINGS = PUBLIC_NEWS_SOURCES | {
     "insufficient_multi_source_official_basis", "gemini_audio_transcription",
     "duration_too_short", "duration_too_long", "mean_volume_too_quiet",
     "mean_volume_too_loud", "peak_too_high", "too_much_long_silence",
+    # 配信を優先して品質ゲートを一段落としたときの記録。自由文は載せず列挙値だけを通す。
+    "dialogue_style_gate", "retry_generation_failed", "retry_still_formulaic",
+    "retry_too_similar", "retry_length_rejected", "published_initial_script",
+    "published_style_retry_script",
 }
 
 
