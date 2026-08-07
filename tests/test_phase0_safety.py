@@ -808,6 +808,80 @@ class AntigravityNotifierTests(unittest.TestCase):
         # 配信自体は成功しているので、赤扱いのネイティブ通知には昇格させない。
         self.assertNotIn("注意", antigravity_review_notifier.NATIVE_ALERT_VERDICTS)
 
+    def test_healthy_episode_missing_from_the_live_feed_is_an_outage(self):
+        manifest = self.sample_manifest()
+        delivery = {
+            "feed_url": "https://example.test/podcast.xml",
+            "status": "reachable",
+            "episode_present": False,
+        }
+        self.assertEqual(
+            antigravity_review_notifier.classify_daily_audit(
+                manifest, "2026-07-16", delivery
+            ),
+            "配信未達",
+        )
+        self.assertIn("配信未達", antigravity_review_notifier.NATIVE_ALERT_VERDICTS)
+        prompt = antigravity_review_notifier.build_daily_report_prompt(
+            manifest, None, Path("/tmp/workspace"), "2026-07-16", delivery
+        )
+        self.assertIn("【AIラジオ日次監査 2026-07-16】配信未達", prompt)
+        self.assertIn("リスナーには届いていない", prompt)
+
+    def test_unreachable_feed_does_not_fake_a_delivery_verdict(self):
+        manifest = self.sample_manifest()
+        delivery = {
+            "feed_url": "https://example.test/podcast.xml",
+            "status": "unknown",
+            "episode_present": None,
+            "error": "URLError",
+        }
+        # 確認できなかっただけで未配信と断定しない。監査自体も落とさない。
+        self.assertEqual(
+            antigravity_review_notifier.classify_daily_audit(
+                manifest, "2026-07-16", delivery
+            ),
+            "正常",
+        )
+
+    def test_feed_check_reports_unknown_instead_of_raising_on_network_failure(self):
+        with patch.object(
+            antigravity_review_notifier.urllib.request,
+            "urlopen",
+            side_effect=OSError("boom"),
+        ):
+            result = antigravity_review_notifier.check_feed_delivery(
+                "podcast_20260716_051147", "https://example.test/podcast.xml"
+            )
+        self.assertEqual(result["status"], "unknown")
+        self.assertIsNone(result["episode_present"])
+        self.assertEqual(result["error"], "OSError")
+
+    def test_feed_check_detects_the_episode_in_the_published_feed(self):
+        class FakeResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self):
+                return b"<rss><guid>podcast_20260716_051147.mp3</guid></rss>"
+
+        with patch.object(
+            antigravity_review_notifier.urllib.request,
+            "urlopen",
+            return_value=FakeResponse(),
+        ):
+            present = antigravity_review_notifier.check_feed_delivery(
+                "podcast_20260716_051147", "https://example.test/podcast.xml"
+            )
+            absent = antigravity_review_notifier.check_feed_delivery(
+                "podcast_20260717_051147", "https://example.test/podcast.xml"
+            )
+        self.assertTrue(present["episode_present"])
+        self.assertFalse(absent["episode_present"])
+
     def test_human_review_still_outranks_a_degraded_publication(self):
         manifest = self.sample_manifest(requires_human_review=True)
         manifest["deterministic_checks"]["degradations"] = [

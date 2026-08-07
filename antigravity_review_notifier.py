@@ -8,6 +8,8 @@ import json
 import os
 import subprocess
 import tempfile
+import urllib.error
+import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
@@ -15,7 +17,12 @@ from typing import Callable
 
 PENDING_PREFIX = "quality_reports/pending/"
 MANIFEST_PREFIX = "episode_manifests/"
-NATIVE_ALERT_VERDICTS = {"要確認", "異常", "監査未完了", "生成結果未確認"}
+DEFAULT_FEED_URL = "https://hachimarua.github.io/ai-podcast/podcast.xml"
+FEED_TIMEOUT_SECONDS = 20
+# 「配信未達」はリスナーに何も届いていない状態なので、要確認と同じく赤扱いにする。
+NATIVE_ALERT_VERDICTS = {
+    "要確認", "異常", "監査未完了", "生成結果未確認", "配信未達",
+}
 
 # manifestには列挙値しか載らないので、人向けの説明はここで組み立てる。
 DEGRADATION_REASONS = {
@@ -31,6 +38,30 @@ DEGRADATION_ACTIONS = {
 DEGRADATION_STAGES = {
     "dialogue_style_gate": "対話スタイルゲート（定型的な返答冒頭の検査）",
 }
+
+
+def check_feed_delivery(episode_id: str | None, feed_url: str | None = None) -> dict:
+    """Confirm the published feed really carries the episode listeners expect.
+
+    The repository can hold a perfectly good episode while the GitHub Pages deploy
+    that serves it has failed, so auditing the manifest alone cannot see an outage.
+    Network problems are reported as "unknown" rather than raising: a flaky check
+    must never mask the rest of the daily audit.
+    """
+    url = feed_url or os.getenv("PODCAST_FEED_URL") or DEFAULT_FEED_URL
+    result = {"feed_url": url, "status": "unknown", "episode_present": None}
+    if not episode_id:
+        return result
+    try:
+        request = urllib.request.Request(url, headers={"Cache-Control": "no-cache"})
+        with urllib.request.urlopen(request, timeout=FEED_TIMEOUT_SECONDS) as response:
+            body = response.read().decode("utf-8", errors="replace")
+    except (urllib.error.URLError, OSError, ValueError) as exc:
+        result["error"] = type(exc).__name__
+        return result
+    result["status"] = "reachable"
+    result["episode_present"] = episode_id in body
+    return result
 
 
 def describe_degradations(entries: object) -> list[dict]:
@@ -303,7 +334,11 @@ Codexは日常修正の通常担当ではありません。上記の明示的な
 """.strip()
 
 
-def classify_daily_audit(manifest: dict | None, report_date: str) -> str:
+def classify_daily_audit(
+    manifest: dict | None,
+    report_date: str,
+    delivery: dict | None = None,
+) -> str:
     if not manifest or manifest.get("broadcast_date") != report_date:
         return "生成結果未確認"
 
@@ -316,6 +351,10 @@ def classify_daily_audit(manifest: dict | None, report_date: str) -> str:
         or script_length.get("passed") is not True
     ):
         return "異常"
+
+    # エピソードが健全でも配信面が落ちていればリスナーには何も届かない。
+    if delivery and delivery.get("episode_present") is False:
+        return "配信未達"
 
     qa = manifest.get("gemini_qa_summary", {})
     if qa.get("status") != "completed":
@@ -336,8 +375,9 @@ def build_daily_report_prompt(
     proposal: dict | None,
     workspace: Path,
     report_date: str,
+    delivery: dict | None = None,
 ) -> str:
-    verdict = classify_daily_audit(manifest, report_date)
+    verdict = classify_daily_audit(manifest, report_date, delivery)
     current_manifest = (
         manifest if manifest and manifest.get("broadcast_date") == report_date else None
     )
@@ -357,6 +397,7 @@ def build_daily_report_prompt(
             "final_script_similarity": checks.get("final_script_similarity"),
             "gemini_qa": current_manifest.get("gemini_qa_summary", {}),
             "degradations": describe_degradations(checks.get("degradations")),
+            "feed_delivery": delivery or {},
             "pending_proposal_id": proposal.get("proposal_id") if proposal else None,
         }
     else:
@@ -389,7 +430,11 @@ Sidecarの日次チェックは実行済みです。正常な日も省略せず�
   どの検査か(stage_label)、何が起きたか(reason_label)、どう対処したか(action_label)を1件ずつ書いてください。
   配信自体は成功しているので、失敗として扱わず「こういう事情があったが配信を優先した」という
   注意（黄信号）として報告してください。次回放送で様子を見る点も一言添えてください。
-- 「生成結果未確認」または「監査未完了」を正常扱いにせず、何が確認できなかったかを明記してください。
+- `feed_delivery` は配信RSSに本日分が実際に載っているかの確認結果です。
+  `episode_present` が false のときは「リスナーには届いていない」ことを最初に書き、
+  エピソード自体は出来ているがGitHub Pagesの配信が止まっている可能性が高いと伝えてください。
+  `status` が "unknown" のときは配信確認ができなかったと明記し、届いたと断定しないでください。
+- 「生成結果未確認」「監査未完了」「配信未達」を正常扱いにせず、何が確認できなかったかを明記してください。
 - pending提案がない場合は、判断を求めず「対応不要」または「監視継続」で締めてください。
 """.strip()
 
@@ -513,7 +558,10 @@ def notify_daily_report(
         manifest = fetch_latest_manifest(workspace)
         is_current = bool(manifest and manifest.get("broadcast_date") == today)
         report_key = manifest["episode_id"] if is_current else f"missing:{today}"
-        verdict = classify_daily_audit(manifest, today)
+        delivery = (
+            check_feed_delivery(manifest.get("episode_id")) if is_current else None
+        )
+        verdict = classify_daily_audit(manifest, today, delivery)
 
         # Antigravityの会話は履歴として蓄積されるため、異常系だけは別経路で
         # 音付き通知も出す。report_key単位で重複を防ぎ、会話作成に失敗しても
@@ -563,7 +611,7 @@ def notify_daily_report(
                 None,
             )
 
-        prompt = build_daily_report_prompt(manifest, proposal, workspace, today)
+        prompt = build_daily_report_prompt(manifest, proposal, workspace, today, delivery)
         output = _run(["agentapi", "new-conversation", prompt], cwd=workspace, timeout=120)
         notified_at = datetime.now(timezone.utc).isoformat()
         report_state = {
