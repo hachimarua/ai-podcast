@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜AIチューターの介入タイミングとプレフィックスによる状態管理</title>
+      <description>Daily Brief（4〜6分）｜テーマ: AIチューターの介入タイミングとプレフィックスによる状態管理</description>
+      <pubDate>Sun, 09 Aug 2026 04:31:55 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260809_043155.mp3" length="1684485" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260809_043155.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:05</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜シリアライゼーションの基本とGoogle最新AI発表に見る通信の要</title>
       <description>Daily Brief（4〜6分）｜テーマ: シリアライゼーションの基本とGoogle最新AI発表に見る通信の要</description>
       <pubDate>Sat, 08 Aug 2026 06:08:19 +0900</pubDate>
