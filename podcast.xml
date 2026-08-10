@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜Cloudflare Zero Trustの復習とグラフ基盤モデルの最新動向</title>
+      <description>Daily Brief（4〜6分）｜テーマ: Cloudflare Zero Trustの復習とグラフ基盤モデルの最新動向</description>
+      <pubDate>Tue, 11 Aug 2026 04:56:28 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260811_045628.mp3" length="1941069" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260811_045628.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:41</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜「Claude Code」、AIが権限確認を代行する「auto mode」がデフォルトに 8月14日から</title>
       <description>Daily Brief（4〜6分）｜テーマ: 「Claude Code」、AIが権限確認を代行する「auto mode」がデフォルトに 8月14日から</description>
       <pubDate>Mon, 10 Aug 2026 04:34:51 +0900</pubDate>

@@ -1,0 +1,178 @@
+{
+  "audio_sha256": "c2dd8890ad5011bbf1400784fd65bc040b9ac556f04d9cd2d6ea1cea0ed12c08",
+  "broadcast_date": "2026-08-11",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 281.304,
+      "file_size_bytes": 1941069,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.9,
+      "mean_volume_db": -18.2,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0938,
+    "format_config_version": "formats-v4",
+    "initial_script_similarity": 0.0938,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 3,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "research",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "arXiv cs.AI (Artificial Intelligence)"
+        },
+        {
+          "lane": "research",
+          "matched_notion_terms": false,
+          "reason": "candidate_fallback",
+          "source": "arXiv cs.AI (Artificial Intelligence)"
+        }
+      ],
+      "selected_sources": [
+        "arXiv cs.AI (Artificial Intelligence)",
+        "arXiv cs.AI (Artificial Intelligence)"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1890,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 281,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260811_045628",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "pacing",
+        "severity": "info",
+        "timestamp": "02:29"
+      },
+      {
+        "category": "pacing",
+        "severity": "info",
+        "timestamp": "03:53"
+      }
+    ],
+    "overall_score": 5,
+    "pacing_score": 4,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-10T19:59:07.055143+00:00",
+  "news_urls": [
+    "https://arxiv.org/abs/2608.06394",
+    "https://arxiv.org/abs/2608.06400"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "Cloudflare Zero Trustの復習とグラフ基盤モデルの最新動向",
+  "public_topic": "Cloudflare Zero Trustの復習とグラフ基盤モデルの最新動向",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    17124845348780486,
+    33362461148924851,
+    9110922949382035,
+    2683722803872827,
+    29222864253726669,
+    20995002254132463,
+    7942466990594783,
+    20510926032390729,
+    34109930605674078,
+    21649354227097275,
+    27152692010193279,
+    821779415089230,
+    9846172423983012,
+    2091357584535389,
+    19217872340423937,
+    49660669571946310,
+    7073736819104934,
+    25414104810648298,
+    7183119860196930,
+    5297850691812853,
+    28445117935761862,
+    19791163002999033,
+    37640817755425943,
+    24851957573473968,
+    45951070497721138,
+    2872469006085218,
+    56980024770001,
+    8174733028652435,
+    9346878524141003,
+    22575284212296457,
+    17897655617263474,
+    12220751025299920,
+    1852722394687783,
+    24474506957325413,
+    1130675335847842,
+    938748314596856,
+    10378104883701481,
+    11227923639114071,
+    68819214841974070,
+    5602281775951419,
+    19594687243310698,
+    9839164099143170,
+    9500909658473750,
+    91809558490044,
+    2147557348182545,
+    21129878434095468,
+    52448507359839914,
+    5543406987252004,
+    216813722752005,
+    14948027567224592,
+    32924028482700606,
+    3572780426666945,
+    24633887016999716,
+    4177304621257957,
+    13460912326199543,
+    2682207552902210,
+    6265045574001063,
+    18748754378094648,
+    28071359829862277,
+    3748432067918669,
+    9071099646153411,
+    18048330082994681,
+    9160428926896903
+  ],
+  "script_sha256": "7415449329e5a2575fc325c1b3bb7073e8fb6bf7ea087a4be7b30f8a2b4d205a",
+  "selected_term_keys": [
+    "52d3f3be94f24989cd0577b8"
+  ],
+  "topic_fingerprint": "563355652ed036ce3382f120"
+}
