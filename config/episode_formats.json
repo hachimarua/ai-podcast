@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "config_version": "formats-v5",
+  "config_version": "formats-v6",
   "timezone": "Asia/Tokyo",
   "default_format": "daily",
   "weekly_lab": {
@@ -40,7 +40,7 @@
       "max_review_terms": 1,
       "speech_rate": "+10%",
       "audio_thresholds": {
-        "min_duration_seconds": 450.0,
+        "min_duration_seconds": 435.0,
         "max_duration_seconds": 720.0,
         "min_mean_volume_db": -28.0,
         "max_mean_volume_db": -10.0,
