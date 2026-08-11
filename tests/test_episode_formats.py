@@ -309,7 +309,7 @@ class FormatPromptTests(unittest.TestCase):
             "content": "根拠本文",
             "link": f"https://example.test/{title}",
             "evidence_role": role,
-            "matched_words": [matched],
+            "matched_words": [matched] if matched else [],
         }
 
     def test_generated_japanese_title_is_separated_from_tts_dialogue(self):
@@ -362,7 +362,7 @@ class FormatPromptTests(unittest.TestCase):
         self.assertIn("日本語を中心とした60文字以内", instruction)
         self.assertNotIn("3〜5段階の具体手順", instruction)
 
-    def test_lab_requires_one_theme_official_steps_results_and_constraints(self):
+    def test_lab_uses_one_official_theme_without_forced_steps_or_sections(self):
         prompt = script_generator.build_prompt_content(
             [],
             [self.news("Google AI Blog", "one", "official")],
@@ -372,9 +372,10 @@ class FormatPromptTests(unittest.TestCase):
         instruction = script_generator.build_system_instruction("lab")
         self.assertIn("Evidence role: official", prompt)
         self.assertIn("1テーマだけ", instruction)
-        self.assertIn("3〜5段階の具体手順", instruction)
-        self.assertIn("期待結果", instruction)
-        self.assertIn("適用しない条件", instruction)
+        self.assertIn("今週なぜ重要", prompt)
+        self.assertIn("章立てやチェックリスト", instruction)
+        self.assertIn("手順や今日のアクションは本当に役立つ場合だけ", instruction)
+        self.assertNotIn("3〜5段階の具体手順", instruction)
         self.assertIn("8〜12分", instruction)
         self.assertNotIn("ニュース2は主題を補強", instruction)
 
@@ -398,33 +399,38 @@ class LabSourceSelectionTests(unittest.TestCase):
             "link": f"https://example.test/{title}",
             "lane": config["lane"],
             "evidence_role": config["evidence_role"],
-            "matched_words": [matched],
+            "matched_words": [matched] if matched else [],
         }
 
-    def test_lab_selects_same_anchor_from_distinct_sources_with_official_basis(self):
+    def test_lab_selects_one_trusted_official_source_without_notion_anchor(self):
         selected, audit = news_collector.select_news_for_lab(
             [
-                self.item("Google AI Blog", "official"),
-                self.item("ITmedia AI+", "report"),
-                self.item("AI Watch", "report-two"),
+                self.item("Google AI Blog", "Official RAG implementation", matched=""),
             ],
             [],
         )
-        self.assertTrue(audit["anchor_present"])
-        self.assertNotIn("RAG", json.dumps(audit, ensure_ascii=False))
+        self.assertFalse(audit["anchor_present"])
         self.assertTrue(audit["official_basis_present"])
-        self.assertGreaterEqual(len(selected), 2)
-        self.assertEqual(len({item["source"] for item in selected}), len(selected))
+        self.assertEqual(len(selected), 1)
+        self.assertEqual(selected[0]["source"], "Google AI Blog")
 
-    def test_lab_rejects_reporting_only_or_one_source(self):
+    def test_lab_rejects_reporting_only_candidates(self):
         with self.assertRaises(news_collector.LabSourceError):
             news_collector.select_news_for_lab(
                 [
-                    self.item("ITmedia AI+", "one"),
-                    self.item("AI Watch", "two"),
+                    self.item("ITmedia AI+", "one", matched=""),
+                    self.item("AI Watch", "two", matched=""),
                 ],
                 [],
             )
+
+    def test_lab_does_not_treat_generic_ai_tools_marketing_as_builder_topic(self):
+        marketing = self.item(
+            "Google AI Blog", "Evolve your marketing with new AI tools", matched=""
+        )
+        marketing["content"] = "New AI tools help marketers improve campaigns."
+        with self.assertRaises(news_collector.LabSourceError):
+            news_collector.select_news_for_lab([marketing], [])
 
     def test_lab_rejects_unknown_source_that_self_declares_official(self):
         unknown = {
@@ -450,6 +456,26 @@ class LabSourceSelectionTests(unittest.TestCase):
         with self.assertRaises(news_collector.LabSourceError):
             news_collector.validate_lab_sources([official, reporting])
 
+    def test_lab_can_choose_practical_official_topic_without_notion_match(self):
+        practical = self.item("Hugging Face Blog", "Deploy a model locally", matched="")
+        selected, audit = news_collector.select_news_for_lab([practical], [])
+        self.assertEqual([item["title"] for item in selected], ["Deploy a model locally"])
+        self.assertFalse(audit["anchor_present"])
+        self.assertEqual(audit["selected_sources"], ["Hugging Face Blog"])
+
+    def test_lab_ignores_related_title_when_feed_has_no_source_text(self):
+        primary = self.item(
+            "Google AI Blog", "Gemini API Managed Agents and hooks", matched=""
+        )
+        empty_related = self.item(
+            "Hugging Face Blog", "Build multilingual voice agents", matched=""
+        )
+        empty_related["content"] = ""
+        selected, _ = news_collector.select_news_for_lab(
+            [primary, empty_related], [], max_items=3
+        )
+        self.assertEqual([item["title"] for item in selected], [primary["title"]])
+
 
 class LabPipelineIntegrationTests(unittest.TestCase):
     def reporting_news(self):
@@ -462,6 +488,61 @@ class LabPipelineIntegrationTests(unittest.TestCase):
             "evidence_role": "reporting",
             "matched_words": ["RAG"],
         }
+
+    def official_practical_news(self):
+        return {
+            "source": "Google AI Blog",
+            "title": "Deploy an agent with the official SDK",
+            "content": "実装に使える公式手順です。",
+            "link": "https://example.test/official-sdk",
+            "lane": "world",
+            "evidence_role": "official",
+            "matched_words": [],
+        }
+
+    def test_sunday_lab_uses_empty_notion_selection_and_lab_audio_threshold(self):
+        news = self.official_practical_news()
+        generated_script = "あ" * 2200
+        with tempfile.TemporaryDirectory() as tmp:
+            with (
+                patch.object(pipeline_main, "__file__", str(Path(tmp) / "main.py")),
+                patch.object(pipeline_main, "load_recent_manifests", return_value=[]),
+                patch.object(pipeline_main, "select_terms_for_review", return_value=[]),
+                patch.object(pipeline_main, "collect_latest_news", return_value=[news]),
+                patch.object(
+                    pipeline_main, "match_news_with_words", return_value=([], [news])
+                ),
+                patch.object(
+                    pipeline_main, "generate_radio_script", return_value=generated_script
+                ) as generate,
+                patch.object(
+                    pipeline_main, "synthesize_podcast", new=AsyncMock(return_value=True)
+                ),
+                patch.object(
+                    pipeline_main,
+                    "require_audio_quality",
+                    return_value={
+                        "passed": True,
+                        "duration_seconds": 600.0,
+                        "mean_volume_db": -18.0,
+                        "max_volume_db": -1.0,
+                    },
+                ) as audio_gate,
+                patch.object(
+                    pipeline_main, "run_shadow_audio_qa", return_value={"status": "disabled"}
+                ),
+                patch.object(pipeline_main, "update_term_review_status"),
+                patch.dict(
+                    os.environ,
+                    {"PODCAST_EPISODE_FORMAT": "lab", "GITHUB_ACTIONS": "false"},
+                    clear=False,
+                ),
+            ):
+                asyncio.run(pipeline_main.async_main())
+
+        self.assertEqual(generate.call_args.kwargs["episode_format"], "lab")
+        self.assertEqual(generate.call_args.args[0], [])
+        self.assertEqual(audio_gate.call_args.args[1].min_duration_seconds, 450.0)
 
     def test_scheduled_lab_without_official_corroboration_falls_back_to_daily_spec(self):
         term = {

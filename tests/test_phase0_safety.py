@@ -158,9 +158,11 @@ class WorkflowGuardTests(unittest.TestCase):
         self.assertIn("bootstrap_only:", workflow)
         self.assertIn("qa_existing_only:", workflow)
         self.assertIn("phase10_trial:", workflow)
-        self.assertIn("Upload Phase 10 non-public trial", workflow)
+        self.assertIn("weekly_lab_trial:", workflow)
+        self.assertIn("Upload non-public Lab trial", workflow)
         self.assertIn("PHASE10_TRIAL_MODE:", workflow)
         self.assertIn("inputs.phase10_trial != true", workflow)
+        self.assertIn("inputs.weekly_lab_trial != true", workflow)
 
 
 class PromptBoundaryTests(unittest.TestCase):

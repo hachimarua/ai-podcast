@@ -99,6 +99,12 @@ async def async_main():
     existing_today, history_manifests = split_run_manifests(
         recent_manifests, broadcast_date
     )
+    if trial_mode and not trial_anchor:
+        # A non-public Weekly Lab preview may deliberately revisit a story that
+        # appeared in a recent Daily episode, because its purpose is to test the
+        # deeper Sunday treatment.  Nothing from this run is published.
+        history_manifests = []
+        print("Weekly Lab非公開試聴: 直近Dailyで使用済みの記事も候補に含めます。")
     formats_config = load_episode_formats()
     editorial_profile_version = get_approved_profile_version()
     scheduled_format = (
@@ -135,13 +141,19 @@ async def async_main():
             f"Phase 10固定テーマ {trial_anchor} を使用するため、"
             "Notionの復習項目は読み込みません。"
         )
+    elif episode_format == "lab":
+        selected_terms = []
+        print(
+            "日曜のWeekly Labは復習を休み、今週のニュースから"
+            "バイブコーダー向けの重要テーマを選びます。"
+        )
     else:
         selected_terms = select_terms_for_review(
             format_spec.max_review_terms,
             recent_manifests=history_manifests,
             preferred_term_keys=(existing_today or {}).get("selected_term_keys"),
         )
-    if not trial_anchor:
+    if not trial_anchor and episode_format != "lab":
         if not selected_terms:
             print("過去3回または直近3日と重ならない復習項目がないため、最新ニュース特集へ切り替えます。")
         else:
@@ -173,15 +185,18 @@ async def async_main():
 
     if episode_format == "lab":
         try:
+            lab_candidates = matched if trial_anchor else matched + unmatched
             broadcast_news, news_selection = select_news_for_lab(
-                matched, history_manifests, max_items=format_spec.max_news_items
+                lab_candidates,
+                history_manifests,
+                max_items=format_spec.max_news_items,
             )
         except LabSourceError as exc:
             if trial_mode or (
                 existing_today and existing_today.get("episode_format") == "lab"
             ):
                 raise
-            format_fallback_reason = "insufficient_multi_source_official_basis"
+            format_fallback_reason = "insufficient_weekly_lab_topic"
             print(f"[Format Fallback] {exc}; Daily Briefへ切り替えます。")
             episode_format = "daily"
             format_spec = formats_config.formats[episode_format]

@@ -21,6 +21,11 @@ on:
         required: false
         type: boolean
         default: false
+      weekly_lab_trial:
+        description: "最新の公式実装テーマを選ぶWeekly LabをRSS非公開Artifactとして生成する"
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: daily-ai-podcast-${{ github.ref }}
@@ -70,7 +75,7 @@ jobs:
         fi
 
     - name: Process Notion Inbox
-      if: ${{ github.event_name != 'workflow_dispatch' || (inputs.bootstrap_only != true && inputs.qa_existing_only != true && inputs.phase10_trial != true) }}
+      if: ${{ github.event_name != 'workflow_dispatch' || (inputs.bootstrap_only != true && inputs.qa_existing_only != true && inputs.phase10_trial != true && inputs.weekly_lab_trial != true) }}
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
@@ -94,16 +99,16 @@ jobs:
         ALLOW_MOCK_DATA: "false"
         # 2026-07-18: 毎日のシャドー音声監査もFlashで実行（既定値と同じだが明示する）
         GEMINI_AUDIO_QA_MODEL: "gemini-2.5-flash"
-        PHASE10_TRIAL_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.phase10_trial == true }}
+        PHASE10_TRIAL_MODE: ${{ github.event_name == 'workflow_dispatch' && (inputs.phase10_trial == true || inputs.weekly_lab_trial == true) }}
         PHASE10_TRIAL_ANCHOR: ${{ inputs.phase10_trial == true && 'ai_agents' || '' }}
       run: |
         python main.py
 
-    - name: Upload Phase 10 non-public trial
-      if: ${{ github.event_name == 'workflow_dispatch' && inputs.phase10_trial == true }}
+    - name: Upload non-public Lab trial
+      if: ${{ github.event_name == 'workflow_dispatch' && (inputs.phase10_trial == true || inputs.weekly_lab_trial == true) }}
       uses: actions/upload-artifact@v4
       with:
-        name: phase10-lab-${{ github.run_id }}-${{ github.run_attempt }}
+        name: non-public-lab-${{ github.run_id }}-${{ github.run_attempt }}
         path: phase10_trials/
         if-no-files-found: error
         retention-days: 3
@@ -120,7 +125,7 @@ jobs:
         python gemini_audio_qa.py "$latest_audio" --episode-id "$episode_id" --broadcast-date "$broadcast_date"
 
     - name: Commit and Push changes
-      if: ${{ github.event_name != 'workflow_dispatch' || inputs.phase10_trial != true }}
+      if: ${{ github.event_name != 'workflow_dispatch' || (inputs.phase10_trial != true && inputs.weekly_lab_trial != true) }}
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
