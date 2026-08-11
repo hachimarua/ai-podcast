@@ -1,0 +1,35 @@
+{
+  "broadcast_date": "2026-08-12",
+  "category": "audio_quality",
+  "created_at": "2026-08-11T20:02:05.965273+00:00",
+  "decided_at": null,
+  "decision_reason": null,
+  "episode_id": "podcast_20260812_050014",
+  "evidence": [
+    {
+      "category": "pronunciation",
+      "severity": "info",
+      "timestamp": "00:04"
+    },
+    {
+      "category": "pronunciation",
+      "severity": "critical",
+      "timestamp": "01:46"
+    },
+    {
+      "category": "pronunciation",
+      "severity": "critical",
+      "timestamp": "02:49"
+    }
+  ],
+  "overall_score": 2,
+  "proposal_id": "qa-podcast_20260812_050014",
+  "safe_auto_apply": false,
+  "schema_version": 1,
+  "severity": "critical",
+  "status": "pending",
+  "suggested_changes": [
+    "発音ルールを確認する"
+  ],
+  "summary": "音声品質の確認が必要です。"
+}

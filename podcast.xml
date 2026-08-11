@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜Googleの医療AI「AMIE」がビデオ診察を実証、事前キャッシュ技術との連携を考える</title>
+      <description>Daily Brief（4〜6分）｜テーマ: Googleの医療AI「AMIE」がビデオ診察を実証、事前キャッシュ技術との連携を考える</description>
+      <pubDate>Wed, 12 Aug 2026 05:00:14 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260812_050014.mp3" length="1729821" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260812_050014.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:01</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜Cloudflare Zero Trustの復習とグラフ基盤モデルの最新動向</title>
       <description>Daily Brief（4〜6分）｜テーマ: Cloudflare Zero Trustの復習とグラフ基盤モデルの最新動向</description>
       <pubDate>Tue, 11 Aug 2026 04:56:28 +0900</pubDate>

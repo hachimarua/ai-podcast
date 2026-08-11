@@ -1,0 +1,183 @@
+{
+  "audio_sha256": "50fb0d85cedc5af14923e388609e4c872daf7cdf2256a9ca3c941a08c8e048a2",
+  "broadcast_date": "2026-08-12",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 241.992,
+      "file_size_bytes": 1729821,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -2.3,
+      "mean_volume_db": -18.2,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.1562,
+    "format_config_version": "formats-v4",
+    "initial_script_similarity": 0.1562,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 5,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Google AI Blog"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "candidate_fallback",
+          "source": "Google AI Blog"
+        }
+      ],
+      "selected_sources": [
+        "Google AI Blog",
+        "Google AI Blog"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1702,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 241,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260812_050014",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 3,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "pronunciation",
+        "severity": "info",
+        "timestamp": "00:04"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "critical",
+        "timestamp": "01:46"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "critical",
+        "timestamp": "02:49"
+      }
+    ],
+    "overall_score": 2,
+    "pacing_score": 4,
+    "requires_human_review": true,
+    "speech_clarity_score": 2,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-11T20:02:05.888955+00:00",
+  "news_urls": [
+    "https://blog.google/innovation-and-ai/models-and-research/google-research/amie-video-consultations/",
+    "https://blog.google/innovation-and-ai/technology/developers-tools/ai-agents-intensive-recap-2026/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "Googleの医療AI「AMIE」がビデオ診察を実証、事前キャッシュ技術との連携を考える",
+  "public_topic": "Googleの医療AI「AMIE」がビデオ診察を実証、事前キャッシュ技術との連携を考える",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    7877834720208636,
+    34532203362158522,
+    16776723659450610,
+    28513295860995853,
+    2683722803872827,
+    5082630134943987,
+    37430680968260135,
+    10502490361111429,
+    4511362503007921,
+    69165075710533404,
+    7774738575553226,
+    17352263030605593,
+    53422093367631295,
+    3278486687804009,
+    1429089445849674,
+    6918767350344763,
+    3250406996063925,
+    46385243774489311,
+    2511340136353037,
+    8126659294212399,
+    5297850691812853,
+    1506526720440378,
+    19980619220605317,
+    20168253552262,
+    12333899345299073,
+    14216887490097687,
+    12084625779115244,
+    1120624405089683,
+    29193770425842565,
+    14765227349572718,
+    9637710362626301,
+    24503697764802241,
+    11381617590814552,
+    5197632396322580,
+    56476913744692304,
+    25518502815359395,
+    12379433097202518,
+    10378104883701481,
+    77738021334338818,
+    14494678048752429,
+    3114033469473450,
+    7221783785655144,
+    34797769200984784,
+    9252497459973309,
+    352772644029864,
+    25245632035517165,
+    14085213915153335,
+    15663491913383669,
+    28327532222412692,
+    216813722752005,
+    14111083298087600,
+    5468638280430365,
+    4262981382643526,
+    43185150273321176,
+    32366771873246510,
+    13460912326199543,
+    21346190206008147,
+    53998285310818970,
+    2178088302083558,
+    14266981830506762,
+    12023670256294696,
+    2563212829651551,
+    18048330082994681,
+    6507822180134078
+  ],
+  "script_sha256": "486a27a970c365278fac8263a74fa4f630876e426477718cc33bd4d19947abe8",
+  "selected_term_keys": [
+    "e281b5035619fd04f82696ac"
+  ],
+  "topic_fingerprint": "3709aea8d72d1653de4e9a65"
+}
