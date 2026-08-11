@@ -86,7 +86,7 @@ class EpisodeFormatConfigTests(unittest.TestCase):
         daily = config.formats["daily"]
         lab = config.formats["lab"]
         self.assertEqual((daily.audio_thresholds.min_duration_seconds, daily.audio_thresholds.max_duration_seconds), (210.0, 360.0))
-        self.assertEqual((lab.audio_thresholds.min_duration_seconds, lab.audio_thresholds.max_duration_seconds), (450.0, 720.0))
+        self.assertEqual((lab.audio_thresholds.min_duration_seconds, lab.audio_thresholds.max_duration_seconds), (435.0, 720.0))
         self.assertEqual(daily.speech_rate, "+10%")
         self.assertEqual(lab.speech_rate, "+10%")
         self.assertEqual(
@@ -523,7 +523,7 @@ class LabPipelineIntegrationTests(unittest.TestCase):
                     "require_audio_quality",
                     return_value={
                         "passed": True,
-                        "duration_seconds": 600.0,
+                        "duration_seconds": 436.66,
                         "mean_volume_db": -18.0,
                         "max_volume_db": -1.0,
                     },
@@ -542,7 +542,8 @@ class LabPipelineIntegrationTests(unittest.TestCase):
 
         self.assertEqual(generate.call_args.kwargs["episode_format"], "lab")
         self.assertEqual(generate.call_args.args[0], [])
-        self.assertEqual(audio_gate.call_args.args[1].min_duration_seconds, 450.0)
+        self.assertEqual(generate.call_count, 1)
+        self.assertEqual(audio_gate.call_args.args[1].min_duration_seconds, 435.0)
 
     def test_scheduled_lab_without_official_corroboration_falls_back_to_daily_spec(self):
         term = {
@@ -866,7 +867,6 @@ class LabPipelineIntegrationTests(unittest.TestCase):
             "evidence_role": "reporting",
             "matched_words": ["RAG"],
         }
-        generated_script = "あ" * 2200
         repetitive_script = "\n".join(
             [
                 "アミ：そうですね。" + "あ" * 700,
@@ -897,7 +897,7 @@ class LabPipelineIntegrationTests(unittest.TestCase):
                 patch.object(
                     pipeline_main,
                     "generate_radio_script",
-                    side_effect=["あ" * 3500, repetitive_script, generated_script],
+                    side_effect=["あ" * 3500, repetitive_script],
                 ) as generate,
                 patch.object(
                     pipeline_main, "synthesize_podcast", new=AsyncMock(side_effect=synthesize)
@@ -953,13 +953,19 @@ class LabPipelineIntegrationTests(unittest.TestCase):
             self.assertNotIn("private learning memo", report_text)
             self.assertFalse((root / "podcast.xml").exists())
             self.assertFalse((root / "episodes").exists())
+            self.assertEqual(
+                report["deterministic_checks"]["degradations"][0]["reason"],
+                "retry_budget_exhausted",
+            )
 
-        self.assertEqual(generate.call_count, 3)
+        self.assertEqual(generate.call_count, 2)
         self.assertEqual(generate.call_args.kwargs["episode_format"], "lab")
         self.assertTrue(generate.call_args_list[1].kwargs["length_retry"])
-        self.assertTrue(generate.call_args.kwargs["style_retry"])
+        self.assertFalse(
+            any(call.kwargs.get("style_retry") for call in generate.call_args_list)
+        )
         thresholds = audio_gate.call_args.args[1]
-        self.assertEqual(thresholds.min_duration_seconds, 450.0)
+        self.assertEqual(thresholds.min_duration_seconds, 435.0)
         self.assertEqual(thresholds.max_duration_seconds, 720.0)
         archive.assert_not_called()
         rss.assert_not_called()

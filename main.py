@@ -228,6 +228,9 @@ async def async_main():
     print("\n[Step 4] Gemini APIを呼び出し、対話型ラジオ台本を生成しています...")
     model_name = normalize_gemini_model(os.getenv("GEMINI_MODEL_NAME"))
     print(f"使用モデル: {model_name}")
+    # Dailyの既存挙動は維持する。Labだけは文字量・会話・尺の各ゲートを
+    # またいで再生成を合計1回に制限し、API消費の連鎖を防ぐ。
+    lab_generation_retries = 0
     
     raw_script = generate_radio_script(
         selected_terms,
@@ -299,6 +302,8 @@ async def async_main():
         fallback_public_topic = generated_public_topic
         fallback_similarity = final_similarity
 
+        if episode_format == "lab":
+            lab_generation_retries += 1
         raw_script = generate_radio_script(
             selected_terms,
             selected_matched,
@@ -348,33 +353,46 @@ async def async_main():
     try:
         dialogue_style = validate_dialogue_style(script)
     except EpisodeFormatError as style_error:
-        print(
-            "[Dialogue Style Gate] 定型的な返答冒頭が多いため、同じ出典のまま1回だけ再生成します。"
-        )
-        # 再生成が失敗しても初回台本は健全なので、配信を止めずにそのまま採用する。
+        style_retry_blocked = episode_format == "lab" and lab_generation_retries >= 1
+        if style_retry_blocked:
+            print(
+                "[Dialogue Style Gate] Labの再生成上限1回に達しているため、"
+                "追加API呼び出しを行わず現在の台本を採用します。"
+            )
+        else:
+            print(
+                "[Dialogue Style Gate] 定型的な返答冒頭が多いため、"
+                "同じ出典のまま1回だけ再生成します。"
+            )
+        # 再生成が失敗しても直前台本は健全なので、配信を止めずにそのまま採用する。
         fallback_script = script
         fallback_public_topic = generated_public_topic
         fallback_similarity = final_similarity
         fallback_length = script_length
 
-        raw_script = generate_radio_script(
-            selected_terms,
-            selected_matched,
-            selected_general,
-            model_name=model_name,
-            avoid_topics=recent_topics,
-            episode_format=episode_format,
-            spec=format_spec,
-            style_retry=True,
-        )
-        retry_script, retry_public_topic = split_generated_script_output(raw_script)
+        if style_retry_blocked:
+            retry_script, retry_public_topic = None, None
+        else:
+            if episode_format == "lab":
+                lab_generation_retries += 1
+            raw_script = generate_radio_script(
+                selected_terms,
+                selected_matched,
+                selected_general,
+                model_name=model_name,
+                avoid_topics=recent_topics,
+                episode_format=episode_format,
+                spec=format_spec,
+                style_retry=True,
+            )
+            retry_script, retry_public_topic = split_generated_script_output(raw_script)
 
         # 記録は列挙値だけにする。public_deterministic_checks が自由文を落とすため。
-        retry_rejection = None
+        retry_rejection = "retry_budget_exhausted" if style_retry_blocked else None
         retry_detail = ""
-        if not retry_script:
+        if retry_rejection is None and not retry_script:
             retry_rejection = "retry_generation_failed"
-        else:
+        elif retry_rejection is None:
             retry_similarity = max_recent_similarity(retry_script, history_manifests)
             if retry_similarity >= duplicate_threshold:
                 retry_rejection = "retry_too_similar"
@@ -390,7 +408,7 @@ async def async_main():
             print(
                 f"[Dialogue Style Gate] 再生成を採用できませんでした ({retry_rejection}"
                 + (f": {retry_detail}" if retry_detail else "")
-                + f")。初回台本のまま配信を優先します。理由: {style_error}"
+                + f")。直前台本のまま配信を優先します。理由: {style_error}"
             )
             script = fallback_script
             generated_public_topic = fallback_public_topic
@@ -456,10 +474,17 @@ async def async_main():
     except AudioQualityError as exc:
         if str(exc) != "Generated audio failed deterministic checks: duration_too_short":
             raise
+        if episode_format == "lab" and lab_generation_retries >= 1:
+            raise RuntimeError(
+                "Weekly Lab audio is below the duration floor after its single "
+                "script-regeneration allowance was used"
+            ) from exc
         print(
             "[Duration Gate] 音声が配信許容下限に届かなかったため、"
             "同じ出典のまま目標尺へ近づける再構成を1回だけ行います。"
         )
+        if episode_format == "lab":
+            lab_generation_retries += 1
         raw_script = generate_radio_script(
             selected_terms,
             selected_matched,
@@ -482,6 +507,11 @@ async def async_main():
         try:
             script_length = validate_script_length(script, format_spec)
         except EpisodeFormatError:
+            if episode_format == "lab":
+                raise RuntimeError(
+                    "Weekly Lab duration retry exceeded the script-length gate; "
+                    "additional generation is blocked"
+                )
             print(
                 "[Duration Gate] 長尺化した再生成台本が文字数ゲート外のため、"
                 "同じ出典のまま長さを整えて1回だけ再生成します。"

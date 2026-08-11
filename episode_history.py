@@ -51,6 +51,7 @@ PUBLIC_CHECK_STRINGS = PUBLIC_NEWS_SOURCES | {
     # 配信を優先して品質ゲートを一段落としたときの記録。自由文は載せず列挙値だけを通す。
     "dialogue_style_gate", "script_length_gate", "retry_generation_failed",
     "retry_still_formulaic", "retry_too_similar", "retry_length_rejected",
+    "retry_budget_exhausted",
     "published_initial_script", "published_style_retry_script",
 }
 

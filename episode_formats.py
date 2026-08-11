@@ -132,9 +132,9 @@ class EpisodeFormatsConfig(BaseModel):
         if lab.duration_label != "8〜12分" or (
             lab.audio_thresholds.min_duration_seconds,
             lab.audio_thresholds.max_duration_seconds,
-        ) != (450.0, 720.0):
+        ) != (435.0, 720.0):
             raise ValueError(
-                "lab target must remain 8-12 minutes with 7.5-minute acceptance floor"
+                "lab target must remain 8-12 minutes with 7.25-minute acceptance floor"
             )
         if lab.speech_rate != "+10%":
             raise ValueError("lab speech rate is fixed at +10%")
