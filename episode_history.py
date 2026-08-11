@@ -44,7 +44,8 @@ PUBLIC_CHECK_STRINGS = PUBLIC_NEWS_SOURCES | {
     "daily", "lab", "world", "japan", "research", "official", "reporting",
     "notion_match", "least_recent_source", "fresh_japan_lane", "different_source",
     "candidate_fallback", "official_basis", "corroborating_source",
-    "insufficient_multi_source_official_basis", "gemini_audio_transcription",
+    "insufficient_multi_source_official_basis", "insufficient_weekly_lab_topic",
+    "gemini_audio_transcription",
     "duration_too_short", "duration_too_long", "mean_volume_too_quiet",
     "mean_volume_too_loud", "peak_too_high", "too_much_long_silence",
     # 配信を優先して品質ゲートを一段落としたときの記録。自由文は載せず列挙値だけを通す。

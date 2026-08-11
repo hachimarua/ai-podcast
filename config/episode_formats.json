@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "config_version": "formats-v4",
+  "config_version": "formats-v5",
   "timezone": "Asia/Tokyo",
   "default_format": "daily",
   "weekly_lab": {
