@@ -1,0 +1,52 @@
+{
+  "broadcast_date": "2026-08-12",
+  "category": "audio_quality",
+  "created_at": "2026-08-12T04:28:03.715731+00:00",
+  "decided_at": null,
+  "decision_reason": null,
+  "episode_id": "podcast_20260812_083523",
+  "evidence": [
+    {
+      "category": "pronunciation",
+      "severity": "critical",
+      "timestamp": "00:39"
+    },
+    {
+      "category": "pronunciation",
+      "severity": "critical",
+      "timestamp": "01:00"
+    },
+    {
+      "category": "repetition",
+      "severity": "critical",
+      "timestamp": "01:04"
+    },
+    {
+      "category": "repetition",
+      "severity": "critical",
+      "timestamp": "07:01"
+    },
+    {
+      "category": "pacing",
+      "severity": "info",
+      "timestamp": "00:21"
+    },
+    {
+      "category": "pronunciation",
+      "severity": "info",
+      "timestamp": "01:39"
+    }
+  ],
+  "overall_score": 2,
+  "proposal_id": "qa-podcast_20260812_083523",
+  "safe_auto_apply": false,
+  "schema_version": 1,
+  "severity": "critical",
+  "status": "pending",
+  "suggested_changes": [
+    "発音ルールを確認する",
+    "台本の重複検査を確認する",
+    "読み上げ速度と間を確認する"
+  ],
+  "summary": "音声品質の確認が必要です。"
+}

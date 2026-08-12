@@ -1,0 +1,191 @@
+{
+  "audio_sha256": "fa64cc37a77e2af2a9cc80232cf58c285df70c3d536f2f8f05d941e693aabb92",
+  "broadcast_date": "2026-08-12",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 455.016,
+      "file_size_bytes": 3255429,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.2,
+      "mean_volume_db": -18.4,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 720.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 435.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0,
+    "format_config_version": "formats-v6",
+    "initial_script_similarity": 0.0,
+    "news_selection": {
+      "anchor_present": false,
+      "candidate_counts_by_source": {
+        "AI Watch": 3,
+        "Google AI Blog": 2,
+        "ITmedia AI+": 3,
+        "TechCrunch AI": 1,
+        "arXiv cs.AI (Artificial Intelligence)": 4
+      },
+      "evidence_roles": [
+        "official"
+      ],
+      "official_basis_present": true,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "official_basis",
+          "source": "Google AI Blog"
+        }
+      ],
+      "selected_sources": [
+        "Google AI Blog"
+      ]
+    },
+    "recent_episode_count": 0,
+    "scheduled_format": "lab",
+    "script_length": {
+      "character_count": 3120,
+      "hard_max": 3400,
+      "hard_min": 1600,
+      "passed": true,
+      "target_max": 2800,
+      "target_min": 2000
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 455,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "lab",
+  "episode_id": "podcast_20260812_083523",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 3,
+    "has_internal_repetition": true,
+    "issues": [
+      {
+        "category": "pronunciation",
+        "severity": "critical",
+        "timestamp": "00:39"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "critical",
+        "timestamp": "01:00"
+      },
+      {
+        "category": "repetition",
+        "severity": "critical",
+        "timestamp": "01:04"
+      },
+      {
+        "category": "repetition",
+        "severity": "critical",
+        "timestamp": "07:01"
+      },
+      {
+        "category": "pacing",
+        "severity": "info",
+        "timestamp": "00:21"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "info",
+        "timestamp": "01:39"
+      }
+    ],
+    "overall_score": 2,
+    "pacing_score": 4,
+    "requires_human_review": true,
+    "speech_clarity_score": 3,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-12T04:28:03.613602+00:00",
+  "news_urls": [
+    "https://blog.google/innovation-and-ai/technology/developers-tools/ai-agents-intensive-recap-2026/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "35万人が学ぶAIエージェント構築とバイブコーディングの現在地",
+  "public_topic": "35万人が学ぶAIエージェント構築とバイブコーディングの現在地",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    2643213988106355,
+    7797939532768087,
+    3683281049111267,
+    1768050898494987,
+    3641801154923226,
+    5082630134943987,
+    5347855781585259,
+    14935481719985879,
+    9491449898024493,
+    10307079272559000,
+    3967669317424698,
+    11192686764985392,
+    13950860549545162,
+    3408356209018060,
+    7201823265983392,
+    6310804232395672,
+    4776489332439206,
+    10722091294859747,
+    6960620576432912,
+    2696765561941579,
+    9956804825301411,
+    1506526720440378,
+    36985001960403860,
+    5941573618261091,
+    10404787019425993,
+    3257580232380639,
+    23201091017348549,
+    1336683376346309,
+    4044212546198606,
+    4736123207973396,
+    6996726115794515,
+    1808064092698799,
+    11381617590814552,
+    1296423237779132,
+    12529081916077239,
+    14713066565444099,
+    14290655053977301,
+    10378104883701481,
+    11298021946294363,
+    3287946772660319,
+    2285087665430816,
+    5715201366769938,
+    607463100258122,
+    5750887823387381,
+    352772644029864,
+    1003382978550821,
+    39760905820294942,
+    24986164639351158,
+    8625337957335331,
+    216813722752005,
+    9843297690941484,
+    7823140427853236,
+    3890012596261101,
+    315360289699213,
+    18532899190444184,
+    2755451295049638,
+    117319413756043,
+    12729979440640442,
+    2178088302083558,
+    24371921234206080,
+    5415925964987980,
+    2563212829651551,
+    3970400794750889,
+    3575236141743311
+  ],
+  "script_sha256": "b24d720f1f8968c6a6e6088f05869bfc8610be3919610b6c53bf38c34bee8cee",
+  "selected_term_keys": [],
+  "topic_fingerprint": "f3cd14b69a640a3331cd36a0"
+}

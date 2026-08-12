@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>AI実装ラボ｜35万人が学ぶAIエージェント構築とバイブコーディングの現在地</title>
+      <description>AI実装ラボ（8〜12分）｜テーマ: 35万人が学ぶAIエージェント構築とバイブコーディングの現在地</description>
+      <pubDate>Wed, 12 Aug 2026 08:35:23 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260812_083523.mp3" length="3255429" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260812_083523.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>07:35</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜Googleの医療AI「AMIE」がビデオ診察を実証、事前キャッシュ技術との連携を考える</title>
       <description>Daily Brief（4〜6分）｜テーマ: Googleの医療AI「AMIE」がビデオ診察を実証、事前キャッシュ技術との連携を考える</description>
       <pubDate>Wed, 12 Aug 2026 05:00:14 +0900</pubDate>
