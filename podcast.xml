@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜「Qwen3.8-27B」ウェイト公開 一部「Opus 4.6 Max」超えか ライセンスは商用可のApache 2.0</title>
+      <description>Daily Brief（4〜6分）｜テーマ: 「Qwen3.8-27B」ウェイト公開 一部「Opus 4.6 Max」超えか ライセンスは商用可のApache 2.0</description>
+      <pubDate>Sat, 15 Aug 2026 04:50:47 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260815_045047.mp3" length="1676421" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260815_045047.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>03:55</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜モジュール分離の設計思想と複数AIエージェントの動的ガバナンス</title>
       <description>Daily Brief（4〜6分）｜テーマ: モジュール分離の設計思想と複数AIエージェントの動的ガバナンス</description>
       <pubDate>Fri, 14 Aug 2026 04:56:27 +0900</pubDate>

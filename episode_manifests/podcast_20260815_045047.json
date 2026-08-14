@@ -1,0 +1,186 @@
+{
+  "audio_sha256": "669ac40ad2162dcb93aba825f30f73502a24a299bd07aae1dccbd0d0514fb774",
+  "broadcast_date": "2026-08-15",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 235.2,
+      "file_size_bytes": 1676421,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.7,
+      "mean_volume_db": -18.0,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 17,
+      "explainer_line_count": 8,
+      "first_speaker": "アミ",
+      "navigator_line_count": 9,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "ケンジ",
+      "navigator": "アミ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0781,
+    "format_config_version": "formats-v6",
+    "initial_script_similarity": 0.0781,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 5,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "ITmedia AI+"
+        }
+      ],
+      "selected_sources": [
+        "ITmedia AI+"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1624,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 235,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260815_045047",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "pronunciation",
+        "severity": "critical",
+        "timestamp": "00:09"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "info",
+        "timestamp": "00:56"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "info",
+        "timestamp": "01:56"
+      }
+    ],
+    "overall_score": 4,
+    "pacing_score": 5,
+    "requires_human_review": true,
+    "speech_clarity_score": 4,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-14T19:54:14.811529+00:00",
+  "news_urls": [
+    "https://www.itmedia.co.jp/aiplus/article/2608/15/2000000554/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "「Qwen3.8-27B」ウェイト公開 一部「Opus 4.6 Max」超えか ライセンスは商用可のApache 2.0",
+  "public_topic": "「Qwen3.8-27B」ウェイト公開 一部「Opus 4.6 Max」超えか ライセンスは商用可のApache 2.0",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    1033850234154406,
+    2921987666087313,
+    20800183164885450,
+    12397643744573838,
+    24014317189839241,
+    6260333135856324,
+    10502490361111429,
+    33862713656924078,
+    1119403208540396,
+    57352047416075644,
+    25415826931440883,
+    37070926219133674,
+    4902602048145097,
+    47943527665835813,
+    6996490096348614,
+    15051076951806937,
+    4341124051296378,
+    4190851910636917,
+    2171471987097244,
+    770571134726460,
+    24588268282374139,
+    6410133099380392,
+    6233627168056351,
+    69006643541956577,
+    1867582596458802,
+    3748454198405353,
+    46938493429681901,
+    12258845574374476,
+    4553052842218198,
+    13828775142837248,
+    22250405156004887,
+    9157663162781755,
+    1025962375116227,
+    9099966054453732,
+    10292102201598487,
+    40049668332210592,
+    4504630014288796,
+    10697947398112756,
+    22338876176156075,
+    2262964379796994,
+    10591336970751705,
+    15117564562936938,
+    962922337310496,
+    10612008577560369,
+    6313739893000385,
+    5854053312479168,
+    4907631822568469,
+    4730770361432859,
+    216813722752005,
+    1049159332611480,
+    18152268349534212,
+    10187694828848293,
+    315360289699213,
+    3079068998440233,
+    15833210730926070,
+    8254414437293945,
+    98323614764799460,
+    15160245548965767,
+    6610392078682248,
+    13567387765996681,
+    4229018177187934,
+    3970400794750889,
+    8091618047224370
+  ],
+  "script_sha256": "f2fb410a646a0f2dcc1570c540d6ef3c1a3dc0aab7dbdd1a9f3feb756a82cea3",
+  "selected_term_keys": [
+    "67b6a3fca12667617b6279ae"
+  ],
+  "topic_fingerprint": "30d6c297f203ef67704495b8"
+}
