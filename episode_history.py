@@ -39,6 +39,8 @@ PUBLIC_CHECK_KEYS = {
     "silence_noise_db", "silence_min_seconds", "character_count", "hard_min",
     "hard_max", "target_min", "target_max", "legacy_bootstrap",
     "degradations", "stage", "action",
+    "dialogue_roles", "navigator", "explainer", "dialogue_role_check", "dialogue_line_count",
+    "navigator_line_count", "explainer_line_count", "first_speaker",
 }
 PUBLIC_CHECK_STRINGS = PUBLIC_NEWS_SOURCES | {
     "daily", "lab", "world", "japan", "research", "official", "reporting",
@@ -53,6 +55,7 @@ PUBLIC_CHECK_STRINGS = PUBLIC_NEWS_SOURCES | {
     "retry_still_formulaic", "retry_too_similar", "retry_length_rejected",
     "retry_budget_exhausted",
     "published_initial_script", "published_style_retry_script",
+    "ケンジ", "アミ", "unknown",
 }
 
 

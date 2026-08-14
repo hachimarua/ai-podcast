@@ -1,6 +1,7 @@
 import os
 import re
 import time
+from datetime import date
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
@@ -17,6 +18,76 @@ load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 PUBLIC_TITLE_PREFIX = "【表示タイトル】"
 JAPANESE_CHARACTER_PATTERN = re.compile(r"[ぁ-んァ-ヶ一-龠々]")
+ROLE_LABELS = frozenset({"ケンジ", "アミ"})
+DEFAULT_DIALOGUE_ROLE_PLAN = {
+    "navigator": "ケンジ",
+    "explainer": "アミ",
+}
+
+
+def _validated_dialogue_role_plan(value):
+    """Return a copy of a valid role plan, or ``None`` for legacy metadata."""
+    if not isinstance(value, dict):
+        return None
+    navigator = value.get("navigator")
+    explainer = value.get("explainer")
+    if (
+        navigator not in ROLE_LABELS
+        or explainer not in ROLE_LABELS
+        or navigator == explainer
+    ):
+        return None
+    return {"navigator": navigator, "explainer": explainer}
+
+
+def _role_plan_from_manifest(manifest):
+    """Read role metadata from current and legacy manifest locations."""
+    if not isinstance(manifest, dict):
+        return None
+    direct = _validated_dialogue_role_plan(manifest.get("dialogue_roles"))
+    if direct:
+        return direct
+    checks = manifest.get("deterministic_checks")
+    if isinstance(checks, dict):
+        return _validated_dialogue_role_plan(checks.get("dialogue_roles"))
+    return None
+
+
+def choose_dialogue_role_plan(
+    history_manifests,
+    broadcast_date,
+    *,
+    existing_today=None,
+):
+    """Choose a production role plan independent of the topic.
+
+    Published episodes alternate navigator/explainer roles.  A same-day rerun
+    reuses its existing assignment so a retry cannot silently switch roles.
+    Before the first rotation-aware manifest exists, date parity provides a
+    deterministic bootstrap and still avoids topic-driven role lock-in.
+    """
+    current_plan = _role_plan_from_manifest(existing_today)
+    if current_plan:
+        return current_plan
+
+    for manifest in history_manifests or []:
+        previous = _role_plan_from_manifest(manifest)
+        if previous:
+            return {
+                "navigator": previous["explainer"],
+                "explainer": previous["navigator"],
+            }
+
+    try:
+        parity = date.fromisoformat(str(broadcast_date)).toordinal() % 2
+    except (TypeError, ValueError):
+        parity = 0
+    if parity == 0:
+        return dict(DEFAULT_DIALOGUE_ROLE_PLAN)
+    return {
+        "navigator": DEFAULT_DIALOGUE_ROLE_PLAN["explainer"],
+        "explainer": DEFAULT_DIALOGUE_ROLE_PLAN["navigator"],
+    }
 
 
 def split_generated_script_output(value):
@@ -73,10 +144,9 @@ SYSTEM_INSTRUCTION = """
 車内で聞き流すのに最適な、日本語の対話型ラジオ台本を作成してください。
 
 【出演キャラクター】
-本日のテーマ（復習用語や最新ニュース）の分野に応じて、ケンジとアミの役割（ナビゲーターと解説者）を入れ替えてください。
-- ケンジ (Kenji): ナビゲーターまたは解説者。本日のテーマが「プログラミング、システム開発、インフラ、API、データベース、数式、CUIコマンド」などのより技術的・システム寄りの分野の場合は、専門知識を持つ【解説者】として解説を行ってください。それ以外の場合は、聞き手である【ナビゲーター】となり、親しみやすく日常の目線で質問してください。
-- アミ (Ami): ナビゲーターまたは解説者。ケンジが解説者の場合は、聞き手である【ナビゲーター】となり、日常の目線で質問してください。それ以外の場合（本日のテーマが「画像・動画生成、デザイン、ライティング、プロンプトハック、ビジネス活用、日常ツール連携」などの場合）は、専門知識を持つ【解説者】として解説を行ってください。
+役割はテーマ、ニュース分野、曜日から推測してはいけません。後段の【本日の役割割当】を唯一の正本として使い、毎回同じ話者が同じ役割に戻らないようにしてください。
 ※必ず一方が「ナビゲーター」、もう一方が「解説者」となり、両者の役割が重複しないようにしてください。
+※話者名と音声は固定です。役割だけをローテーションし、ケンジとアミの人物名・音声を入れ替えないでください。
 
 【台本の構成ルール】
 1. オープニング（挨拶と、今日復習する学習日記の日付やその時のキーワードの紹介）
@@ -216,6 +286,39 @@ def validate_dialogue_style(script: str, *, enforce: bool = True) -> dict:
     return result
 
 
+def validate_dialogue_roles(script: str, role_plan=None, *, enforce: bool = True) -> dict:
+    """Check the mechanical parts of the assigned role rotation.
+
+    The model's semantic distinction between asking and explaining is reviewed
+    by the audio QA step.  This deterministic gate verifies that the requested
+    navigator opens the episode and that both assigned speakers are present.
+    """
+    plan = _validated_dialogue_role_plan(role_plan) or dict(DEFAULT_DIALOGUE_ROLE_PLAN)
+    lines = []
+    for raw_line in str(script or "").splitlines():
+        match = re.match(r"^(ケンジ|アミ)\s*[:：]\s*(.+)$", raw_line.strip())
+        if match:
+            lines.append((match.group(1), match.group(2).strip()))
+
+    counts = {speaker: sum(item[0] == speaker for item in lines) for speaker in ROLE_LABELS}
+    first_speaker = lines[0][0] if lines else "unknown"
+    passed = bool(lines) and first_speaker == plan["navigator"] and all(
+        counts[speaker] > 0 for speaker in ROLE_LABELS
+    )
+    result = {
+        "passed": passed,
+        "dialogue_line_count": len(lines),
+        "navigator_line_count": counts[plan["navigator"]],
+        "explainer_line_count": counts[plan["explainer"]],
+        "first_speaker": first_speaker,
+    }
+    if not passed and enforce:
+        raise EpisodeFormatError(
+            "generated dialogue does not follow the assigned navigator/explainer roles"
+        )
+    return result
+
+
 def _format_spec(episode_format: str) -> FormatSpec:
     config = load_episode_formats()
     if episode_format not in {"daily", "lab"}:
@@ -246,13 +349,22 @@ def build_format_instruction(episode_format: str, spec: FormatSpec) -> str:
     raise EpisodeFormatError("episode format must be daily or lab")
 
 
-def build_system_instruction(episode_format="daily", spec=None):
+def build_system_instruction(episode_format="daily", spec=None, role_plan=None):
     """Add the approved profile without mixing it into untrusted source data."""
     spec = spec or _format_spec(episode_format)
+    role_plan = _validated_dialogue_role_plan(role_plan) or dict(DEFAULT_DIALOGUE_ROLE_PLAN)
     editorial_profile_instruction = get_approved_profile_instruction()
     active_instruction = editorial_profile_instruction or LEGACY_EDITORIAL_PROFILE_INSTRUCTION
     format_instruction = build_format_instruction(episode_format, spec)
-    return f"{SYSTEM_INSTRUCTION}\n\n{active_instruction}\n\n{format_instruction}"
+    role_instruction = (
+        "【本日の役割割当】\n"
+        f"- ナビゲーター: {role_plan['navigator']}\n"
+        f"- 解説者: {role_plan['explainer']}\n"
+        "この割当はテーマに関係なく今回の台本全体で一貫して守ってください。"
+        "ナビゲーターが冒頭の挨拶と問いを置き、解説者が中心説明を担います。"
+        "次回の割当は今回の反対になるため、役割を自己判断で戻さないでください。"
+    )
+    return f"{SYSTEM_INSTRUCTION}\n\n{role_instruction}\n\n{active_instruction}\n\n{format_instruction}"
 
 def build_prompt_content(
     selected_terms,
@@ -264,9 +376,11 @@ def build_prompt_content(
     length_retry=False,
     style_retry=False,
     duration_retry=False,
+    role_plan=None,
 ):
     """プロンプトのコンテキスト（一次情報）を組み立てる"""
     spec = spec or _format_spec(episode_format)
+    role_plan = _validated_dialogue_role_plan(role_plan) or dict(DEFAULT_DIALOGUE_ROLE_PLAN)
     if episode_format == "lab":
         validate_lab_sources((matched_news + general_news)[: spec.max_news_items])
     content = "## 一次情報 (ソーステキスト)\n"
@@ -307,6 +421,10 @@ def build_prompt_content(
 
     content += "</untrusted_source_data>\n"
     content += "\n## 指示:\n"
+    content += (
+        f"今回の役割割当は、ナビゲーターが{role_plan['navigator']}、"
+        f"解説者が{role_plan['explainer']}です。テーマの性質から変更しないでください。\n"
+    )
     content += (
         f"上記の学習メモと最新ニュースを自然に融合させ、{spec.display_name}の"
         "日本語対話台本を作成してください。\n"
@@ -366,41 +484,29 @@ def generate_radio_script(
     length_retry=False,
     style_retry=False,
     duration_retry=False,
+    role_plan=None,
 ):
     """Gemini APIを使用してラジオ台本を生成"""
     spec = spec or _format_spec(episode_format)
+    role_plan = _validated_dialogue_role_plan(role_plan) or dict(DEFAULT_DIALOGUE_ROLE_PLAN)
     if episode_format == "lab":
         validate_lab_sources((matched_news + general_news)[: spec.max_news_items])
-    system_instruction = build_system_instruction(episode_format, spec)
+    system_instruction = build_system_instruction(episode_format, spec, role_plan)
     model_name = normalize_gemini_model(model_name)
     client = get_gemini_client()
     
     if not client:
         print("[Mock] Generating preview script...")
-        is_technical = False
-        tech_keywords = ["rag", "mcp", "api", "llm", "python", "database", "rdb", "sql", "システム"]
-        if selected_terms:
-            first_term = selected_terms[0]
-            term_text = (first_term.get("name", "") + " " + first_term.get("content", "")).lower()
-            if any(kw in term_text for kw in tech_keywords):
-                is_technical = True
-
-        if is_technical:
-            preview = f"{PUBLIC_TITLE_PREFIX}RAGで外部情報を回答につなげる仕組み\n"
-            preview += "ケンジ：皆さん、おはようございます！ケンジです。今日のAI学習ラジオは僕が解説を担当します！\n"
-            preview += "アミ：おはようございます、アミです。今日はケンジさんが解説なんですね！今朝のテーマは技術的な「RAG」についてですね。\n"
-            preview += "アミ：RAGって、外部データを検索して回答精度を高める仕組みですよね。ケンジさん、詳しく教えてください！\n"
-            preview += "ケンジ：任せて！RAGというのはね、データベースから必要な情報を持ってきてプロンプトを強化する技術なんだよ。\n"
-            preview += "アミ：外部データを先に探してから回答へつなぐので、検索拡張生成と呼ぶんですね。今日も一日、AIの学びを楽しんでいきましょう！\n"
-            preview += "ケンジ：いってらっしゃい！"
-        else:
-            preview = f"{PUBLIC_TITLE_PREFIX}画像生成AIのプロンプトを具体的に伝えるコツ\n"
-            preview += "アミ：皆さん、おはようございます！アミです。今日のAI学習ラジオは私が解説を担当します！\n"
-            preview += "ケンジ：おはようございます、ケンジです。今朝のテーマは「画像生成AIのプロンプト」ですね。\n"
-            preview += "ケンジ：画像生成ってプロンプトのコツがあるんですか？アミさん、教えてください！\n"
-            preview += "アミ：はい！実はプロンプトには具体的なスタイルやキーワードを指定するのがコツなんです。試してみてくださいね。\n"
-            preview += "ケンジ：スタイルまで具体的に伝えるのがポイントなんですね。試してみます。それでは、今日も一日、AIの学びを楽しんでいきましょう！\n"
-            preview += "アミ：いってらっしゃい！"
+        navigator = role_plan["navigator"]
+        explainer = role_plan["explainer"]
+        preview = f"{PUBLIC_TITLE_PREFIX}AIの最新情報を実務につなげる考え方\n"
+        preview += f"{navigator}：皆さん、おはようございます！今日のナビゲーターです。\n"
+        preview += f"{explainer}：おはようございます。今日は提供された情報をもとに、背景と使いどころを解説します。\n"
+        preview += f"{navigator}：まず、今回の情報で押さえるべき点を教えてください。\n"
+        preview += f"{explainer}：確認できる事実を整理し、適用できる条件と注意点を分けて見ていきます。\n"
+        preview += f"{navigator}：条件を分けて考えると、実際に試す場面を判断しやすくなりますね。\n"
+        preview += f"{explainer}：その視点で、今日も無理なく学びを実務へつなげていきましょう。\n"
+        preview += f"{navigator}：それでは、いってらっしゃい！"
         return preview
         
     prompt = build_prompt_content(
@@ -413,6 +519,7 @@ def generate_radio_script(
         length_retry=length_retry,
         style_retry=style_retry,
         duration_retry=duration_retry,
+        role_plan=role_plan,
     )
     
     # Gemini 429/5xx は一過性のことがあるため、品質ゲートを緩めずに

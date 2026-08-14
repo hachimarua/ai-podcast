@@ -14,8 +14,10 @@ from news_collector import (
 )
 from script_generator import (
     choose_public_topic,
+    choose_dialogue_role_plan,
     generate_radio_script,
     split_generated_script_output,
+    validate_dialogue_roles,
     validate_dialogue_style,
 )
 from audio_generator import synthesize_podcast
@@ -132,6 +134,16 @@ async def async_main():
         for manifest in history_manifests
         if manifest.get("primary_topic")
     ]
+    dialogue_role_plan = choose_dialogue_role_plan(
+        history_manifests,
+        broadcast_date,
+        existing_today=existing_today,
+    )
+    print(
+        "本日の役割ローテーション: "
+        f"ナビゲーター={dialogue_role_plan['navigator']} / "
+        f"解説者={dialogue_role_plan['explainer']}"
+    )
     
     # 1. Notion(またはモック)から復習用語を抽出
     print("\n[Step 1] Notionから復習用語を抽出しています...")
@@ -240,6 +252,7 @@ async def async_main():
         avoid_topics=recent_topics,
         episode_format=episode_format,
         spec=format_spec,
+        role_plan=dialogue_role_plan,
     )
     script, generated_public_topic = split_generated_script_output(raw_script)
     
@@ -274,6 +287,7 @@ async def async_main():
             avoid_topics=recent_topics,
             episode_format=episode_format,
             spec=format_spec,
+            role_plan=dialogue_role_plan,
         )
         script, generated_public_topic = split_generated_script_output(raw_script)
         if not script:
@@ -313,6 +327,7 @@ async def async_main():
             episode_format=episode_format,
             spec=format_spec,
             length_retry=True,
+            role_plan=dialogue_role_plan,
         )
         retry_script, retry_public_topic = split_generated_script_output(raw_script)
 
@@ -384,6 +399,7 @@ async def async_main():
                 episode_format=episode_format,
                 spec=format_spec,
                 style_retry=True,
+                role_plan=dialogue_role_plan,
             )
             retry_script, retry_public_topic = split_generated_script_output(raw_script)
 
@@ -494,6 +510,7 @@ async def async_main():
             episode_format=episode_format,
             spec=format_spec,
             duration_retry=True,
+            role_plan=dialogue_role_plan,
         )
         script, generated_public_topic = split_generated_script_output(raw_script)
         if not script:
@@ -526,6 +543,7 @@ async def async_main():
                 spec=format_spec,
                 length_retry=True,
                 duration_retry=True,
+                role_plan=dialogue_role_plan,
             )
             script, generated_public_topic = split_generated_script_output(raw_script)
             if not script:
@@ -557,6 +575,11 @@ async def async_main():
         f"平均{audio_quality['mean_volume_db']:.1f}dB, "
         f"最大{audio_quality['max_volume_db']:.1f}dB"
     )
+    dialogue_role_check = validate_dialogue_roles(
+        script, dialogue_role_plan, enforce=False
+    )
+    if not dialogue_role_check["passed"]:
+        print("[Dialogue Role Audit] 割当どおりの話者構成を確認できませんでした。")
     gemini_qa = run_shadow_audio_qa(output_mp3_path)
     print(f"Gemini音声シャドー監査: {gemini_qa.get('status')}")
         
@@ -587,6 +610,8 @@ async def async_main():
                 "news_selection": news_selection,
                 "audio_quality": audio_quality,
                 "script_length": script_length,
+                "dialogue_roles": dialogue_role_plan,
+                "dialogue_role_check": dialogue_role_check,
                 "scheduled_format": scheduled_format,
                 "format_fallback_reason": format_fallback_reason,
                 "format_config_version": formats_config.config_version,
@@ -628,6 +653,8 @@ async def async_main():
                     "news_selection": news_selection,
                     "audio_quality": audio_quality,
                     "script_length": script_length,
+                    "dialogue_roles": dialogue_role_plan,
+                    "dialogue_role_check": dialogue_role_check,
                     "scheduled_format": scheduled_format,
                     "format_fallback_reason": format_fallback_reason,
                     "format_config_version": formats_config.config_version,

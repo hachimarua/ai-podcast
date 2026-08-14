@@ -128,6 +128,75 @@ class EpisodeFormatConfigTests(unittest.TestCase):
         self.assertFalse(measured["passed"])
         self.assertGreater(measured["repeated_formulaic_opener_count"], 0)
 
+    def test_dialogue_role_plan_alternates_from_latest_published_episode(self):
+        latest = {
+            "broadcast_date": "2026-08-13",
+            "deterministic_checks": {
+                "dialogue_roles": {"navigator": "ケンジ", "explainer": "アミ"}
+            },
+        }
+        self.assertEqual(
+            script_generator.choose_dialogue_role_plan(
+                [latest], "2026-08-14"
+            ),
+            {"navigator": "アミ", "explainer": "ケンジ"},
+        )
+
+    def test_dialogue_role_plan_reuses_same_day_assignment(self):
+        existing = {
+            "dialogue_roles": {"navigator": "アミ", "explainer": "ケンジ"}
+        }
+        latest = {
+            "deterministic_checks": {
+                "dialogue_roles": {"navigator": "ケンジ", "explainer": "アミ"}
+            }
+        }
+        self.assertEqual(
+            script_generator.choose_dialogue_role_plan(
+                [latest], "2026-08-14", existing_today=existing
+            ),
+            {"navigator": "アミ", "explainer": "ケンジ"},
+        )
+
+    def test_dialogue_role_plan_bootstrap_is_topic_independent(self):
+        even_day = script_generator.choose_dialogue_role_plan([], "2026-08-14")
+        odd_day = script_generator.choose_dialogue_role_plan([], "2026-08-15")
+        self.assertNotEqual(even_day, odd_day)
+        self.assertEqual(even_day, {"navigator": "ケンジ", "explainer": "アミ"})
+
+    def test_dialogue_role_validator_checks_opening_and_both_speakers(self):
+        plan = {"navigator": "アミ", "explainer": "ケンジ"}
+        script = "\n".join(
+            [
+                "アミ：今日はこのテーマを見ます。",
+                "ケンジ：確認できる事実から整理します。",
+                "アミ：実務ではどこに注意しますか。",
+            ]
+        )
+        self.assertTrue(script_generator.validate_dialogue_roles(script, plan)["passed"])
+        with self.assertRaises(episode_formats.EpisodeFormatError):
+            script_generator.validate_dialogue_roles(
+                script.replace("アミ：今日は", "ケンジ：今日は"), plan
+            )
+
+    def test_dialogue_role_metadata_survives_public_projection(self):
+        checks = episode_history.public_deterministic_checks(
+            {
+                "dialogue_roles": {"navigator": "アミ", "explainer": "ケンジ"},
+                "dialogue_role_check": {
+                    "passed": True,
+                    "dialogue_line_count": 7,
+                    "navigator_line_count": 4,
+                    "explainer_line_count": 3,
+                    "first_speaker": "アミ",
+                },
+            }
+        )
+        self.assertEqual(
+            checks["dialogue_roles"], {"navigator": "アミ", "explainer": "ケンジ"}
+        )
+        self.assertTrue(checks["dialogue_role_check"]["passed"])
+
     def test_script_generation_retries_transient_gemini_failure_only(self):
         class TransientError(Exception):
             code = 503
@@ -361,6 +430,20 @@ class FormatPromptTests(unittest.TestCase):
         self.assertIn("【表示タイトル】", instruction)
         self.assertIn("日本語を中心とした60文字以内", instruction)
         self.assertNotIn("3〜5段階の具体手順", instruction)
+
+    def test_role_prompt_is_explicit_and_not_topic_classified(self):
+        role_plan = {"navigator": "アミ", "explainer": "ケンジ"}
+        prompt = script_generator.build_prompt_content(
+            [], [], [self.news("one", "one")], role_plan=role_plan
+        )
+        instruction = script_generator.build_system_instruction(
+            "daily", role_plan=role_plan
+        )
+        self.assertIn("ナビゲーターがアミ、解説者がケンジ", prompt)
+        self.assertIn("ナビゲーター: アミ", instruction)
+        self.assertIn("解説者: ケンジ", instruction)
+        self.assertIn("テーマ、ニュース分野、曜日から推測してはいけません", instruction)
+        self.assertNotIn("テーマが「プログラミング", instruction)
 
     def test_lab_uses_one_official_theme_without_forced_steps_or_sections(self):
         prompt = script_generator.build_prompt_content(
