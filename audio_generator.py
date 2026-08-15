@@ -16,6 +16,30 @@ VOICE_MAP = {
     "アミ": "ja-JP-NanamiNeural"     # 女性ボイス
 }
 
+TTS_RETRY_DELAYS_SECONDS = (2,)
+
+
+def _is_transient_tts_error(exc):
+    if isinstance(exc, TimeoutError):
+        return True
+    message = str(exc).lower()
+    return any(
+        marker in message
+        for marker in (
+            "connection reset",
+            "cannot connect to host",
+            "server disconnected",
+            "timed out",
+            "timeout",
+            "temporarily unavailable",
+            " 429",
+            " 500",
+            " 502",
+            " 503",
+            " 504",
+        )
+    )
+
 # デフォルトのBGMリスト (朝の5分ラジオに最適な高品質アコースティック・カフェ風・クラシック音源)
 DEFAULT_BGM_LIST = [
     {
@@ -239,9 +263,21 @@ async def generate_line_audio(text, voice, output_path, speech_rate="+10%"):
         
     if speech_rate not in {"+10%", "+0%"}:
         raise ValueError("speech_rate must be +10% or +0%")
-    communicate = edge_tts.Communicate(sanitized_text, voice, rate=speech_rate)
-    await communicate.save(output_path)
-    return True
+    for attempt in range(1, len(TTS_RETRY_DELAYS_SECONDS) + 2):
+        try:
+            communicate = edge_tts.Communicate(sanitized_text, voice, rate=speech_rate)
+            await communicate.save(output_path)
+            return True
+        except Exception as exc:
+            if attempt > len(TTS_RETRY_DELAYS_SECONDS) or not _is_transient_tts_error(exc):
+                raise
+            delay_seconds = TTS_RETRY_DELAYS_SECONDS[attempt - 1]
+            print(
+                f"[TTS Retry] 一時的な音声合成エラーのため、"
+                f"{delay_seconds}秒後に再試行します ({attempt}/2): {exc}"
+            )
+            await asyncio.sleep(delay_seconds)
+    return False
 
 def parse_script_file(script_path):
     """台本ファイルをパースして (話者, セリフ) のリストを返す"""

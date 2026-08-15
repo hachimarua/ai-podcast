@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 
-DEFAULT_GEMINI_MODEL = "gemini-3.1-pro-preview"
+DEFAULT_GEMINI_MODEL = "gemini-3.7-flash"
 
 # 音声監査（シャドーQA）専用の既定モデル。
-# コスト対策で台本生成(Pro)と分離している。3.5系Flashは503頻発のため採用しない。
+# 台本生成モデルとは分離し、音声監査は低コストのFlashを使う。
 DEFAULT_AUDIO_QA_MODEL = "gemini-2.5-flash"
 
 MODEL_ALIASES = {

@@ -177,6 +177,12 @@ SYSTEM_INSTRUCTION = """
 - 各発話には、質問、言い換え、対比、具体例、話題転換のいずれか一つの役割を持たせ、前の発話を受けずに用意された定型文を差し込まないでください。
 - 新しい技術や機能を手放しで絶賛せず、入力ソースで確認できる制限、コスト、適用しない条件も自然に会話へ含めてください。
 
+【話し方の統一】
+- 原則として、ケンジとアミの両方を「です・ます」調の敬語で統一してください。
+- タメ口そのものを禁止するのではありませんが、意図がないまま片方だけがタメ口になる非対称な会話は避けてください。
+- カジュアルな会話を選ぶ場合は、両者が同程度の話し方になるようにしてください。
+- 出力前に、両者の文末が同じ会話トーンになっているか確認してください。
+
 【プロンプト具体例の紹介ルール（音声合成向け・極めて重要）】
 プロンプトの具体例を紹介する際は、音声合成エンジンが記号を連続して読み上げてしまうのを防ぐため、以下のルールを厳格に守ってください。
 - バッククォート（```）や中括弧（{{ }}）、大括弧（[ ]）などの構造化記号は連続して使用しないでください。
@@ -232,6 +238,44 @@ FORMULAIC_RESPONSE_OPENERS = (
     "確かに",
 )
 
+CASUAL_ENDINGS = (
+    "だよ",
+    "だね",
+    "だろう",
+    "じゃん",
+    "じゃない",
+    "するよ",
+    "するね",
+    "したよ",
+    "したね",
+    "ないよ",
+    "ないね",
+    "しよう",
+    "と思う",
+    "気がする",
+    "わかる",
+    "できる",
+    "する",
+    "した",
+    "ない",
+    "だ",
+)
+
+POLITE_ENDINGS = (
+    "です",
+    "ます",
+    "でした",
+    "ました",
+    "ません",
+    "でしょう",
+    "ください",
+    "ましょう",
+    "ですね",
+    "ますね",
+    "ですよ",
+    "ますよ",
+)
+
 TRANSIENT_GEMINI_STATUS_CODES = {429, 500, 502, 503, 504}
 
 
@@ -282,6 +326,58 @@ def validate_dialogue_style(script: str, *, enforce: bool = True) -> dict:
             "generated dialogue repeats formulaic response openers "
             f"({opener_count} used, {allowed_opener_count} allowed, "
             f"{repeated_opener_count} repeated)"
+        )
+    return result
+
+
+def _dialogue_lines(script: str) -> list[tuple[str, str]]:
+    """Extract speaker-labelled dialogue lines for deterministic checks."""
+    lines = []
+    for raw_line in str(script or "").splitlines():
+        match = re.match(r"^(ケンジ|アミ)\s*[:：]\s*(.+)$", raw_line.strip())
+        if match:
+            lines.append((match.group(1), match.group(2).strip()))
+    return lines
+
+
+def _classify_dialogue_register(text: str) -> str:
+    normalized = re.sub(r"[。！？!?、,.\s]+$", "", str(text or "").strip())
+    if any(normalized.endswith(ending) for ending in POLITE_ENDINGS):
+        return "polite"
+    if any(normalized.endswith(ending) for ending in CASUAL_ENDINGS):
+        return "casual"
+    return "neutral"
+
+
+def validate_dialogue_register(script: str, *, enforce: bool = True) -> dict:
+    """Reject a clear polite/casual mismatch between the two speakers.
+
+    Casual speech remains allowed when both speakers use it. The gate only blocks
+    the asymmetric case that is jarring in an otherwise polite broadcast.
+    """
+    lines = _dialogue_lines(script)
+    counts = {
+        speaker: {"polite": 0, "casual": 0, "neutral": 0}
+        for speaker in ROLE_LABELS
+    }
+    for speaker, text in lines:
+        counts[speaker][_classify_dialogue_register(text)] += 1
+
+    kenji = counts["ケンジ"]
+    ami = counts["アミ"]
+    mismatch = (
+        (kenji["casual"] > 0 and ami["polite"] > 0 and ami["casual"] == 0)
+        or (ami["casual"] > 0 and kenji["polite"] > 0 and kenji["casual"] == 0)
+    )
+    result = {
+        "passed": not mismatch,
+        "dialogue_line_count": len(lines),
+        "speaker_register_counts": counts,
+        "register_mismatch": mismatch,
+    }
+    if mismatch and enforce:
+        raise EpisodeFormatError(
+            "generated dialogue has an asymmetric polite/casual register between speakers"
         )
     return result
 
@@ -533,7 +629,7 @@ def generate_radio_script(
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     system_instruction=system_instruction,
-                    temperature=0.3,
+                    thinking_config=types.ThinkingConfig(thinking_level="high"),
                 )
             )
             return response.text
