@@ -64,7 +64,7 @@ jobs:
     - name: Bootstrap recent episode history once
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        # 2026-07-18: 音声監査はコスト対策でFlashへ（台本生成はProのまま）
+        # 音声監査は台本生成と分離した低コストFlashで実行する。
         GEMINI_AUDIO_QA_MODEL: "gemini-2.5-flash"
       run: |
         manifest_count=$(find episode_manifests -maxdepth 1 -name '*.json' | wc -l | tr -d ' ')
@@ -97,7 +97,8 @@ jobs:
         BASE_URL: "https://hachimarua.github.io/ai-podcast"
         BGM_VOLUME: "0.30"
         ALLOW_MOCK_DATA: "false"
-        # 2026-07-18: 毎日のシャドー音声監査もFlashで実行（既定値と同じだが明示する）
+        # 台本生成はGemini 3.7 Flash、音声監査は別の低コストFlashで実行する。
+        GEMINI_MODEL_NAME: "gemini-3.7-flash"
         GEMINI_AUDIO_QA_MODEL: "gemini-2.5-flash"
         PHASE10_TRIAL_MODE: ${{ github.event_name == 'workflow_dispatch' && (inputs.phase10_trial == true || inputs.weekly_lab_trial == true) }}
         PHASE10_TRIAL_ANCHOR: ${{ inputs.phase10_trial == true && 'ai_agents' || '' }}

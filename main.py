@@ -18,6 +18,7 @@ from script_generator import (
     generate_radio_script,
     split_generated_script_output,
     validate_dialogue_roles,
+    validate_dialogue_register,
     validate_dialogue_style,
 )
 from audio_generator import synthesize_podcast
@@ -240,9 +241,10 @@ async def async_main():
     print("\n[Step 4] Gemini APIを呼び出し、対話型ラジオ台本を生成しています...")
     model_name = normalize_gemini_model(os.getenv("GEMINI_MODEL_NAME"))
     print(f"使用モデル: {model_name}")
-    # Dailyの既存挙動は維持する。Labだけは文字量・会話・尺の各ゲートを
-    # またいで再生成を合計1回に制限し、API消費の連鎖を防ぐ。
-    lab_generation_retries = 0
+    # コストを活かした品質修復は、台本・会話・尺をまたいで合計1回に制限する。
+    # 2回目も明らかに不合格なら、低品質音声を公開せずCIを停止する。
+    script_regeneration_limit = 1
+    script_regenerations_used = 0
     
     raw_script = generate_radio_script(
         selected_terms,
@@ -272,10 +274,16 @@ async def async_main():
                 f"Lab script is too similar to a recent episode ({first_similarity:.2f}); "
                 "automatic news-only conversion is not allowed"
             )
+        if script_regenerations_used >= script_regeneration_limit:
+            raise RuntimeError(
+                "Generated script exceeded the duplicate threshold after the single "
+                "script-regeneration allowance was used"
+            )
         print(
             f"[Duplicate Gate] 過去3回との類似度 {first_similarity:.2f}。"
             "復習項目を外した最新ニュース特集として1回だけ再生成します。"
         )
+        script_regenerations_used += 1
         broadcast_news, news_selection = select_news_for_broadcast(
             [], all_news, history_manifests, max_items=format_spec.max_news_items
         )
@@ -306,18 +314,16 @@ async def async_main():
     try:
         script_length = validate_script_length(script, format_spec)
     except EpisodeFormatError as length_error:
+        if script_regenerations_used >= script_regeneration_limit:
+            raise RuntimeError(
+                "Generated script failed the length gate after the single "
+                "script-regeneration allowance was used"
+            ) from length_error
         print(
             f"[Length Gate] 台本が規定文字数外のため({length_error})、"
             "同じ出典のまま1回だけ再生成します。"
         )
-        # 再生成が採用できなくても、尺そのものは後段の音声品質ゲートが見る。
-        # 数十文字の超過で配信を落とさない。
-        fallback_script = script
-        fallback_public_topic = generated_public_topic
-        fallback_similarity = final_similarity
-
-        if episode_format == "lab":
-            lab_generation_retries += 1
+        script_regenerations_used += 1
         raw_script = generate_radio_script(
             selected_terms,
             selected_matched,
@@ -345,117 +351,55 @@ async def async_main():
                     length_rejection = "retry_length_rejected"
 
         if length_rejection:
-            print(
-                f"[Length Gate] 再生成を採用できませんでした ({length_rejection})。"
-                "初回台本のまま配信を優先します。尺は音声品質ゲートで確認します。"
-            )
-            script = fallback_script
-            generated_public_topic = fallback_public_topic
-            final_similarity = fallback_similarity
-            script_length = validate_script_length(script, format_spec, enforce=False)
-            degradations.append(
-                {
-                    "stage": "script_length_gate",
-                    "reason": length_rejection,
-                    "action": "published_initial_script",
-                }
-            )
-        else:
-            script = retry_script
-            generated_public_topic = retry_public_topic
-            final_similarity = retry_similarity
+            raise RuntimeError(
+                f"Length retry did not produce an acceptable script ({length_rejection})"
+            ) from length_error
+        script = retry_script
+        generated_public_topic = retry_public_topic
+        final_similarity = retry_similarity
 
     try:
         dialogue_style = validate_dialogue_style(script)
-    except EpisodeFormatError as style_error:
-        style_retry_blocked = episode_format == "lab" and lab_generation_retries >= 1
-        if style_retry_blocked:
-            print(
-                "[Dialogue Style Gate] Labの再生成上限1回に達しているため、"
-                "追加API呼び出しを行わず現在の台本を採用します。"
-            )
-        else:
-            print(
-                "[Dialogue Style Gate] 定型的な返答冒頭が多いため、"
-                "同じ出典のまま1回だけ再生成します。"
-            )
-        # 再生成が失敗しても直前台本は健全なので、配信を止めずにそのまま採用する。
-        fallback_script = script
-        fallback_public_topic = generated_public_topic
-        fallback_similarity = final_similarity
-        fallback_length = script_length
-
-        if style_retry_blocked:
-            retry_script, retry_public_topic = None, None
-        else:
-            if episode_format == "lab":
-                lab_generation_retries += 1
-            raw_script = generate_radio_script(
-                selected_terms,
-                selected_matched,
-                selected_general,
-                model_name=model_name,
-                avoid_topics=recent_topics,
-                episode_format=episode_format,
-                spec=format_spec,
-                style_retry=True,
-                role_plan=dialogue_role_plan,
-            )
-            retry_script, retry_public_topic = split_generated_script_output(raw_script)
-
-        # 記録は列挙値だけにする。public_deterministic_checks が自由文を落とすため。
-        retry_rejection = "retry_budget_exhausted" if style_retry_blocked else None
-        retry_detail = ""
-        if retry_rejection is None and not retry_script:
-            retry_rejection = "retry_generation_failed"
-        elif retry_rejection is None:
-            retry_similarity = max_recent_similarity(retry_script, history_manifests)
-            if retry_similarity >= duplicate_threshold:
-                retry_rejection = "retry_too_similar"
-                retry_detail = f"類似度 {retry_similarity:.2f}"
-            else:
-                try:
-                    retry_length = validate_script_length(retry_script, format_spec)
-                except EpisodeFormatError as retry_length_error:
-                    retry_rejection = "retry_length_rejected"
-                    retry_detail = str(retry_length_error)
-
-        if retry_rejection:
-            print(
-                f"[Dialogue Style Gate] 再生成を採用できませんでした ({retry_rejection}"
-                + (f": {retry_detail}" if retry_detail else "")
-                + f")。直前台本のまま配信を優先します。理由: {style_error}"
-            )
-            script = fallback_script
-            generated_public_topic = fallback_public_topic
-            final_similarity = fallback_similarity
-            script_length = fallback_length
-            dialogue_style = validate_dialogue_style(script, enforce=False)
-            degradations.append(
-                {
-                    "stage": "dialogue_style_gate",
-                    "reason": retry_rejection,
-                    "action": "published_initial_script",
-                }
-            )
-        else:
-            script = retry_script
-            generated_public_topic = retry_public_topic
-            final_similarity = retry_similarity
-            script_length = retry_length
-            dialogue_style = validate_dialogue_style(script, enforce=False)
-            if not dialogue_style["passed"]:
-                print(
-                    "[Dialogue Style Gate] 再生成後も定型的な冒頭が残りました。"
-                    "配信を優先してこのまま進めます。"
-                )
-                degradations.append(
-                    {
-                        "stage": "dialogue_style_gate",
-                        "reason": "retry_still_formulaic",
-                        "action": "published_style_retry_script",
-                    }
-                )
+        dialogue_register = validate_dialogue_register(script)
+    except EpisodeFormatError as quality_error:
+        if script_regenerations_used >= script_regeneration_limit:
+            raise RuntimeError(
+                "Generated script failed the dialogue quality gate after the single "
+                "script-regeneration allowance was used"
+            ) from quality_error
+        print(
+            "[Dialogue Quality Gate] 定型的な応答または話者間の敬語レベルに問題があるため、"
+            "同じ出典のまま1回だけ再生成します。"
+        )
+        script_regenerations_used += 1
+        raw_script = generate_radio_script(
+            selected_terms,
+            selected_matched,
+            selected_general,
+            model_name=model_name,
+            avoid_topics=recent_topics,
+            episode_format=episode_format,
+            spec=format_spec,
+            style_retry=True,
+            role_plan=dialogue_role_plan,
+        )
+        retry_script, retry_public_topic = split_generated_script_output(raw_script)
+        if not retry_script:
+            raise RuntimeError("Dialogue quality retry script generation failed") from quality_error
+        retry_similarity = max_recent_similarity(retry_script, history_manifests)
+        if retry_similarity >= duplicate_threshold:
+            raise RuntimeError(
+                f"Dialogue quality retry script is too similar to a recent episode ({retry_similarity:.2f})"
+            ) from quality_error
+        retry_length = validate_script_length(retry_script, format_spec)
+        retry_style = validate_dialogue_style(retry_script)
+        retry_register = validate_dialogue_register(retry_script)
+        script = retry_script
+        generated_public_topic = retry_public_topic
+        final_similarity = retry_similarity
+        script_length = retry_length
+        dialogue_style = retry_style
+        dialogue_register = retry_register
 
     # 台本の保存
     if trial_mode:
@@ -490,17 +434,16 @@ async def async_main():
     except AudioQualityError as exc:
         if str(exc) != "Generated audio failed deterministic checks: duration_too_short":
             raise
-        if episode_format == "lab" and lab_generation_retries >= 1:
+        if script_regenerations_used >= script_regeneration_limit:
             raise RuntimeError(
-                "Weekly Lab audio is below the duration floor after its single "
+                "Generated audio is below the duration floor after the single "
                 "script-regeneration allowance was used"
             ) from exc
         print(
             "[Duration Gate] 音声が配信許容下限に届かなかったため、"
             "同じ出典のまま目標尺へ近づける再構成を1回だけ行います。"
         )
-        if episode_format == "lab":
-            lab_generation_retries += 1
+        script_regenerations_used += 1
         raw_script = generate_radio_script(
             selected_terms,
             selected_matched,
@@ -523,39 +466,13 @@ async def async_main():
             )
         try:
             script_length = validate_script_length(script, format_spec)
-        except EpisodeFormatError:
-            if episode_format == "lab":
-                raise RuntimeError(
-                    "Weekly Lab duration retry exceeded the script-length gate; "
-                    "additional generation is blocked"
-                )
-            print(
-                "[Duration Gate] 長尺化した再生成台本が文字数ゲート外のため、"
-                "同じ出典のまま長さを整えて1回だけ再生成します。"
-            )
-            raw_script = generate_radio_script(
-                selected_terms,
-                selected_matched,
-                selected_general,
-                model_name=model_name,
-                avoid_topics=recent_topics,
-                episode_format=episode_format,
-                spec=format_spec,
-                length_retry=True,
-                duration_retry=True,
-                role_plan=dialogue_role_plan,
-            )
-            script, generated_public_topic = split_generated_script_output(raw_script)
-            if not script:
-                raise RuntimeError("Duration length retry script generation failed")
-            final_similarity = max_recent_similarity(script, history_manifests)
-            if final_similarity >= duplicate_threshold:
-                raise RuntimeError(
-                    f"Duration length retry script is too similar to a recent episode "
-                    f"({final_similarity:.2f}); publication stopped"
-                )
-            script_length = validate_script_length(script, format_spec)
+        except EpisodeFormatError as duration_length_error:
+            raise RuntimeError(
+                "Duration retry script exceeded the script-length gate; "
+                "additional generation is blocked"
+            ) from duration_length_error
         dialogue_style = validate_dialogue_style(script)
+        dialogue_register = validate_dialogue_register(script)
         print(
             f"[Duration Gate] 再生成台本: {script_length['character_count']}文字"
         )
@@ -610,6 +527,9 @@ async def async_main():
                 "news_selection": news_selection,
                 "audio_quality": audio_quality,
                 "script_length": script_length,
+                "script_regenerations_used": script_regenerations_used,
+                "dialogue_style": dialogue_style,
+                "dialogue_register": dialogue_register,
                 "dialogue_roles": dialogue_role_plan,
                 "dialogue_role_check": dialogue_role_check,
                 "scheduled_format": scheduled_format,
@@ -653,6 +573,9 @@ async def async_main():
                     "news_selection": news_selection,
                     "audio_quality": audio_quality,
                     "script_length": script_length,
+                    "script_regenerations_used": script_regenerations_used,
+                    "dialogue_style": dialogue_style,
+                    "dialogue_register": dialogue_register,
                     "dialogue_roles": dialogue_role_plan,
                     "dialogue_role_check": dialogue_role_check,
                     "scheduled_format": scheduled_format,
