@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "config_version": "formats-v6",
+  "config_version": "formats-v7",
   "timezone": "Asia/Tokyo",
   "default_format": "daily",
   "weekly_lab": {
@@ -35,7 +35,7 @@
       "prompt_character_min": 3000,
       "prompt_character_max": 3300,
       "hard_character_min": 1600,
-      "hard_character_max": 3400,
+      "hard_character_max": 3600,
       "max_news_items": 3,
       "max_review_terms": 1,
       "speech_rate": "+10%",

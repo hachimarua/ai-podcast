@@ -96,7 +96,7 @@ class EpisodeFormatConfigTests(unittest.TestCase):
                 lab.hard_character_min,
                 lab.hard_character_max,
             ),
-            (3000, 3300, 1600, 3400),
+            (3000, 3300, 1600, 3600),
         )
         self.assertEqual(
             (
@@ -908,6 +908,21 @@ class LabPipelineIntegrationTests(unittest.TestCase):
         self.assertIn(f"上限寄りの{spec.prompt_character_max}文字前後", prompt)
         self.assertIn("同じ説明の反復はせず", prompt)
 
+    def test_lab_duration_retry_prompt_uses_current_headroom(self):
+        spec = episode_formats.load_episode_formats().formats["lab"]
+        prompt = script_generator.build_prompt_content(
+            [],
+            [],
+            [self.official_practical_news()],
+            episode_format="lab",
+            spec=spec,
+            duration_retry=True,
+        )
+        self.assertIn("目標尺は8〜12分です", prompt)
+        self.assertIn("3000〜3300文字", prompt)
+        self.assertIn("特に上限寄りの3300文字前後", prompt)
+        self.assertIn("3600文字を超えないでください", prompt)
+
     def test_same_day_existing_lab_stops_instead_of_falling_back(self):
         today = datetime.now(episode_formats.JST).strftime("%Y-%m-%d")
         existing = {
@@ -986,7 +1001,7 @@ class LabPipelineIntegrationTests(unittest.TestCase):
                 patch.object(
                     pipeline_main,
                     "generate_radio_script",
-                    side_effect=["あ" * 3500, repetitive_script],
+                    side_effect=["あ" * 3650, repetitive_script],
                 ) as generate,
                 patch.object(
                     pipeline_main, "synthesize_podcast", new=AsyncMock(side_effect=synthesize)
