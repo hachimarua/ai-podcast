@@ -301,8 +301,11 @@ class EpisodeFormatConfigTests(unittest.TestCase):
             script = script_generator.generate_radio_script([], [], [news])
 
         self.assertIsNone(script)
-        self.assertEqual(client.models.calls, 5)
-        self.assertEqual([call.args[0] for call in sleep.call_args_list], [5, 15, 30, 60])
+        self.assertEqual(client.models.calls, 6)
+        self.assertEqual(
+            [call.args[0] for call in sleep.call_args_list],
+            [5, 15, 30, 60, 300],
+        )
 
     def test_same_day_rerun_does_not_increment_notion_review(self):
         selected_terms = [
