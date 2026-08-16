@@ -394,9 +394,8 @@ class TermSelectionTests(unittest.TestCase):
 
 
 class DuplicateGateIntegrationTests(unittest.TestCase):
-    def test_high_similarity_regenerates_as_news_only(self):
+    def test_high_similarity_lab_stops_instead_of_news_only_fallback(self):
         duplicate_script = "ケンジ：今日はRAGと検索データベースの技術解説です。"
-        fresh_script = "アミ：今日は画像生成における光と構図のニュースを深掘りします。"
         recent = [{
             "primary_topic": "RAG",
             "script_minhash": episode_history.script_minhash(duplicate_script),
@@ -427,7 +426,7 @@ class DuplicateGateIntegrationTests(unittest.TestCase):
                 patch.object(
                     pipeline_main,
                     "generate_radio_script",
-                    side_effect=[duplicate_script, fresh_script],
+                    side_effect=[duplicate_script],
                 ) as generate,
                 patch.object(pipeline_main, "synthesize_podcast", new=AsyncMock(return_value=True)),
                 patch.object(
@@ -458,13 +457,19 @@ class DuplicateGateIntegrationTests(unittest.TestCase):
                     },
                 ),
                 patch.object(pipeline_main, "update_term_review_status") as update_status,
-                patch.dict(os.environ, {"GITHUB_ACTIONS": "false"}, clear=False),
+                patch.dict(
+                    os.environ,
+                    {"GITHUB_ACTIONS": "false", "PODCAST_EPISODE_FORMAT": "lab"},
+                    clear=False,
+                ),
             ):
-                asyncio.run(pipeline_main.async_main())
-                saved_script = (Path(tmp) / "todays_script.txt").read_text(encoding="utf-8")
+                with self.assertRaisesRegex(
+                    RuntimeError, "automatic news-only conversion is not allowed"
+                ):
+                    asyncio.run(pipeline_main.async_main())
+                self.assertFalse((Path(tmp) / "todays_script.txt").exists())
 
-        self.assertEqual(generate.call_count, 2)
-        self.assertEqual(saved_script, fresh_script)
+        self.assertEqual(generate.call_count, 1)
         update_status.assert_not_called()
 
 
@@ -647,7 +652,7 @@ class GeminiAudioQATests(unittest.TestCase):
         self.assertEqual(result["model"], "gemini-2.5-flash")
         self.assertEqual(result["issues"], [])
 
-    def test_legacy_31_pro_alias_normalizes_to_preview_model(self):
+    def test_legacy_31_pro_alias_maps_to_current_default_model(self):
         with patch.dict(
             os.environ,
             {"GEMINI_API_KEY": "", "GEMINI_AUDIO_QA_MODEL": "gemini-3.1-pro"},
@@ -655,7 +660,7 @@ class GeminiAudioQATests(unittest.TestCase):
         ):
             result = gemini_audio_qa.run_shadow_audio_qa("unused.mp3")
         self.assertEqual(result["status"], "unavailable")
-        self.assertEqual(result["model"], "gemini-3.1-pro-preview")
+        self.assertEqual(result["model"], "gemini-3.7-flash")
 
 
 class AntigravityNotifierTests(unittest.TestCase):

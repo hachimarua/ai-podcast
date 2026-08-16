@@ -682,9 +682,8 @@ class LabPipelineIntegrationTests(unittest.TestCase):
         self.assertEqual(runtime_thresholds.min_duration_seconds, 210.0)
         self.assertEqual(runtime_thresholds.max_duration_seconds, 360.0)
 
-    def test_daily_script_slightly_over_the_limit_still_reaches_listeners(self):
-        # 2026-08-08の実障害: daily台本が2020字(上限2000)になり、再生成もできず
-        # 配信そのものが止まった。20字の超過で放送を落とさない。
+    def test_daily_script_stops_when_length_retry_fails(self):
+        # 生成し直しても規定尺に戻せない場合は、低品質音声を公開しない。
         term = {
             "id": "term",
             "name": "RAG",
@@ -733,11 +732,11 @@ class LabPipelineIntegrationTests(unittest.TestCase):
                     clear=False,
                 ),
             ):
-                asyncio.run(pipeline_main.async_main())
+                with self.assertRaisesRegex(
+                    RuntimeError, "Length retry did not produce an acceptable script"
+                ):
+                    asyncio.run(pipeline_main.async_main())
 
-            saved = (root / "todays_script.txt").read_text(encoding="utf-8")
-
-        self.assertEqual(saved, oversize_script)
         self.assertEqual(generate.call_count, 2)
         self.assertTrue(generate.call_args.kwargs["length_retry"])
 
@@ -814,7 +813,7 @@ class LabPipelineIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(saved_script, retry_script)
 
-    def test_duration_retry_repairs_an_oversize_script_once_before_publication(self):
+    def test_duration_retry_stops_when_its_script_exceeds_the_length_gate(self):
         term = {
             "id": "term",
             "name": "RAG",
@@ -825,7 +824,6 @@ class LabPipelineIntegrationTests(unittest.TestCase):
         news = self.reporting_news()
         first_script = "あ" * 1000
         oversize_retry_script = "い" * 2135
-        repaired_retry_script = "う" * 1350
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             with (
@@ -840,7 +838,7 @@ class LabPipelineIntegrationTests(unittest.TestCase):
                 patch.object(
                     pipeline_main,
                     "generate_radio_script",
-                    side_effect=[first_script, oversize_retry_script, repaired_retry_script],
+                    side_effect=[first_script, oversize_retry_script],
                 ) as generate,
                 patch.object(
                     pipeline_main,
@@ -873,16 +871,15 @@ class LabPipelineIntegrationTests(unittest.TestCase):
                     clear=False,
                 ),
             ):
-                asyncio.run(pipeline_main.async_main())
+                with self.assertRaisesRegex(
+                    RuntimeError, "Duration retry script exceeded the script-length gate"
+                ):
+                    asyncio.run(pipeline_main.async_main())
 
-            saved_script = (root / "todays_script.txt").read_text(encoding="utf-8")
-
-        self.assertEqual(generate.call_count, 3)
+        self.assertEqual(generate.call_count, 2)
         self.assertTrue(generate.call_args.kwargs["duration_retry"])
-        self.assertTrue(generate.call_args.kwargs["length_retry"])
-        self.assertEqual(synthesize.await_count, 2)
-        self.assertEqual(audio_gate.call_count, 2)
-        self.assertEqual(saved_script, repaired_retry_script)
+        self.assertEqual(synthesize.await_count, 1)
+        self.assertEqual(audio_gate.call_count, 1)
 
     def test_duration_retry_prompt_expands_without_repeating_sources(self):
         spec = episode_formats.load_episode_formats().formats["daily"]
@@ -923,8 +920,7 @@ class LabPipelineIntegrationTests(unittest.TestCase):
             with self.assertRaises(news_collector.LabSourceError):
                 asyncio.run(pipeline_main.async_main())
 
-    def test_phase10_trial_writes_private_artifacts_without_public_or_notion_updates(self):
-        private = "private-qa-sentinel"
+    def test_phase10_trial_stops_on_quality_retry_failure_without_public_updates(self):
         term = {
             "id": "term",
             "name": "RAG",
@@ -1021,25 +1017,15 @@ class LabPipelineIntegrationTests(unittest.TestCase):
                     clear=False,
                 ),
             ):
-                asyncio.run(pipeline_main.async_main())
+                with self.assertRaisesRegex(
+                    RuntimeError,
+                    "Generated script failed the dialogue quality gate",
+                ):
+                    asyncio.run(pipeline_main.async_main())
 
-            trial_dirs = list((root / "phase10_trials").glob("trial_*"))
-            self.assertEqual(len(trial_dirs), 1)
-            trial_dir = trial_dirs[0]
-            report_text = (trial_dir / "trial_report.json").read_text(encoding="utf-8")
-            report = json.loads(report_text)
-            self.assertTrue((trial_dir / "script.txt").is_file())
-            self.assertTrue((trial_dir / "podcast.mp3").is_file())
-            self.assertEqual(report["episode_format"], "lab")
-            self.assertEqual(report["trial_status"], "ready_for_listening")
-            self.assertNotIn(private, report_text)
-            self.assertNotIn("private learning memo", report_text)
+            self.assertFalse((root / "phase10_trials").exists())
             self.assertFalse((root / "podcast.xml").exists())
             self.assertFalse((root / "episodes").exists())
-            self.assertEqual(
-                report["deterministic_checks"]["degradations"][0]["reason"],
-                "retry_budget_exhausted",
-            )
 
         self.assertEqual(generate.call_count, 2)
         self.assertEqual(generate.call_args.kwargs["episode_format"], "lab")
@@ -1047,16 +1033,14 @@ class LabPipelineIntegrationTests(unittest.TestCase):
         self.assertFalse(
             any(call.kwargs.get("style_retry") for call in generate.call_args_list)
         )
-        thresholds = audio_gate.call_args.args[1]
-        self.assertEqual(thresholds.min_duration_seconds, 435.0)
-        self.assertEqual(thresholds.max_duration_seconds, 720.0)
+        audio_gate.assert_not_called()
         archive.assert_not_called()
         rss.assert_not_called()
         public_manifest.assert_not_called()
         proposal.assert_not_called()
         update_notion.assert_not_called()
 
-    def test_style_retry_outage_publishes_initial_script_and_records_the_reason(self):
+    def test_style_retry_outage_stops_publication(self):
         term = {
             "id": "term",
             "name": "RAG",
@@ -1144,22 +1128,15 @@ class LabPipelineIntegrationTests(unittest.TestCase):
                     clear=False,
                 ),
             ):
-                asyncio.run(pipeline_main.async_main())
+                with self.assertRaisesRegex(
+                    RuntimeError, "Dialogue quality retry script generation failed"
+                ):
+                    asyncio.run(pipeline_main.async_main())
 
-            trial_dir = next((root / "phase10_trials").glob("trial_*"))
-            report = json.loads((trial_dir / "trial_report.json").read_text(encoding="utf-8"))
-            # 再生成が落ちても配信は止めず、初回台本をそのまま使う。
-            self.assertEqual(
-                (trial_dir / "script.txt").read_text(encoding="utf-8"), repetitive_script
-            )
+            self.assertFalse((root / "phase10_trials").exists())
 
         self.assertEqual(generate.call_count, 2)
         self.assertTrue(generate.call_args.kwargs["style_retry"])
-        degradations = report["deterministic_checks"]["degradations"]
-        self.assertEqual(len(degradations), 1)
-        self.assertEqual(degradations[0]["stage"], "dialogue_style_gate")
-        self.assertEqual(degradations[0]["reason"], "retry_generation_failed")
-        self.assertEqual(degradations[0]["action"], "published_initial_script")
 
 
 class PublicEpisodeMetadataTests(unittest.TestCase):
