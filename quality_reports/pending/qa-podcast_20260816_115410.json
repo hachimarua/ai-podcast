@@ -1,0 +1,30 @@
+{
+  "broadcast_date": "2026-08-16",
+  "category": "audio_quality",
+  "created_at": "2026-08-16T02:56:21.236775+00:00",
+  "decided_at": null,
+  "decision_reason": null,
+  "episode_id": "podcast_20260816_115410",
+  "evidence": [
+    {
+      "category": "speaker",
+      "severity": "warning",
+      "timestamp": "00:13"
+    },
+    {
+      "category": "speaker",
+      "severity": "info",
+      "timestamp": "00:42"
+    }
+  ],
+  "overall_score": 3,
+  "proposal_id": "qa-podcast_20260816_115410",
+  "safe_auto_apply": false,
+  "schema_version": 1,
+  "severity": "warning",
+  "status": "pending",
+  "suggested_changes": [
+    "話者切替ルールを確認する"
+  ],
+  "summary": "音声品質の確認が必要です。"
+}

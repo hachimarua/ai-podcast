@@ -1,0 +1,182 @@
+{
+  "audio_sha256": "6a16934e6dd05332ff93d1164b8de32e274dc23ccfcaafae1862f8862fb4439a",
+  "broadcast_date": "2026-08-16",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 446.136,
+      "file_size_bytes": 3281853,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.6,
+      "mean_volume_db": -17.7,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 720.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 435.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 19,
+      "explainer_line_count": 9,
+      "first_speaker": "ケンジ",
+      "navigator_line_count": 10,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "アミ",
+      "navigator": "ケンジ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0625,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.0625,
+    "news_selection": {
+      "anchor_present": false,
+      "candidate_counts_by_source": {
+        "AI Watch": 3,
+        "Google AI Blog": 2,
+        "ITmedia AI+": 2,
+        "TechCrunch AI": 1,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "evidence_roles": [
+        "official"
+      ],
+      "official_basis_present": true,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "official_basis",
+          "source": "Google AI Blog"
+        }
+      ],
+      "selected_sources": [
+        "Google AI Blog"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "lab",
+    "script_length": {
+      "character_count": 3002,
+      "hard_max": 3600,
+      "hard_min": 1600,
+      "passed": true,
+      "target_max": 3300,
+      "target_min": 3000
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 446,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "lab",
+  "episode_id": "podcast_20260816_115410",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 3,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "speaker",
+        "severity": "warning",
+        "timestamp": "00:13"
+      },
+      {
+        "category": "speaker",
+        "severity": "info",
+        "timestamp": "00:42"
+      }
+    ],
+    "overall_score": 3,
+    "pacing_score": 3,
+    "requires_human_review": false,
+    "speech_clarity_score": 4,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-16T02:56:21.114409+00:00",
+  "news_urls": [
+    "https://blog.google/products/ads-commerce/google-ads-analytics-ai-updates/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "Google AdsとAnalyticsにおけるAIとエージェント体験",
+  "public_topic": "Google AdsとAnalyticsにおけるAIとエージェント体験",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    17124845348780486,
+    11299898409098398,
+    9110922949382035,
+    2683722803872827,
+    5082630134943987,
+    20995002254132463,
+    41238147398171692,
+    9101099047800685,
+    2495515721631490,
+    3967669317424698,
+    3693821197514909,
+    13950860549545162,
+    27692701362785568,
+    17901018927196692,
+    224401075323361,
+    5040746073562492,
+    10923799165722748,
+    1022967434512825,
+    8391572031554315,
+    770571134726460,
+    3649590621509897,
+    29753269866571025,
+    1500781926820840,
+    4904932258940511,
+    13862740129873653,
+    3550902889530492,
+    6781774369331124,
+    14832013899652314,
+    4364658216312824,
+    1235227120138444,
+    6780257481417105,
+    8531633192423920,
+    19708241654859551,
+    1527167952010352,
+    2941869412453139,
+    5105883266718772,
+    10660591689459919,
+    11298021946294363,
+    3778804554943655,
+    1392527855886841,
+    12906576735429008,
+    1738690808980314,
+    7831161028538568,
+    25909429246615855,
+    7458542998128787,
+    3570469083617561,
+    16187152827537089,
+    33095127198416125,
+    4926981962647113,
+    15078981580421869,
+    35011265617119424,
+    7555712820062540,
+    73679316896761,
+    20029408629006534,
+    738511611095084,
+    13409277768803105,
+    1618454985403027,
+    22538507530118796,
+    36008960078698355,
+    13567387765996681,
+    5249880732427904,
+    3970400794750889,
+    44980048002528437
+  ],
+  "script_sha256": "9ebcf3356724cd9a79a5808d64872b51794ea9ba6c5236330908e7588c084dbe",
+  "selected_term_keys": [],
+  "topic_fingerprint": "d5d6287ec4b33b83cb74c287"
+}
