@@ -91,6 +91,15 @@ class EpisodeFormatConfigTests(unittest.TestCase):
         self.assertEqual(lab.speech_rate, "+10%")
         self.assertEqual(
             (
+                lab.prompt_character_min,
+                lab.prompt_character_max,
+                lab.hard_character_min,
+                lab.hard_character_max,
+            ),
+            (3000, 3300, 1600, 3400),
+        )
+        self.assertEqual(
+            (
                 daily.prompt_character_min,
                 daily.prompt_character_max,
                 daily.hard_character_min,

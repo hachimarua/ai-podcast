@@ -32,8 +32,8 @@
     "lab": {
       "display_name": "AI実装ラボ",
       "duration_label": "8〜12分",
-      "prompt_character_min": 2000,
-      "prompt_character_max": 2800,
+      "prompt_character_min": 3000,
+      "prompt_character_max": 3300,
       "hard_character_min": 1600,
       "hard_character_max": 3400,
       "max_news_items": 3,
