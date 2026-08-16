@@ -921,6 +921,7 @@ class LabPipelineIntegrationTests(unittest.TestCase):
                 asyncio.run(pipeline_main.async_main())
 
     def test_phase10_trial_stops_on_quality_retry_failure_without_public_updates(self):
+        private = "private-qa-sentinel"
         term = {
             "id": "term",
             "name": "RAG",
