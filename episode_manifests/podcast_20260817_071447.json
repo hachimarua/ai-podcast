@@ -1,0 +1,175 @@
+{
+  "audio_sha256": "832d1d151fd69cacd408364e6a3d109f54b2e289e7cea582cc192d48f818dd55",
+  "broadcast_date": "2026-08-17",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 246.888,
+      "file_size_bytes": 1773957,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.5,
+      "mean_volume_db": -18.1,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 11,
+      "explainer_line_count": 5,
+      "first_speaker": "アミ",
+      "navigator_line_count": 6,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "ケンジ",
+      "navigator": "アミ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0781,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.0781,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 5,
+        "ITmedia AI+": 4,
+        "TechCrunch AI": 4
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "TechCrunch AI"
+        }
+      ],
+      "selected_sources": [
+        "TechCrunch AI"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1674,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 246,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260817_071447",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "pronunciation",
+        "severity": "info",
+        "timestamp": "00:22"
+      }
+    ],
+    "overall_score": 4,
+    "pacing_score": 4,
+    "requires_human_review": false,
+    "speech_clarity_score": 4,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-16T22:17:35.616725+00:00",
+  "news_urls": [
+    "https://techcrunch.com/2026/08/16/why-people-arent-buying-mark-zuckerbergs-ai-future/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "ザッカーバーグのAIの未来への懐疑論とルーティングの重要性",
+  "public_topic": "ザッカーバーグのAIの未来への懐疑論とルーティングの重要性",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    1514171398613860,
+    17124845348780486,
+    11580420481801792,
+    9110922949382035,
+    10452500461633816,
+    10603419220544643,
+    6710744039992943,
+    26231055703571241,
+    7113071345564989,
+    2370543065671957,
+    1004124716455009,
+    20055532967524286,
+    1988799339330026,
+    16128758306034706,
+    17697781986112080,
+    39989600830712926,
+    3250406996063925,
+    40053031440427711,
+    36334990810252595,
+    20367317619922635,
+    42874648471713289,
+    10604474647395110,
+    1112893032400007,
+    20168253552262,
+    13418569961896172,
+    8459135144877757,
+    18444518742916697,
+    11160604953981904,
+    29193770425842565,
+    33000758533987674,
+    4198426021775546,
+    2956402325432716,
+    9157663162781755,
+    2893974058190797,
+    9099966054453732,
+    26156539813307878,
+    22031297749135850,
+    1496800898790716,
+    10697947398112756,
+    16959603785414963,
+    6195368167324331,
+    16730659055938119,
+    452251419915083,
+    4034365391785152,
+    9310028468645195,
+    2147557348182545,
+    19694164969047037,
+    29302065870342073,
+    28837328709124854,
+    216813722752005,
+    11322801806404286,
+    1216614177391353,
+    5919287312103154,
+    21293897457428752,
+    9683003211649139,
+    9820178222564435,
+    21346190206008147,
+    7049113503306904,
+    2709288010005302,
+    66539487796501821,
+    40477918509624863,
+    13639541857041990,
+    3970400794750889,
+    7078828310401897
+  ],
+  "script_sha256": "de89bbb72d331d5189927d6f5e5be469dbf7e376ca97e9ed05fcc23da7dab4f8",
+  "selected_term_keys": [
+    "224c90e34580425dcaa09e2e"
+  ],
+  "topic_fingerprint": "4d61fb3018ca30480979eeb5"
+}

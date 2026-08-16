@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜ザッカーバーグのAIの未来への懐疑論とルーティングの重要性</title>
+      <description>Daily Brief（4〜6分）｜テーマ: ザッカーバーグのAIの未来への懐疑論とルーティングの重要性</description>
+      <pubDate>Mon, 17 Aug 2026 07:14:47 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260817_071447.mp3" length="1773957" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260817_071447.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:06</itunes:duration>
+    </item>
+    <item>
       <title>AI実装ラボ｜Google AdsとAnalyticsにおけるAIとエージェント体験</title>
       <description>AI実装ラボ（8〜12分）｜テーマ: Google AdsとAnalyticsにおけるAIとエージェント体験</description>
       <pubDate>Sun, 16 Aug 2026 11:54:10 +0900</pubDate>
