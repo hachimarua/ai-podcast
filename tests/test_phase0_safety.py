@@ -660,7 +660,7 @@ class GeminiAudioQATests(unittest.TestCase):
         ):
             result = gemini_audio_qa.run_shadow_audio_qa("unused.mp3")
         self.assertEqual(result["status"], "unavailable")
-        self.assertEqual(result["model"], "gemini-3.7-flash")
+        self.assertEqual(result["model"], "gemini-3.1-pro-preview")
 
 
 class AntigravityNotifierTests(unittest.TestCase):
