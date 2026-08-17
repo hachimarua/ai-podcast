@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜MoEモデルの層ごと感度分析とAIのコード出力品質</title>
+      <description>Daily Brief（4〜6分）｜テーマ: MoEモデルの層ごと感度分析とAIのコード出力品質</description>
+      <pubDate>Tue, 18 Aug 2026 04:29:52 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260818_042952.mp3" length="1903941" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260818_042952.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:25</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜ザッカーバーグのAIの未来への懐疑論とルーティングの重要性</title>
       <description>Daily Brief（4〜6分）｜テーマ: ザッカーバーグのAIの未来への懐疑論とルーティングの重要性</description>
       <pubDate>Mon, 17 Aug 2026 07:14:47 +0900</pubDate>

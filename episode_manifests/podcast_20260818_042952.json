@@ -1,0 +1,234 @@
+{
+  "audio_sha256": "1cd82af74fc5db8eb36602155696b6f5d5b6ef949e53db3653dbd1e8cc153a6e",
+  "broadcast_date": "2026-08-18",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 265.32,
+      "file_size_bytes": 1903941,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.9,
+      "mean_volume_db": -18.0,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 13,
+      "explainer_line_count": 6,
+      "first_speaker": "ケンジ",
+      "navigator_line_count": 7,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "アミ",
+      "navigator": "ケンジ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0469,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.0469,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 5,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 1,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Hugging Face Blog"
+        },
+        {
+          "lane": "research",
+          "matched_notion_terms": false,
+          "reason": "different_source",
+          "source": "arXiv cs.AI (Artificial Intelligence)"
+        }
+      ],
+      "selected_sources": [
+        "Hugging Face Blog",
+        "arXiv cs.AI (Artificial Intelligence)"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1721,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 265,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260818_042952",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 4,
+    "dialogue_naturalness_score": 3,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "pronunciation",
+        "severity": "warning",
+        "timestamp": "00:06"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "warning",
+        "timestamp": "00:08"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "warning",
+        "timestamp": "00:38"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "warning",
+        "timestamp": "00:52"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "warning",
+        "timestamp": "01:06"
+      },
+      {
+        "category": "other",
+        "severity": "info",
+        "timestamp": "01:09"
+      },
+      {
+        "category": "other",
+        "severity": "warning",
+        "timestamp": "01:14"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "warning",
+        "timestamp": "01:35"
+      },
+      {
+        "category": "other",
+        "severity": "info",
+        "timestamp": "01:57"
+      },
+      {
+        "category": "other",
+        "severity": "info",
+        "timestamp": "03:11"
+      },
+      {
+        "category": "other",
+        "severity": "info",
+        "timestamp": "03:16"
+      }
+    ],
+    "overall_score": 3,
+    "pacing_score": 4,
+    "requires_human_review": true,
+    "speech_clarity_score": 3,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-17T19:32:01.121817+00:00",
+  "news_urls": [
+    "https://arxiv.org/abs/2608.13565",
+    "https://huggingface.co/blog/state-of-open-models-summer-2026"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "MoEモデルの層ごと感度分析とAIのコード出力品質",
+  "public_topic": "MoEモデルの層ごと感度分析とAIのコード出力品質",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    1514171398613860,
+    9320747686885242,
+    74754411726363215,
+    1716913137633815,
+    16837421923000043,
+    2831039312050466,
+    37151685325336244,
+    5836336611231399,
+    4511362503007921,
+    57158342925792135,
+    16676700895570895,
+    6541185050339941,
+    15189521654764535,
+    8454516126449840,
+    19669386862604270,
+    19170546558278126,
+    33621717479139153,
+    4374823287174844,
+    4190851910636917,
+    14078028198841440,
+    5025168269226610,
+    1509949950857922,
+    8454451945915298,
+    28135673694493378,
+    25441225704655262,
+    39802480623037096,
+    6945429426623035,
+    1053447519835913,
+    5017204281726709,
+    35411347491073784,
+    1235227120138444,
+    23961655366009671,
+    682008976373447,
+    4154885349474682,
+    17503776541583454,
+    5162243420939733,
+    5654346051348651,
+    10334901866129191,
+    44494669932037232,
+    12560811225630988,
+    14139929762038408,
+    34883186444412538,
+    6977268087762522,
+    14260241489042616,
+    23825358631492093,
+    11524855521937546,
+    41146919657014903,
+    41010099482696934,
+    16935496986151590,
+    618526437025307,
+    8302647504898744,
+    1216614177391353,
+    7220486941070449,
+    315360289699213,
+    26134924574469749,
+    738511611095084,
+    33928012174149948,
+    32213701064530763,
+    27785631090090442,
+    1078967980267928,
+    61384886199467008,
+    11224868903819867,
+    3970400794750889,
+    40279359281264373
+  ],
+  "script_sha256": "aff65be396908b89d3acb7f9853c821ccc3ed53fed417b6f91a068de813ef359",
+  "selected_term_keys": [
+    "a173000c24dd229bb09cca45"
+  ],
+  "topic_fingerprint": "f3e923c92b1b60913a8576b5"
+}
