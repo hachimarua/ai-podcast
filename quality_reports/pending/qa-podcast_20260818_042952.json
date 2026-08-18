@@ -1,4 +1,19 @@
 {
+  "application": {
+    "applied_at": "2026-08-18T04:15:10.916483+00:00",
+    "changed_files": [
+      "audio_generator.py",
+      "script_generator.py",
+      "tests/test_phase0_safety.py"
+    ],
+    "level": "B",
+    "verification": [
+      "発音辞書テスト: 必須→ひっす、Hugging Face→ハギングフェイス",
+      "全169件のユニットテスト成功",
+      "Python compileall成功",
+      "対象MP3の既存deterministic_checksはpassed=true（音声ファイルは未上書き）"
+    ]
+  },
   "broadcast_date": "2026-08-18",
   "category": "audio_quality",
   "created_at": "2026-08-17T19:32:01.201928+00:00",
@@ -67,7 +82,7 @@
   "safe_auto_apply": false,
   "schema_version": 1,
   "severity": "warning",
-  "status": "agreed",
+  "status": "applied",
   "suggested_changes": [
     "発音ルールを確認する",
     "音声品質を人間が確認する"
