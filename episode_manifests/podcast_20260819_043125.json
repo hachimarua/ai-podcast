@@ -1,0 +1,170 @@
+{
+  "audio_sha256": "399311b7a35e6e5bd37262bcd640084f4727c8f3bea9ad9a81a80378d2ac64b9",
+  "broadcast_date": "2026-08-19",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 246.792,
+      "file_size_bytes": 1758477,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.4,
+      "mean_volume_db": -18.2,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 15,
+      "explainer_line_count": 7,
+      "first_speaker": "アミ",
+      "navigator_line_count": 8,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "ケンジ",
+      "navigator": "アミ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0938,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.0938,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 4,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "ITmedia AI+"
+        }
+      ],
+      "selected_sources": [
+        "ITmedia AI+"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1711,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 246,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260819_043125",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-18T19:33:56.919115+00:00",
+  "news_urls": [
+    "https://atmarkit.itmedia.co.jp/ait/articles/2608/18/news055.html"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "無料で読めるAIエージェントの実践ガイド、Googleが公開 基礎から本番実装まで学べる",
+  "public_topic": "無料で読めるAIエージェントの実践ガイド、Googleが公開 基礎から本番実装まで学べる",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    2643213988106355,
+    17124845348780486,
+    21837981314131213,
+    9080225734417954,
+    32297807461072795,
+    6476401211167232,
+    20625075087765408,
+    22537121217734202,
+    13890262987787547,
+    26271760231404036,
+    31540640726694514,
+    14992668161707846,
+    20057521471742992,
+    16128758306034706,
+    34988089469904512,
+    17566396598350400,
+    3250406996063925,
+    51945382665889549,
+    4190851910636917,
+    13173564937076956,
+    23580485576827711,
+    286554452112524,
+    2488097969752956,
+    10470238298607751,
+    3835897636422666,
+    5765846795912009,
+    10483600937965151,
+    101135990235688,
+    17114059740165411,
+    22899397469544350,
+    22244340788915089,
+    24503697764802241,
+    2795891289744910,
+    4154885349474682,
+    19665742950615685,
+    3188099855608957,
+    1527770600263204,
+    10378104883701481,
+    10697947398112756,
+    10974142719825271,
+    4400415313759341,
+    7221783785655144,
+    1065897487463778,
+    30385817668202528,
+    26755726169979968,
+    9584313447560297,
+    21969286159894643,
+    21828313081883736,
+    56545892391252739,
+    216813722752005,
+    3698753617836118,
+    45244064719359959,
+    3572780426666945,
+    315360289699213,
+    14900102630071926,
+    13460912326199543,
+    7101595620169381,
+    57698820911386397,
+    16335590930852384,
+    17711771317411285,
+    8943906747576708,
+    13639541857041990,
+    18048330082994681,
+    13465021136040335
+  ],
+  "script_sha256": "7a8c68a4bdc71657829f091f0a1dea3208829c065fc0b3ef529cfc4822ef3988",
+  "selected_term_keys": [
+    "b97188b040abe63d1ccddd49"
+  ],
+  "topic_fingerprint": "77686343849da8b567af6e71"
+}

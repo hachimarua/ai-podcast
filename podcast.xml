@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜無料で読めるAIエージェントの実践ガイド、Googleが公開 基礎から本番実装まで学べる</title>
+      <description>Daily Brief（4〜6分）｜テーマ: 無料で読めるAIエージェントの実践ガイド、Googleが公開 基礎から本番実装まで学べる</description>
+      <pubDate>Wed, 19 Aug 2026 04:31:25 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260819_043125.mp3" length="1758477" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260819_043125.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:06</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜MoEモデルの層ごと感度分析とAIのコード出力品質</title>
       <description>Daily Brief（4〜6分）｜テーマ: MoEモデルの層ごと感度分析とAIのコード出力品質</description>
       <pubDate>Tue, 18 Aug 2026 04:29:52 +0900</pubDate>
