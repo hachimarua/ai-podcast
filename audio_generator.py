@@ -240,6 +240,11 @@ def apply_pronunciation_dict(text):
         r'(?i)OpenAI': 'オープンエーアイ',
         r'(?i)Anthropic': 'アンスロピック',
         r'(?i)RAG': 'ラグ',
+        # Edge TTSが「必須」を「必shu」のように崩すことがあるため、
+        # TTS直前だけ読みを明示する。保存台本・表示文は変更しない。
+        r'必須': 'ひっす',
+        # Hugging Faceの語尾のgを落とさないよう、音声用表記へ固定する。
+        r'(?i)(?<![A-Za-z])Hugging[\s　]*Face(?![A-Za-z])': 'ハギングフェイス',
     }
     
     result = text
