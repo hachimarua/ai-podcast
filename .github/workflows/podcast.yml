@@ -48,7 +48,8 @@ jobs:
     - name: Install system dependencies (ffmpeg)
       run: |
         if ! command -v ffmpeg &> /dev/null; then
-          sudo apt-get update
+          sudo sed -i 's/azure\.archive\.ubuntu\.com/archive\.ubuntu\.com/g' /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null || true
+          sudo apt-get update -o Acquire::Retries=3
           sudo apt-get install -y --no-install-recommends ffmpeg
         else
           echo "ffmpeg is already installed; skipping apt-get."
