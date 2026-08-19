@@ -47,8 +47,12 @@ jobs:
 
     - name: Install system dependencies (ffmpeg)
       run: |
-        sudo apt-get update
-        sudo apt-get install -y ffmpeg
+        if ! command -v ffmpeg &> /dev/null; then
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg
+        else
+          echo "ffmpeg is already installed; skipping apt-get."
+        fi
 
     - name: Set up Python
       uses: actions/setup-python@v5
