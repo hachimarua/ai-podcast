@@ -1,0 +1,184 @@
+{
+  "audio_sha256": "fdafaa729a2c3f086319dbf5f7c70508292ee7977744e78935b75c8337afdfd5",
+  "broadcast_date": "2026-08-20",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 267.96,
+      "file_size_bytes": 1983885,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.5,
+      "mean_volume_db": -18.0,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 17,
+      "explainer_line_count": 8,
+      "first_speaker": "ケンジ",
+      "navigator_line_count": 9,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "アミ",
+      "navigator": "ケンジ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.1094,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.1094,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 5,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 4,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Google AI Blog"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "different_source",
+          "source": "TechCrunch AI"
+        }
+      ],
+      "selected_sources": [
+        "Google AI Blog",
+        "TechCrunch AI"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1792,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 267,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260820_065255",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "pronunciation",
+        "severity": "warning",
+        "timestamp": "01:41"
+      }
+    ],
+    "overall_score": 4,
+    "pacing_score": 5,
+    "requires_human_review": true,
+    "speech_clarity_score": 4,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-19T21:55:05.327071+00:00",
+  "news_urls": [
+    "https://blog.google/products-and-platforms/products/search/back-to-school-study-tools/",
+    "https://techcrunch.com/2026/08/19/google-launches-new-study-tools-for-students-across-search-and-gemini/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "Googleが検索とGeminiに学習ツールを追加、規格パーサとの関連性",
+  "public_topic": "Googleが検索とGeminiに学習ツールを追加、規格パーサとの関連性",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    4455081541813858,
+    17124845348780486,
+    7333086054602456,
+    10956462106292436,
+    2683722803872827,
+    24014317189839241,
+    20144295176180558,
+    2716566947630070,
+    13890262987787547,
+    7606174714944643,
+    405455385743177,
+    6407441964049633,
+    54733432693028063,
+    87655097554536964,
+    18995694017822335,
+    31619698905569860,
+    10634293781592113,
+    8173962566972577,
+    4190851910636917,
+    357053064959735,
+    29846494849751428,
+    1506526720440378,
+    8014423382208791,
+    384932926923785,
+    18750434021466726,
+    16422454071052477,
+    31877894930187279,
+    17190932062513076,
+    20416858208048528,
+    7002051236018558,
+    24793601275805935,
+    7316690137363096,
+    12220751025299920,
+    6043461800768738,
+    24474506957325413,
+    70438705824755613,
+    47736794205534436,
+    10378104883701481,
+    12007026167505437,
+    7181089968749753,
+    23393255730882116,
+    14084659736552872,
+    19361165827616283,
+    13736189937549907,
+    13107756560417457,
+    6313739893000385,
+    14085213915153335,
+    54375881198530822,
+    610390418607246,
+    216813722752005,
+    1241790058636328,
+    23962023903795409,
+    7220486941070449,
+    1578040129596525,
+    29537617323570135,
+    13460912326199543,
+    5133279476900669,
+    49373993110754490,
+    24265670650311392,
+    24371921234206080,
+    22445451775145232,
+    3120315539755859,
+    18048330082994681,
+    51045656546818834
+  ],
+  "script_sha256": "4fe5c913610cf186f50d3f8b3e092ea5fcaef4c570f36da4108a87d74cd7eb72",
+  "selected_term_keys": [
+    "0b27bb546533a8f28f84ac1f"
+  ],
+  "topic_fingerprint": "2fb1e035a339b3d3c96ae014"
+}
