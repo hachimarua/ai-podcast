@@ -1,0 +1,176 @@
+{
+  "audio_sha256": "4f8fd6f08dd0e1169238529ea9b3198477349fc7bbd9d453002eb756ae497261",
+  "broadcast_date": "2026-08-21",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 249.528,
+      "file_size_bytes": 1832229,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.0,
+      "mean_volume_db": -18.0,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 16,
+      "explainer_line_count": 7,
+      "first_speaker": "アミ",
+      "navigator_line_count": 9,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "ケンジ",
+      "navigator": "アミ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0938,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.0938,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 4,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "AI Watch"
+        }
+      ],
+      "selected_sources": [
+        "AI Watch"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1676,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 249,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260821_060308",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "pronunciation",
+        "severity": "info",
+        "timestamp": "00:52"
+      }
+    ],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-20T21:04:54.316464+00:00",
+  "news_urls": [
+    "https://ai.watch.impress.co.jp/docs/news/2134325.html"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "ソフトバンクとエリクソン、5G商用ネットワークでのAI実装を初実証 下りユーザースループットが最大約50％向上",
+  "public_topic": "ソフトバンクとエリクソン、5G商用ネットワークでのAI実装を初実証 下りユーザースループットが最大約50％向上",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    17124845348780486,
+    13754461398203997,
+    9110922949382035,
+    2683722803872827,
+    7823946560945016,
+    80377027679255280,
+    999208311056669,
+    15725895384588976,
+    32792796218252343,
+    43068287485721478,
+    19766305819317381,
+    3545283636429961,
+    18107202135536069,
+    47943527665835813,
+    3152085584846042,
+    59914287029460,
+    5955544368834926,
+    460496789689142,
+    29854861135141236,
+    5297850691812853,
+    4020224604807822,
+    29904032498495133,
+    2852870384541706,
+    289954192392331,
+    12283085389437037,
+    2611261554578319,
+    1053447519835913,
+    98048677921603647,
+    15326936081162261,
+    9637710362626301,
+    11169494862216711,
+    34457651440195952,
+    23503377075383308,
+    34965579420702842,
+    4086377544338738,
+    2814661980300268,
+    1582608770527661,
+    19961319960970290,
+    4545709547911312,
+    11148445698463254,
+    8699428948940563,
+    27145290742270939,
+    5918629840786540,
+    2844703130668864,
+    11524855521937546,
+    10561418488579097,
+    24258884411040790,
+    30496046604846224,
+    216813722752005,
+    33005144894919686,
+    8346216231565469,
+    1655880414967940,
+    315360289699213,
+    3529796950956931,
+    13460912326199543,
+    21289396400267467,
+    10899000588107225,
+    26154555524456438,
+    38917915560303165,
+    3628120300419758,
+    13639541857041990,
+    18048330082994681,
+    8091618047224370
+  ],
+  "script_sha256": "43092ed8858e3d252b3efeebb01af9d1e92e1a6faac13271f196d973a4a784b2",
+  "selected_term_keys": [
+    "f1da5ea0ed9254847c38096b"
+  ],
+  "topic_fingerprint": "58d35bab8b4bc51c4bbe4217"
+}

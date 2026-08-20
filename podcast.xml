@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜ソフトバンクとエリクソン、5G商用ネットワークでのAI実装を初実証 下りユーザースループットが最大約50％向上</title>
+      <description>Daily Brief（4〜6分）｜テーマ: ソフトバンクとエリクソン、5G商用ネットワークでのAI実装を初実証 下りユーザースループットが最大約50％向上</description>
+      <pubDate>Fri, 21 Aug 2026 06:03:08 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260821_060308.mp3" length="1832229" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260821_060308.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:09</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜Googleが検索とGeminiに学習ツールを追加、規格パーサとの関連性</title>
       <description>Daily Brief（4〜6分）｜テーマ: Googleが検索とGeminiに学習ツールを追加、規格パーサとの関連性</description>
       <pubDate>Thu, 20 Aug 2026 06:52:55 +0900</pubDate>
