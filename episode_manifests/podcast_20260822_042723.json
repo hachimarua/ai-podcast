@@ -1,0 +1,176 @@
+{
+  "audio_sha256": "37f883c4176b04ea23c35f4c2bb0178af7bcc8600fae94af531fe660fcdb0ad6",
+  "broadcast_date": "2026-08-22",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 265.944,
+      "file_size_bytes": 1955565,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.8,
+      "mean_volume_db": -18.0,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 19,
+      "explainer_line_count": 9,
+      "first_speaker": "ケンジ",
+      "navigator_line_count": 10,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "アミ",
+      "navigator": "ケンジ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0781,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.1094,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 5,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 4,
+        "arXiv cs.AI (Artificial Intelligence)": 4
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Hugging Face Blog"
+        }
+      ],
+      "selected_sources": [
+        "Hugging Face Blog"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1788,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 265,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260822_042723",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 4,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "pronunciation",
+        "severity": "info",
+        "timestamp": "00:06"
+      }
+    ],
+    "overall_score": 4,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-21T19:30:28.955308+00:00",
+  "news_urls": [
+    "https://huggingface.co/blog/asr-benchmark-optimization"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "音声認識モデルのベンチマーク測定と使い捨て一時VMの活用",
+  "public_topic": "音声認識モデルのベンチマーク測定と使い捨て一時VMの活用",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    1514171398613860,
+    2963994841957909,
+    9352451746687401,
+    1716913137633815,
+    2683722803872827,
+    7404729320978874,
+    32268495821549449,
+    16436011946979077,
+    24536218297131027,
+    5294384316430533,
+    9800445921277164,
+    8233785886125664,
+    31593703220789842,
+    11155947897877129,
+    25954398668676607,
+    3715346832479227,
+    33817609737002175,
+    4341124051296378,
+    14695061432053638,
+    644858691927297,
+    9049307571234499,
+    1404770358890895,
+    395463045617699,
+    60474078802289498,
+    16867906468370271,
+    30686330907259462,
+    6046059632115344,
+    5302935129261182,
+    6697760316245813,
+    22899397469544350,
+    12074459013924099,
+    7316690137363096,
+    2696737466859776,
+    23503377075383308,
+    15386968407382683,
+    15892177761654857,
+    16907713797207183,
+    17415309309272596,
+    10851026829919218,
+    10374056134855613,
+    11148445698463254,
+    43903122850109737,
+    30689821746979812,
+    9252497459973309,
+    1103082741269189,
+    2147557348182545,
+    25896556762189815,
+    10700216659158837,
+    1649643916181555,
+    6763533088374338,
+    12659874646326839,
+    32924028482700606,
+    3572780426666945,
+    28955082605718759,
+    15756704336463016,
+    13460912326199543,
+    29416472958447993,
+    980359450641494,
+    30137483705121912,
+    23922193602834831,
+    12498378834689950,
+    13639541857041990,
+    348526630600985,
+    12345159771643537
+  ],
+  "script_sha256": "acd88dc2e506d6d66a3cbcb37ef3515ff6f06959a085eb923ecec38e15c07d83",
+  "selected_term_keys": [
+    "babfaaa0dc02483b85fbc53e"
+  ],
+  "topic_fingerprint": "7157882c75d49b14585643a4"
+}
