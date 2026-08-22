@@ -1,0 +1,175 @@
+{
+  "audio_sha256": "7388ffa45c1c38821662257a49ab3105153c1ef5a3760aea63539bbe40d38c32",
+  "broadcast_date": "2026-08-23",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 501.888,
+      "file_size_bytes": 3487173,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.8,
+      "mean_volume_db": -18.1,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 720.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 435.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 34,
+      "explainer_line_count": 17,
+      "first_speaker": "アミ",
+      "navigator_line_count": 17,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "ケンジ",
+      "navigator": "アミ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0781,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.0625,
+    "news_selection": {
+      "anchor_present": false,
+      "candidate_counts_by_source": {
+        "Google AI Blog": 1,
+        "ITmedia AI+": 3,
+        "TechCrunch AI": 3
+      },
+      "evidence_roles": [
+        "official"
+      ],
+      "official_basis_present": true,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "official_basis",
+          "source": "Google AI Blog"
+        }
+      ],
+      "selected_sources": [
+        "Google AI Blog"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "lab",
+    "script_length": {
+      "character_count": 3445,
+      "hard_max": 3600,
+      "hard_min": 1600,
+      "passed": true,
+      "target_max": 3300,
+      "target_min": 3000
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 501,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "lab",
+  "episode_id": "podcast_20260823_073516",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 3,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "bgm",
+        "severity": "info",
+        "timestamp": "00:00"
+      }
+    ],
+    "overall_score": 4,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-22T22:42:56.087470+00:00",
+  "news_urls": [
+    "https://blog.google/products-and-platforms/products/workspace/sheets-canvas-for-google-sheets-spreadsheets/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "Googleスプレッドシートをプロンプトでダッシュボード化するSheets canvasの衝撃",
+  "public_topic": "Googleスプレッドシートをプロンプトでダッシュボード化するSheets canvasの衝撃",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    1514171398613860,
+    17124845348780486,
+    652585955520582,
+    2846585364342232,
+    6047623724176,
+    7823946560945016,
+    16658523996411883,
+    10502490361111429,
+    9956725621284687,
+    9648108115934027,
+    3967669317424698,
+    13737374564556434,
+    3063033574559400,
+    1395832221434840,
+    1055469427546070,
+    6918767350344763,
+    2728892310432662,
+    2407356238059739,
+    282414607649882,
+    6100000191410988,
+    770571134726460,
+    9949287469426277,
+    8881938157771917,
+    1816673840385026,
+    2585070247597350,
+    16422454071052477,
+    10495897031487441,
+    1541728234391903,
+    16114275788053733,
+    1713221446624880,
+    13518010116569584,
+    1383724240381367,
+    6732539882980843,
+    3168013848746744,
+    626248620378735,
+    23577363452684413,
+    4313021316350765,
+    4543891634210564,
+    2692122069205634,
+    12560811225630988,
+    7824770383812636,
+    8699428948940563,
+    5506666253981809,
+    962922337310496,
+    14715716443470318,
+    13910066578860446,
+    1240339433305226,
+    12328391589346524,
+    2345679077464019,
+    7933961047417341,
+    4873837777243642,
+    17725759259756703,
+    3572780426666945,
+    604110252477025,
+    30385179126156529,
+    13460912326199543,
+    21346190206008147,
+    7049113503306904,
+    16335590930852384,
+    8482774278498727,
+    473928034856027,
+    13639541857041990,
+    348526630600985,
+    4418633863921627
+  ],
+  "script_sha256": "d16a7ef7d4191b5126b9ba29c3a9f3fdb3cadfef378cea674f83a2f3580605b8",
+  "selected_term_keys": [],
+  "topic_fingerprint": "183052ca15c67fef59f0a509"
+}

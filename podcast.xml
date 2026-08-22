@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>AI実装ラボ｜Googleスプレッドシートをプロンプトでダッシュボード化するSheets canvasの衝撃</title>
+      <description>AI実装ラボ（8〜12分）｜テーマ: Googleスプレッドシートをプロンプトでダッシュボード化するSheets canvasの衝撃</description>
+      <pubDate>Sun, 23 Aug 2026 07:35:16 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260823_073516.mp3" length="3487173" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260823_073516.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>08:21</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜音声認識モデルのベンチマーク測定と使い捨て一時VMの活用</title>
       <description>Daily Brief（4〜6分）｜テーマ: 音声認識モデルのベンチマーク測定と使い捨て一時VMの活用</description>
       <pubDate>Sat, 22 Aug 2026 04:27:23 +0900</pubDate>
