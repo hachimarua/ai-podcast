@@ -1,0 +1,198 @@
+{
+  "audio_sha256": "703ae6186ea03755d1920fb3bec0ac2c515809f377d436730f18488efd0f0b41",
+  "broadcast_date": "2026-08-24",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 268.608,
+      "file_size_bytes": 1890717,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.6,
+      "mean_volume_db": -18.1,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 19,
+      "explainer_line_count": 9,
+      "first_speaker": "ケンジ",
+      "navigator_line_count": 10,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "アミ",
+      "navigator": "ケンジ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0781,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.0781,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "TechCrunch AI"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "candidate_fallback",
+          "source": "TechCrunch AI"
+        }
+      ],
+      "selected_sources": [
+        "TechCrunch AI",
+        "TechCrunch AI"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1773,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 268,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260824_042311",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 3,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "pronunciation",
+        "severity": "warning",
+        "timestamp": "01:20"
+      },
+      {
+        "category": "pacing",
+        "severity": "warning",
+        "timestamp": "02:07"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "warning",
+        "timestamp": "02:33"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "critical",
+        "timestamp": "03:38"
+      }
+    ],
+    "overall_score": 3,
+    "pacing_score": 4,
+    "requires_human_review": true,
+    "speech_clarity_score": 4,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-23T19:25:30.235519+00:00",
+  "news_urls": [
+    "https://techcrunch.com/2026/08/22/inherent-founded-by-deepmind-alumni-says-its-ai-teammate-just-outperformed-anthropic-and-openai-at-replicating-research/",
+    "https://techcrunch.com/2026/08/23/linkdazes-smart-calendar-is-built-to-run-a-household-not-just-track-a-schedule/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "リンクデイズの無料AIカレンダーとフロントエンド配信の最適化",
+  "public_topic": "リンクデイズの無料AIカレンダーとフロントエンド配信の最適化",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    10259585407895290,
+    17124845348780486,
+    13078837457845957,
+    2690471422046808,
+    2683722803872827,
+    15805329234591070,
+    16658523996411883,
+    3464825523322498,
+    23399585188296074,
+    8120237506457541,
+    24419229537152026,
+    9101248673258559,
+    6149390134277273,
+    17923934717655989,
+    1429089445849674,
+    10353219600645505,
+    3250406996063925,
+    46486023409088181,
+    140627765634365,
+    8809030507297585,
+    5572245449064062,
+    4020224604807822,
+    1697021389678392,
+    2591251513399778,
+    16867906468370271,
+    33154674717606164,
+    2611261554578319,
+    14439551856479197,
+    29235172564581621,
+    9012547054888017,
+    25718271104228092,
+    24503697764802241,
+    19182670557984068,
+    4154885349474682,
+    15985760457551677,
+    3954771211460092,
+    2932799805030915,
+    10378104883701481,
+    45561874799696798,
+    2842053998412516,
+    1392527855886841,
+    18673891937339373,
+    1065897487463778,
+    4810925521655239,
+    13505277742294023,
+    447158015005460,
+    24547399841679784,
+    21828313081883736,
+    28428883831555656,
+    216813722752005,
+    14111083298087600,
+    5465686596797785,
+    3572780426666945,
+    1961576702452783,
+    4923810982112505,
+    2755451295049638,
+    1583108704507796,
+    60568118395915550,
+    2178088302083558,
+    8197949000269291,
+    2288663021862965,
+    2563212829651551,
+    3970400794750889,
+    23920015661312469
+  ],
+  "script_sha256": "a2dc5c8464478b443d3e457fbe17bb7dc5db85200ecca38639f15c58f4575b68",
+  "selected_term_keys": [
+    "d6d5fdff96f20096b38c315d"
+  ],
+  "topic_fingerprint": "5dbdbcb3e0fd2ab0ca47e2af"
+}
