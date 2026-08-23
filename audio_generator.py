@@ -245,6 +245,8 @@ def apply_pronunciation_dict(text):
         r'必須': 'ひっす',
         # Hugging Faceの語尾のgを落とさないよう、音声用表記へ固定する。
         r'(?i)(?<![A-Za-z])Hugging[\s　]*Face(?![A-Za-z])': 'ハギングフェイス',
+        r'(?i)(?<![A-Za-z])DeepMind(?![A-Za-z])': 'ディープマインド',
+        r'(?i)(?<![A-Za-z])TechCrunch(?![A-Za-z])': 'テッククランチ',
     }
     
     result = text
