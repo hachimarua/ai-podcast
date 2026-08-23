@@ -2,8 +2,8 @@
   "broadcast_date": "2026-08-24",
   "category": "audio_quality",
   "created_at": "2026-08-23T19:25:30.321291+00:00",
-  "decided_at": null,
-  "decision_reason": null,
+  "decided_at": "2026-08-23T23:51:31.243926+00:00",
+  "decision_reason": "途中で間が乱れて会話のテンポが変になった（2:07付近）",
   "episode_id": "podcast_20260824_042311",
   "evidence": [
     {
@@ -32,7 +32,7 @@
   "safe_auto_apply": false,
   "schema_version": 1,
   "severity": "critical",
-  "status": "pending",
+  "status": "agreed",
   "suggested_changes": [
     "発音ルールを確認する",
     "読み上げ速度と間を確認する"
