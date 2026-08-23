@@ -1,4 +1,19 @@
 {
+  "application": {
+    "applied_at": "2026-08-23T23:53:29.277751+00:00",
+    "changed_files": [
+      "audio_generator.py",
+      "script_generator.py",
+      "tests/test_phase0_safety.py"
+    ],
+    "level": "B",
+    "verification": [
+      "発音辞書テスト: DeepMind/TechCrunchの正規化確認",
+      "プロンプト指示テスト: セリフ長・句読点・テンポ維持指示の確認",
+      "全169件の単体テスト成功",
+      "Python compileallおよびpip check成功"
+    ]
+  },
   "broadcast_date": "2026-08-24",
   "category": "audio_quality",
   "created_at": "2026-08-23T19:25:30.321291+00:00",
@@ -32,7 +47,7 @@
   "safe_auto_apply": false,
   "schema_version": 1,
   "severity": "critical",
-  "status": "agreed",
+  "status": "applied",
   "suggested_changes": [
     "発音ルールを確認する",
     "読み上げ速度と間を確認する"
