@@ -1,0 +1,178 @@
+{
+  "audio_sha256": "58d98f0e397b3172b21f2650e1d46fd58befd3919e6279d3b197bfb8ed20096a",
+  "broadcast_date": "2026-08-25",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 246.144,
+      "file_size_bytes": 1797237,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -2.4,
+      "mean_volume_db": -18.0,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 13,
+      "explainer_line_count": 6,
+      "first_speaker": "アミ",
+      "navigator_line_count": 7,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "ケンジ",
+      "navigator": "アミ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0625,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.0625,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 3,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "research",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "arXiv cs.AI (Artificial Intelligence)"
+        },
+        {
+          "lane": "research",
+          "matched_notion_terms": false,
+          "reason": "candidate_fallback",
+          "source": "arXiv cs.AI (Artificial Intelligence)"
+        }
+      ],
+      "selected_sources": [
+        "arXiv cs.AI (Artificial Intelligence)",
+        "arXiv cs.AI (Artificial Intelligence)"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1679,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 246,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260825_043119",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-24T19:34:11.134156+00:00",
+  "news_urls": [
+    "https://arxiv.org/abs/2608.20341",
+    "https://arxiv.org/abs/2608.20379"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "コーディングエージェントが変える開発手法とAI時代の仕様設計",
+  "public_topic": "コーディングエージェントが変える開発手法とAI時代の仕様設計",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    2643213988106355,
+    8286181615333349,
+    17776741123627987,
+    14531341503641568,
+    12397643744573838,
+    7404729320978874,
+    34871236980901435,
+    2716566947630070,
+    2894993135278196,
+    25098300266951431,
+    9800445921277164,
+    7007512840191473,
+    2889451643237050,
+    4978347692264178,
+    13324588125903219,
+    75390769191101501,
+    36393163489280512,
+    7783575065069126,
+    282414607649882,
+    11118344494447834,
+    770571134726460,
+    17677099750921385,
+    6369930467000086,
+    7021229192921463,
+    27581681368644333,
+    5765846795912009,
+    29489838015835194,
+    7953262400555593,
+    9397545084198268,
+    65752561952231,
+    6676742389108511,
+    5007334238003162,
+    3745212766326712,
+    10216812290644024,
+    3025505526221659,
+    35400394056495605,
+    5105883266718772,
+    4504630014288796,
+    3886824566138905,
+    5252205990908906,
+    56657712032417709,
+    6064396092454717,
+    997034266834191,
+    9252497459973309,
+    8627317739619243,
+    2147557348182545,
+    8702386615661086,
+    2597785562675043,
+    20758944613669341,
+    216813722752005,
+    9872129407957012,
+    9483779858936405,
+    61867852118253669,
+    1860804812282411,
+    86967259214173008,
+    5936090337419324,
+    21336924009878876,
+    19213247638301721,
+    58430968948595795,
+    13361304522560316,
+    15804331397936728,
+    198004950031846,
+    1251067488220459,
+    25428671150498634
+  ],
+  "script_sha256": "839bce7b7f032accc0ccc15a658e700e9a316e379641defb58e21931ce41e953",
+  "selected_term_keys": [
+    "ba8b3135204490620ebf6c3e"
+  ],
+  "topic_fingerprint": "946873f59eaa5565b5f28859"
+}

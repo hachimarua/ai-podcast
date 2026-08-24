@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜コーディングエージェントが変える開発手法とAI時代の仕様設計</title>
+      <description>Daily Brief（4〜6分）｜テーマ: コーディングエージェントが変える開発手法とAI時代の仕様設計</description>
+      <pubDate>Tue, 25 Aug 2026 04:31:19 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260825_043119.mp3" length="1797237" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260825_043119.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:06</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜リンクデイズの無料AIカレンダーとフロントエンド配信の最適化</title>
       <description>Daily Brief（4〜6分）｜テーマ: リンクデイズの無料AIカレンダーとフロントエンド配信の最適化</description>
       <pubDate>Mon, 24 Aug 2026 04:23:11 +0900</pubDate>
