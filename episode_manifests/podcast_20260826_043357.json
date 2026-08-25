@@ -1,0 +1,178 @@
+{
+  "audio_sha256": "9a935d67e72ee1051dcb948a4c120a26a6a64750480772dd177a379ec418bffb",
+  "broadcast_date": "2026-08-26",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 230.856,
+      "file_size_bytes": 1723917,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.9,
+      "mean_volume_db": -18.2,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 28,
+      "explainer_line_count": 12,
+      "first_speaker": "ケンジ",
+      "navigator_line_count": 16,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "アミ",
+      "navigator": "ケンジ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0312,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.0312,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 5,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 3,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Hugging Face Blog"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "different_source",
+          "source": "TechCrunch AI"
+        }
+      ],
+      "selected_sources": [
+        "Hugging Face Blog",
+        "TechCrunch AI"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1573,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 230,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260826_043357",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-25T19:36:24.578954+00:00",
+  "news_urls": [
+    "https://huggingface.co/blog/ibm-granite/granite-4-2",
+    "https://techcrunch.com/2026/08/25/openais-jalapeno-chip-is-built-for-fast-inference-at-scale-benchmarks-show/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "IBMグラナイト4.2の構築手法公開とオープンAIの推論チップの進化",
+  "public_topic": "IBMグラナイト4.2の構築手法公開とオープンAIの推論チップの進化",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    6666254026223802,
+    10713672479701035,
+    33362461148924851,
+    5449799694133349,
+    2683722803872827,
+    8659512956488687,
+    1260964031986462,
+    1074438467204143,
+    4135326708771888,
+    32792796218252343,
+    29998316452489969,
+    14646544140556347,
+    7981062541256898,
+    18107202135536069,
+    40104772703762606,
+    35962552474315492,
+    1434996821004021,
+    2307915795751241,
+    4190851910636917,
+    644858691927297,
+    6262686300149199,
+    44122621891453519,
+    4762006671511495,
+    1500781926820840,
+    45446041238960873,
+    8383240984566199,
+    17340039734803520,
+    1120624405089683,
+    10744637601324595,
+    22899397469544350,
+    4171197671869774,
+    1141978309793869,
+    25991381013136530,
+    23503377075383308,
+    8122242565758726,
+    38296022879138,
+    1527770600263204,
+    16187164782339958,
+    11298021946294363,
+    2113729683550366,
+    20074782987691007,
+    6018359004613575,
+    10933381224326122,
+    20345385288834738,
+    13251774516652223,
+    24521144674212380,
+    23929597732089462,
+    10711368138415482,
+    1880863712797257,
+    1486724027457488,
+    11782526085240916,
+    6820456448034810,
+    28066457862471966,
+    24633887016999716,
+    32366771873246510,
+    738511611095084,
+    21346190206008147,
+    5420651263773478,
+    45373724894605651,
+    43354170647672026,
+    33802388917454118,
+    13639541857041990,
+    11853356903800907,
+    8091618047224370
+  ],
+  "script_sha256": "c19710324481982f286b526030b2cd32f7f2813bd36766c3f4b6b200f7a1422c",
+  "selected_term_keys": [
+    "bea991b23fe7ba72448052cb"
+  ],
+  "topic_fingerprint": "3bb12e13eb29819d9560bcf3"
+}
