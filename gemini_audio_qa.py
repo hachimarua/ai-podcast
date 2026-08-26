@@ -16,7 +16,11 @@ from google.genai import types
 from pydantic import BaseModel, Field
 
 from episode_history import public_qa_summary
-from gemini_models import DEFAULT_AUDIO_QA_MODEL, normalize_gemini_model
+from gemini_models import (
+    DEFAULT_AUDIO_QA_MODEL,
+    normalize_gemini_model,
+    uses_legacy_sampling_parameters,
+)
 
 
 SAFE_IMPROVEMENT_BY_CATEGORY = {
@@ -130,14 +134,16 @@ requires_human_reviewをtrueにしてください。
 def analyze_audio(client, model: str, audio_path: str | os.PathLike[str]) -> AudioQAAnalysis:
     uploaded = client.files.upload(file=str(audio_path))
     try:
+        config_kwargs = {
+            "response_mime_type": "application/json",
+            "response_schema": AudioQAAnalysis,
+        }
+        if uses_legacy_sampling_parameters(model):
+            config_kwargs["temperature"] = 0.0
         response = client.models.generate_content(
             model=model,
             contents=[uploaded, QA_PROMPT],
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=AudioQAAnalysis,
-                temperature=0.0,
-            ),
+            config=types.GenerateContentConfig(**config_kwargs),
         )
         if response.parsed:
             return response.parsed

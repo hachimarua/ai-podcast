@@ -163,6 +163,10 @@ class WorkflowGuardTests(unittest.TestCase):
         self.assertIn("PHASE10_TRIAL_MODE:", workflow)
         self.assertIn("inputs.phase10_trial != true", workflow)
         self.assertIn("inputs.weekly_lab_trial != true", workflow)
+        self.assertEqual(
+            workflow.count('GEMINI_AUDIO_QA_MODEL: "gemini-3.7-flash"'),
+            3,
+        )
 
 
 class PromptBoundaryTests(unittest.TestCase):
@@ -649,7 +653,7 @@ class GeminiAudioQATests(unittest.TestCase):
         ):
             result = gemini_audio_qa.run_shadow_audio_qa("unused.mp3")
         self.assertEqual(result["status"], "unavailable")
-        self.assertEqual(result["model"], "gemini-2.5-flash")
+        self.assertEqual(result["model"], "gemini-3.7-flash")
         self.assertEqual(result["issues"], [])
 
     def test_legacy_31_pro_alias_maps_to_current_default_model(self):
