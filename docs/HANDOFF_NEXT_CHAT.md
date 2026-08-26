@@ -3,6 +3,12 @@
 最終確認: 2026-08-27
 状態: **現役の運用HANDOFF。Phase 7〜10、Siriフィードバックの受付Worker・D1、3本のショートカットは実装済み。日次配信は継続中。**
 
+## 2026-08-27 変更: 音声監査をGemini 3.6 Flashへ切替（混雑・過負荷対策）
+
+- Gemini 3.7 Flashの混雑・一時的過負荷エラーを回避するため、音声監査（シャドーQA）の既定モデルおよびGitHub Actionsの3つの実行経路を `gemini-3.6-flash` に変更した。
+- `gemini_models.py` の `DEFAULT_AUDIO_QA_MODEL`、`.github/workflows/podcast.yml`、`.env.example`、テスト（`test_phase0_safety.py`）を同期して更新。
+- 台本生成は引き続き `gemini-3.1-pro-preview` を維持する。
+
 ## 2026-08-27 変更: GitHub Actions cron実行時刻を4:17 JSTへ変更（遅延対策）
 
 - GitHub Actions の `schedule`（cron）が毎時00分（JST 04:00 / UTC 19:00）に世界中で集中し、スケジューラーのキュー遅延・未発火が発生したため、端数分の `17 19 * * *`（JST 04:17 / UTC 19:17）へ変更した。

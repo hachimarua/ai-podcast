@@ -21,6 +21,7 @@ temp_*.mp3
 todays_manifest.json
 obsidian-import-state.json
 phase10_trials/
+comparisons/
 feedback-worker/.wrangler/
 feedback-worker/node_modules/
 

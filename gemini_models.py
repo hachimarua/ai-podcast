@@ -7,7 +7,7 @@ DEFAULT_GEMINI_MODEL = "gemini-3.1-pro-preview"
 
 # 音声監査（シャドーQA）専用の既定モデル。
 # 台本生成モデルとは分離し、音声監査はFlashを使う。
-DEFAULT_AUDIO_QA_MODEL = "gemini-3.7-flash"
+DEFAULT_AUDIO_QA_MODEL = "gemini-3.6-flash"
 
 MODERN_GEMINI_FLASH_PREFIXES = ("gemini-3.6-flash", "gemini-3.7-flash")
 
