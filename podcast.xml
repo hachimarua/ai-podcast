@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜Google検索の活用とスプライト化に学ぶ情報の統合設計</title>
+      <description>Daily Brief（4〜6分）｜テーマ: Google検索の活用とスプライト化に学ぶ情報の統合設計</description>
+      <pubDate>Thu, 27 Aug 2026 06:22:33 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260827_062233.mp3" length="1784709" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260827_062233.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:11</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜IBMグラナイト4.2の構築手法公開とオープンAIの推論チップの進化</title>
       <description>Daily Brief（4〜6分）｜テーマ: IBMグラナイト4.2の構築手法公開とオープンAIの推論チップの進化</description>
       <pubDate>Wed, 26 Aug 2026 04:33:57 +0900</pubDate>

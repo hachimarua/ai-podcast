@@ -1,0 +1,171 @@
+{
+  "audio_sha256": "bced8306b9e7aa70bba8430205f3bc1d0e9431ed62acbae0cff76c1c080bc773",
+  "broadcast_date": "2026-08-27",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 251.904,
+      "file_size_bytes": 1784709,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.8,
+      "mean_volume_db": -18.0,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 19,
+      "explainer_line_count": 9,
+      "first_speaker": "アミ",
+      "navigator_line_count": 10,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "ケンジ",
+      "navigator": "アミ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.1094,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.0625,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 5,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Google AI Blog"
+        },
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "fresh_japan_lane",
+          "source": "AI Watch"
+        }
+      ],
+      "selected_sources": [
+        "Google AI Blog",
+        "AI Watch"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1725,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 251,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260827_062233",
+  "gemini_qa_summary": {
+    "issues": [],
+    "status": "unavailable"
+  },
+  "generated_at": "2026-08-26T21:25:57.166623+00:00",
+  "news_urls": [
+    "https://ai.watch.impress.co.jp/docs/news/2135852.html",
+    "https://blog.google/products-and-platforms/products/search/home-decor-tips/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "Google検索の活用とスプライト化に学ぶ情報の統合設計",
+  "public_topic": "Google検索の活用とスプライト化に学ぶ情報の統合設計",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    10259585407895290,
+    4618338566232274,
+    2778015835860073,
+    9110922949382035,
+    120159778521415,
+    24393817795676744,
+    16658523996411883,
+    3464825523322498,
+    4511362503007921,
+    5237157929454024,
+    23710163657958981,
+    14992668161707846,
+    8881943556117328,
+    44209315629284044,
+    54200447127061065,
+    13653433106294105,
+    3250406996063925,
+    40878793125664099,
+    12616957902586953,
+    644858691927297,
+    9049307571234499,
+    4220038965554639,
+    36762383497368488,
+    1096892854349190,
+    12333899345299073,
+    134528439314091,
+    34820963338052673,
+    17542238362107359,
+    18779742722592142,
+    22899397469544350,
+    25825085059022753,
+    24503697764802241,
+    3723330371758283,
+    5197632396322580,
+    18378022750412266,
+    58568828645191275,
+    2214937436575785,
+    10378104883701481,
+    20366779648996228,
+    11003260505574548,
+    3114033469473450,
+    35705654998333910,
+    15657382533106385,
+    20345385288834738,
+    91809558490044,
+    2147557348182545,
+    12126800212432219,
+    12829937181811240,
+    5543406987252004,
+    216813722752005,
+    17282403854236320,
+    5638347733515086,
+    35184882259090101,
+    43992169577771226,
+    828532658097835,
+    2575463197139035,
+    21346190206008147,
+    1052078753919983,
+    32093470991109935,
+    11091275849473900,
+    29391510711058041,
+    13639541857041990,
+    348526630600985,
+    8985541690029525
+  ],
+  "script_sha256": "9869f3cdcf3666a8c70875c3ff1afbf3459a2b7486ce0049304ee7f01fdab33a",
+  "selected_term_keys": [
+    "6363b9fa20fa643937913e26"
+  ],
+  "topic_fingerprint": "25ed557e21928140740452a2"
+}
