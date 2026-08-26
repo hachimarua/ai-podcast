@@ -15,7 +15,11 @@ from mutagen.mp3 import MP3
 from pydantic import BaseModel, Field
 
 from episode_history import build_manifest, write_manifest_atomic
-from gemini_models import DEFAULT_AUDIO_QA_MODEL, normalize_gemini_model
+from gemini_models import (
+    DEFAULT_AUDIO_QA_MODEL,
+    normalize_gemini_model,
+    uses_legacy_sampling_parameters,
+)
 
 
 class LegacyEpisodeAnalysis(BaseModel):
@@ -37,6 +41,12 @@ def broadcast_date_from_filename(filename: str) -> str:
 def analyze_episode(client, model: str, audio_path: Path) -> LegacyEpisodeAnalysis:
     uploaded = client.files.upload(file=str(audio_path))
     try:
+        config_kwargs = {
+            "response_mime_type": "application/json",
+            "response_schema": LegacyEpisodeAnalysis,
+        }
+        if uses_legacy_sampling_parameters(model):
+            config_kwargs["temperature"] = 0.0
         response = client.models.generate_content(
             model=model,
             contents=[
@@ -47,11 +57,7 @@ def analyze_episode(client, model: str, audio_path: Path) -> LegacyEpisodeAnalys
                     "一つだけ抽出してください。音声にない事実は追加しないでください。"
                 ),
             ],
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=LegacyEpisodeAnalysis,
-                temperature=0.0,
-            ),
+            config=types.GenerateContentConfig(**config_kwargs),
         )
         if response.parsed:
             return response.parsed
