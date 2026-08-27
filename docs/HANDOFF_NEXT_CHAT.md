@@ -1,7 +1,17 @@
 # AI学習ラジオ 次チャット申し送り
 
-最終確認: 2026-08-27
+最終確認: 2026-08-28
 状態: **現役の運用HANDOFF。Phase 7〜10、Siriフィードバックの受付Worker・D1、3本のショートカットは実装済み。日次配信は継続中。**
+
+## 2026-08-28 変更: 配信トリガー二重化（Cloudflare Primary + GitHub Actions Backup）と日次冪等性ガード
+
+- **背景**: GitHub Actions内蔵cronの未発火・遅延（8/26〜8/28連続）対策として、Cloudflare WorkersとGitHub Actionsのトリガーを二重化し、日次の冪等性チェック（二重生成防止）を導入した。
+- **Primary Trigger (Cloudflare Worker)**: `feedback-worker`（`ai-radio-feedback`）に `triggers.crons: ["17 19 * * *"]`（04:17 JST）を追加。`scheduled` ハンドラで GitHub API（`POST /repos/hachimarua/ai-podcast/actions/workflows/podcast.yml/dispatches`）を叩く。WorkerにはSecret `GITHUB_DISPATCH_TOKEN`（PAT）が必要。
+- **Backup Trigger (GitHub Actions)**: `.github/workflows/podcast.yml` の `schedule.cron` を `27 19 * * *`（04:27 JST = 19:27 UTC、Cloudflareの10分後）へ移行。
+- **日次冪等性ガード（Idempotency Guard）**:
+  - `idempotency.py` を新設。JST当日の `episode_manifests/*.json` を検索し、既に `broadcast_date == JST今日` かつ `publish_status == 'published'` のエピソードが存在する場合は、`podcast.yml` 冒頭で検知して `skip=true` を出力。
+  - 後続のNotion Inbox処理・台本生成・TTS・コミット＆プッシュを安全にスキップして正常終了（exit 0）する。
+  - 手動強制再生成が必要な場合は `workflow_dispatch` の `force: true` オプションでバイパス可能。
 
 ## 2026-08-27 変更: 品質改善Proposalへの具体的指摘文（evidence/suggested_changes）の保持
 
