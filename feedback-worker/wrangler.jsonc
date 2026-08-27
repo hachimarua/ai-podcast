@@ -7,7 +7,12 @@
     "enabled": true
   },
   "vars": {
-    "PODCAST_FEED_URL": "https://hachimarua.github.io/ai-podcast/podcast.xml"
+    "PODCAST_FEED_URL": "https://hachimarua.github.io/ai-podcast/podcast.xml",
+    "GITHUB_REPO": "hachimarua/ai-podcast",
+    "GITHUB_WORKFLOW_FILE": "podcast.yml"
+  },
+  "triggers": {
+    "crons": ["17 19 * * *"]
   },
   "d1_databases": [
     {

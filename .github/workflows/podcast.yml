@@ -2,10 +2,16 @@ name: Generate Daily AI Podcast
 
 on:
   schedule:
-    # 毎朝 日本時間 4:17 (UTC 19:17)
-    - cron: '17 19 * * *'
+    # バックアップ定期実行: 毎朝 日本時間 4:27 (UTC 19:27)
+    # Primary は Cloudflare Worker Cron (04:17 JST)
+    - cron: '27 19 * * *'
   workflow_dispatch: # 手動実行用
     inputs:
+      force:
+        description: "今日分が生成・公開済みでも強制的に再生成する"
+        required: false
+        type: boolean
+        default: false
       bootstrap_only:
         description: "直近3放送のmanifest初期化だけを実行する"
         required: false
@@ -66,7 +72,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: Check daily episode idempotency
+      id: check_idempotency
+      if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.force != true && inputs.bootstrap_only != true && inputs.qa_existing_only != true && inputs.phase10_trial != true && inputs.weekly_lab_trial != true) }}
+      run: |
+        python idempotency.py --github-output "$GITHUB_OUTPUT"
+
     - name: Bootstrap recent episode history once
+      if: steps.check_idempotency.outputs.skip != 'true'
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         # 音声監査は台本生成と分離したGemini 3.6 Flashで実行する。
@@ -80,7 +93,7 @@ jobs:
         fi
 
     - name: Process Notion Inbox
-      if: ${{ github.event_name != 'workflow_dispatch' || (inputs.bootstrap_only != true && inputs.qa_existing_only != true && inputs.phase10_trial != true && inputs.weekly_lab_trial != true) }}
+      if: ${{ (steps.check_idempotency.outputs.skip != 'true') && (github.event_name != 'workflow_dispatch' || (inputs.bootstrap_only != true && inputs.qa_existing_only != true && inputs.phase10_trial != true && inputs.weekly_lab_trial != true)) }}
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
@@ -93,7 +106,7 @@ jobs:
         python process_inbox.py
 
     - name: Run Podcast Pipeline
-      if: ${{ github.event_name != 'workflow_dispatch' || (inputs.bootstrap_only != true && inputs.qa_existing_only != true) }}
+      if: ${{ (steps.check_idempotency.outputs.skip != 'true') && (github.event_name != 'workflow_dispatch' || (inputs.bootstrap_only != true && inputs.qa_existing_only != true)) }}
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
@@ -111,7 +124,7 @@ jobs:
         python main.py
 
     - name: Upload non-public Lab trial
-      if: ${{ github.event_name == 'workflow_dispatch' && (inputs.phase10_trial == true || inputs.weekly_lab_trial == true) }}
+      if: ${{ (steps.check_idempotency.outputs.skip != 'true') && (github.event_name == 'workflow_dispatch' && (inputs.phase10_trial == true || inputs.weekly_lab_trial == true)) }}
       uses: actions/upload-artifact@v4
       with:
         name: non-public-lab-${{ github.run_id }}-${{ github.run_attempt }}
@@ -120,7 +133,7 @@ jobs:
         retention-days: 3
 
     - name: Run Gemini QA against latest existing episode only
-      if: ${{ github.event_name == 'workflow_dispatch' && inputs.qa_existing_only == true }}
+      if: ${{ (steps.check_idempotency.outputs.skip != 'true') && (github.event_name == 'workflow_dispatch' && inputs.qa_existing_only == true) }}
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         GEMINI_AUDIO_QA_MODEL: "gemini-3.6-flash"
@@ -131,7 +144,7 @@ jobs:
         python gemini_audio_qa.py "$latest_audio" --episode-id "$episode_id" --broadcast-date "$broadcast_date"
 
     - name: Commit and Push changes
-      if: ${{ github.event_name != 'workflow_dispatch' || (inputs.phase10_trial != true && inputs.weekly_lab_trial != true) }}
+      if: ${{ (steps.check_idempotency.outputs.skip != 'true') && (github.event_name != 'workflow_dispatch' || (inputs.phase10_trial != true && inputs.weekly_lab_trial != true)) }}
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"

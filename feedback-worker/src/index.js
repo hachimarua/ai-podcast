@@ -269,7 +269,64 @@ async function listRecentReactions(request, env) {
   return json({ ok: true, reactions: result.results || [] });
 }
 
+export async function dispatchPodcastWorkflow(env, options = {}) {
+  const token = env.GITHUB_DISPATCH_TOKEN;
+  if (!token) {
+    console.error("GITHUB_DISPATCH_TOKEN is not configured");
+    return { ok: false, error: "token_missing" };
+  }
+
+  const repo = env.GITHUB_REPO || "hachimarua/ai-podcast";
+  const workflow = env.GITHUB_WORKFLOW_FILE || "podcast.yml";
+  const ref = options.ref || "main";
+  const inputs = options.inputs || {};
+
+  const url = `https://api.github.com/repos/${repo}/actions/workflows/${workflow}/dispatches`;
+  const fetchImpl = options.fetch || fetch;
+
+  try {
+    const response = await fetchImpl(url, {
+      method: "POST",
+      headers: {
+        accept: "application/vnd.github+json",
+        authorization: `Bearer ${token}`,
+        "user-agent": "ai-radio-feedback-worker",
+        "x-github-api-version": "2022-11-28",
+      },
+      body: JSON.stringify({
+        ref,
+        inputs,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        `GitHub workflow dispatch failed (${response.status}): ${errorText}`,
+      );
+      return { ok: false, status: response.status, error: errorText };
+    }
+
+    console.log(`Successfully dispatched ${workflow} on ${repo} (${ref})`);
+    return { ok: true, status: response.status };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "network_error";
+    console.error(`GitHub workflow dispatch network error: ${message}`);
+    return { ok: false, error: message };
+  }
+}
+
 export default {
+  async scheduled(event, env, ctx) {
+    console.log(
+      `Cron triggered: ${event.cron || "17 19 * * *"} at ${new Date().toISOString()}`,
+    );
+    const result = await dispatchPodcastWorkflow(env);
+    if (!result.ok) {
+      console.error("Cron podcast dispatch failed:", result);
+    }
+  },
+
   async fetch(request, env) {
     const url = new URL(request.url);
     if (request.method === "GET" && url.pathname === "/health") {
