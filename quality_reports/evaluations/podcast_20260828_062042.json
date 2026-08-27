@@ -1,0 +1,11 @@
+{
+  "bgm_balance_score": 5,
+  "dialogue_naturalness_score": 5,
+  "has_internal_repetition": false,
+  "issues": [],
+  "overall_score": 5,
+  "pacing_score": 5,
+  "requires_human_review": false,
+  "speech_clarity_score": 5,
+  "status": "completed"
+}
