@@ -697,6 +697,41 @@ class GeminiAudioQATests(unittest.TestCase):
         self.assertEqual(result["status"], "unavailable")
         self.assertEqual(result["model"], "gemini-3.1-pro-preview")
 
+    def test_shadow_audio_qa_retries_on_transient_error_and_succeeds(self):
+        sample_analysis = gemini_audio_qa.AudioQAAnalysis(
+            summary="問題なし",
+            overall_score=5,
+            speech_clarity_score=5,
+            dialogue_naturalness_score=5,
+            bgm_balance_score=5,
+            pacing_score=5,
+            has_internal_repetition=False,
+            requires_human_review=False,
+            issues=[],
+        )
+        with patch.dict(os.environ, {"GEMINI_API_KEY": "valid_key", "GEMINI_AUDIO_QA_MODEL": "gemini-3.6-flash"}):
+            with patch("gemini_audio_qa.analyze_audio", side_effect=[RuntimeError("503 Overloaded"), sample_analysis]) as mock_analyze:
+                result = gemini_audio_qa.run_shadow_audio_qa(
+                    "unused.mp3",
+                    max_retries=2,
+                    retry_delays=(0.001, 0.001),
+                )
+        self.assertEqual(result["status"], "completed")
+        self.assertEqual(result["overall_score"], 5)
+        self.assertEqual(mock_analyze.call_count, 2)
+
+    def test_shadow_audio_qa_exhausts_retries_and_returns_unavailable(self):
+        with patch.dict(os.environ, {"GEMINI_API_KEY": "valid_key", "GEMINI_AUDIO_QA_MODEL": "gemini-3.6-flash"}):
+            with patch("gemini_audio_qa.analyze_audio", side_effect=RuntimeError("Persistent 503")) as mock_analyze:
+                result = gemini_audio_qa.run_shadow_audio_qa(
+                    "unused.mp3",
+                    max_retries=2,
+                    retry_delays=(0.001, 0.001),
+                )
+        self.assertEqual(result["status"], "unavailable")
+        self.assertEqual(result["error_type"], "RuntimeError")
+        self.assertEqual(mock_analyze.call_count, 3)
+
 
 class AntigravityNotifierTests(unittest.TestCase):
     def sample_proposal(self):
@@ -1194,6 +1229,69 @@ class AntigravityNotifierTests(unittest.TestCase):
 
         self.assertEqual(count, 1)
         notify.assert_called_once_with(workspace, state_path, report_date=today)
+
+    def test_sidecar_startup_rechecks_same_day_incomplete_audit(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp) / "workspace"
+            workspace.mkdir()
+            state_path = Path(tmp) / "notifier.json"
+            today = datetime.now().astimezone().date().isoformat()
+            state_path.write_text(
+                json.dumps(
+                    {
+                        "daily_reports": {
+                            "podcast_today": {
+                                "report_date": today,
+                                "verdict": "監査未完了",
+                                "notified_at": datetime.now(timezone.utc).isoformat(),
+                            }
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with patch.object(
+                antigravity_sidecar_runner,
+                "notify_daily_report",
+                return_value=1,
+            ) as notify:
+                count = antigravity_sidecar_runner.recheck_same_day_audit_on_startup(
+                    workspace,
+                    state_path,
+                )
+
+        self.assertEqual(count, 1)
+        notify.assert_called_once_with(workspace, state_path, report_date=today)
+
+    def test_enrich_manifest_with_evaluation_populates_completed_qa(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            eval_dir = workspace / "quality_reports" / "evaluations"
+            eval_dir.mkdir(parents=True)
+            eval_file = eval_dir / "podcast_test.json"
+            eval_file.write_text(
+                json.dumps({
+                    "status": "completed",
+                    "overall_score": 5,
+                    "speech_clarity_score": 5,
+                    "dialogue_naturalness_score": 5,
+                    "bgm_balance_score": 5,
+                    "pacing_score": 5,
+                    "has_internal_repetition": False,
+                    "requires_human_review": False,
+                    "issues": [],
+                }),
+                encoding="utf-8",
+            )
+            raw_manifest = {
+                "episode_id": "podcast_test",
+                "gemini_qa_summary": {"status": "unavailable", "issues": []},
+            }
+            enriched = antigravity_review_notifier.enrich_manifest_with_evaluation(
+                raw_manifest, workspace
+            )
+        self.assertEqual(enriched["gemini_qa_summary"]["status"], "completed")
+        self.assertEqual(enriched["gemini_qa_summary"]["overall_score"], 5)
 
     def test_human_review_is_recorded_for_existing_daily_report(self):
         with tempfile.TemporaryDirectory() as tmp:
