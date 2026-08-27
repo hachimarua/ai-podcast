@@ -3,6 +3,12 @@
 最終確認: 2026-08-27
 状態: **現役の運用HANDOFF。Phase 7〜10、Siriフィードバックの受付Worker・D1、3本のショートカットは実装済み。日次配信は継続中。**
 
+## 2026-08-27 変更: 品質改善Proposalへの具体的指摘文（evidence/suggested_changes）の保持
+
+- `quality_reports/pending/*.json` において、Geminiモデルが生成した具体的な指摘内容（`evidence`）および改善案（`suggested_changes`）を、`safe_public_text` による安全ガード（パス・キー漏洩防止・文字数制限）を通した上で保持するよう改修した。
+- これにより、Sidecar通知やProposal確認時にタイムスタンプだけでなく「具体的にどこでどういう発音/問題があったか」を人が確認・判断できるようにした。
+- 公開集計ファイル（`evaluations/*.json`）および `episode_manifests/*.json` の閉じたスキーマ（固定enum・スコアのみ）は安全のため従来どおり維持する。
+
 ## 2026-08-27 変更: 音声監査をGemini 3.6 Flashへ切替（混雑・過負荷対策）
 
 - Gemini 3.7 Flashの混雑・一時的過負荷エラーを回避するため、音声監査（シャドーQA）の既定モデルおよびGitHub Actionsの3つの実行経路を `gemini-3.6-flash` に変更した。

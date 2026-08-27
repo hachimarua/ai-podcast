@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -15,7 +16,7 @@ from google import genai
 from google.genai import types
 from pydantic import BaseModel, Field
 
-from episode_history import public_qa_summary
+from episode_history import public_qa_summary, safe_public_text
 from gemini_models import (
     DEFAULT_AUDIO_QA_MODEL,
     normalize_gemini_model,
@@ -48,21 +49,74 @@ def _write_json_atomic(path: Path, payload: dict) -> None:
 
 
 def sanitize_public_proposal(proposal: dict) -> dict:
-    """Remove model-authored narrative while preserving proposal workflow state."""
-    public_qa = public_qa_summary({
-        "status": "completed",
-        "overall_score": proposal.get("overall_score"),
-        "issues": proposal.get("evidence", []),
-    }) or {"issues": []}
-    issues = public_qa.get("issues", [])
+    """Sanitize proposal fields while preserving structured evidence and suggested changes."""
+    issues = []
+    raw_issues = proposal.get("evidence", [])
+    if isinstance(raw_issues, list):
+        for raw_issue in raw_issues:
+            if not isinstance(raw_issue, dict):
+                continue
+            category = raw_issue.get("category")
+            severity = raw_issue.get("severity")
+            timestamp = raw_issue.get("timestamp")
+            if category not in {
+                "pronunciation",
+                "speaker",
+                "bgm",
+                "silence",
+                "clipping",
+                "pacing",
+                "repetition",
+                "format",
+                "other",
+            }:
+                continue
+            if severity not in {"info", "warning", "critical"}:
+                continue
+            if not isinstance(timestamp, str) or not re.fullmatch(r"unknown|\d{2}:\d{2}", timestamp):
+                timestamp = "unknown"
+
+            issue_dict = {
+                "category": category,
+                "severity": severity,
+                "timestamp": timestamp,
+            }
+            evidence_text = raw_issue.get("evidence")
+            if isinstance(evidence_text, str) and evidence_text.strip():
+                safe_ev = safe_public_text(evidence_text, fallback="", max_length=300)
+                if safe_ev:
+                    issue_dict["evidence"] = safe_ev
+            issues.append(issue_dict)
+
+    suggested_changes = []
+    raw_suggestions = proposal.get("suggested_changes", [])
+    if isinstance(raw_suggestions, list):
+        for item in raw_suggestions:
+            if isinstance(item, str) and item.strip():
+                safe_item = safe_public_text(item, fallback="", max_length=200)
+                if safe_item:
+                    suggested_changes.append(safe_item)
+    if not suggested_changes and issues:
+        suggested_changes = list(dict.fromkeys(
+            SAFE_IMPROVEMENT_BY_CATEGORY[issue["category"]]
+            for issue in issues
+        ))
+
+    summary = safe_public_text(
+        proposal.get("summary", ""),
+        fallback="音声品質の確認が必要です。",
+        max_length=200,
+    )
+
+    overall_score = proposal.get("overall_score")
+    if not (isinstance(overall_score, int) and 1 <= overall_score <= 5):
+        overall_score = None
+
     updated = dict(proposal)
-    updated["summary"] = "音声品質の確認が必要です。"
-    updated["overall_score"] = public_qa.get("overall_score")
-    updated["evidence"] = issues
-    updated["suggested_changes"] = list(dict.fromkeys(
-        SAFE_IMPROVEMENT_BY_CATEGORY[issue["category"]]
-        for issue in issues
-    ))
+    updated["summary"] = summary
+    updated["overall_score"] = overall_score
+    updated["evidence"] = issues[:10]
+    updated["suggested_changes"] = suggested_changes[:10]
     return updated
 
 
@@ -217,13 +271,21 @@ def write_improvement_proposal(
     directory.mkdir(parents=True, exist_ok=True)
     proposal_id = f"qa-{episode_id}"
     severity_order = {"info": 0, "warning": 1, "critical": 2}
-    public_qa = public_qa_summary(qa_result) or {"issues": []}
-    issues = public_qa.get("issues", [])
+    raw_issues = qa_result.get("issues", [])
     severity = max(
-        (issue.get("severity", "info") for issue in issues),
+        (
+            issue.get("severity", "info")
+            for issue in raw_issues
+            if isinstance(issue, dict) and issue.get("severity") in severity_order
+        ),
         key=lambda value: severity_order.get(value, 0),
         default="warning",
     )
+    raw_suggested = [
+        issue.get("suggested_change")
+        for issue in raw_issues
+        if isinstance(issue, dict) and issue.get("suggested_change")
+    ]
     proposal = sanitize_public_proposal({
         "schema_version": 1,
         "proposal_id": proposal_id,
@@ -231,13 +293,10 @@ def write_improvement_proposal(
         "broadcast_date": broadcast_date,
         "severity": severity,
         "category": "audio_quality",
-        "summary": "音声品質の確認が必要です。",
-        "overall_score": public_qa.get("overall_score"),
-        "evidence": issues,
-        "suggested_changes": list(dict.fromkeys(
-            SAFE_IMPROVEMENT_BY_CATEGORY[issue["category"]]
-            for issue in issues
-        )),
+        "summary": qa_result.get("summary", "音声品質の確認が必要です。"),
+        "overall_score": qa_result.get("overall_score"),
+        "evidence": raw_issues,
+        "suggested_changes": raw_suggested,
         "safe_auto_apply": False,
         "status": "pending",
         "decision_reason": None,
