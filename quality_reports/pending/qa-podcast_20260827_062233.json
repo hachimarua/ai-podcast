@@ -2,8 +2,8 @@
   "broadcast_date": "2026-08-27",
   "category": "audio_quality",
   "created_at": "2026-08-27T02:34:47.867341+00:00",
-  "decided_at": null,
-  "decision_reason": null,
+  "decided_at": "2026-08-27T23:20:09.816687+00:00",
+  "decision_reason": "前回版のトライアルとして確認・適用",
   "episode_id": "podcast_20260827_062233",
   "evidence": [
     {
@@ -17,7 +17,7 @@
   "safe_auto_apply": false,
   "schema_version": 1,
   "severity": "warning",
-  "status": "pending",
+  "status": "agreed",
   "suggested_changes": [
     "発音ルールを確認する"
   ],
