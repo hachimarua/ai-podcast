@@ -578,19 +578,18 @@ class GeminiAudioQATests(unittest.TestCase):
             })
 
     def test_warning_creates_pending_proposal_without_transcript(self):
-        private = "private-audio-sentinel"
         qa_result = {
             "status": "completed",
-            "model": "gemini-2.5-flash",
-            "summary": private,
+            "model": "gemini-3.6-flash",
+            "summary": "BGMの音量が声に被っています。",
             "overall_score": 3,
             "requires_human_review": True,
             "issues": [{
                 "category": "bgm",
                 "severity": "warning",
                 "timestamp": "02:14",
-                "evidence": private,
-                "suggested_change": private,
+                "evidence": "サビ部分のBGMが大きすぎてケンジの声が聞き取りにくい。",
+                "suggested_change": "BGM音量を下げてください。",
             }],
         }
         with tempfile.TemporaryDirectory() as tmp:
@@ -604,7 +603,39 @@ class GeminiAudioQATests(unittest.TestCase):
         self.assertEqual(payload["status"], "pending")
         self.assertFalse(payload["safe_auto_apply"])
         self.assertNotIn("transcript", json.dumps(payload, ensure_ascii=False).lower())
-        self.assertNotIn(private, json.dumps(payload, ensure_ascii=False))
+        self.assertEqual(payload["summary"], "BGMの音量が声に被っています。")
+        self.assertEqual(
+            payload["evidence"][0]["evidence"],
+            "サビ部分のBGMが大きすぎてケンジの声が聞き取りにくい。",
+        )
+        self.assertEqual(payload["suggested_changes"], ["BGM音量を下げてください。"])
+
+    def test_pending_proposal_rejects_sensitive_paths_in_evidence(self):
+        qa_result = {
+            "status": "completed",
+            "model": "gemini-3.6-flash",
+            "summary": "error in /Users/sakiya/secret.txt",
+            "overall_score": 3,
+            "requires_human_review": True,
+            "issues": [{
+                "category": "bgm",
+                "severity": "warning",
+                "timestamp": "02:14",
+                "evidence": "path leak /Users/sakiya/Documents/foo",
+                "suggested_change": "token api_key=secret123",
+            }],
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            path = gemini_audio_qa.write_improvement_proposal(
+                qa_result=qa_result,
+                episode_id="podcast_20260705_051241",
+                broadcast_date="2026-07-05",
+                reports_dir=tmp,
+            )
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        self.assertNotIn("/Users/sakiya/", json.dumps(payload, ensure_ascii=False))
+        self.assertNotIn("api_key=", json.dumps(payload, ensure_ascii=False))
+        self.assertEqual(payload["summary"], "音声品質の確認が必要です。")
         self.assertEqual(payload["suggested_changes"], ["BGM音量設定を確認する"])
 
     def test_public_evaluation_removes_all_narrative_qa_text(self):
