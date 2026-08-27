@@ -1,0 +1,163 @@
+{
+  "audio_sha256": "8a1c52cb7a4d79b9e938b49514fc0669eb0ca1e483c3e731c4e2c2bc07a53a9c",
+  "broadcast_date": "2026-08-28",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 264.384,
+      "file_size_bytes": 1891245,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.8,
+      "mean_volume_db": -17.9,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 19,
+      "explainer_line_count": 9,
+      "first_speaker": "ケンジ",
+      "navigator_line_count": 10,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "アミ",
+      "navigator": "ケンジ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0312,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.0312,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "ITmedia AI+"
+        }
+      ],
+      "selected_sources": [
+        "ITmedia AI+"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1741,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 264,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260828_062042",
+  "gemini_qa_summary": {
+    "issues": [],
+    "status": "unavailable"
+  },
+  "generated_at": "2026-08-27T21:22:59.311115+00:00",
+  "news_urls": [
+    "https://monoist.itmedia.co.jp/mn/articles/2608/27/news068.html"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "NVIDIAが開発支援、約30秒で口腔がんの疑い検出する歯科用AI",
+  "public_topic": "NVIDIAが開発支援、約30秒で口腔がんの疑い検出する歯科用AI",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    1614582572965660,
+    1953287839068819,
+    9080225734417954,
+    2683722803872827,
+    6637829891590206,
+    16658523996411883,
+    2716566947630070,
+    6395912480787036,
+    85300997301198035,
+    3967669317424698,
+    96380372152594070,
+    4547984082713046,
+    9846172423983012,
+    28306016351898648,
+    17566396598350400,
+    4776489332439206,
+    2144025117888273,
+    2278928170975831,
+    36285250085766423,
+    9956804825301411,
+    9949287469426277,
+    29175148850690146,
+    6844874353397542,
+    13418569961896172,
+    23303669920090687,
+    10483600937965151,
+    17282337808703167,
+    25488116725612133,
+    27381993363202414,
+    2188347037000868,
+    9975687029511204,
+    19182670557984068,
+    82551472004065779,
+    13730270717331247,
+    7160451424384544,
+    5307599067633199,
+    10847827671322460,
+    3886824566138905,
+    104795226551344911,
+    15718428457341795,
+    21117436138005688,
+    23075801682912509,
+    4034365391785152,
+    30091959083175503,
+    6715551192882288,
+    23551267939232013,
+    11082076202927591,
+    32310057632448352,
+    52679975487565801,
+    11322801806404286,
+    10561087057859648,
+    16241030132488367,
+    315360289699213,
+    30764647798059852,
+    13460912326199543,
+    65956933820633839,
+    19992453699316574,
+    22902474847930057,
+    24419554770722781,
+    18843294596055591,
+    2563212829651551,
+    8901103004883875,
+    9546256694328039
+  ],
+  "script_sha256": "fc58e24e824d6ceb44c36f153bc39a5d179415b2b1500300c97d6ec555a97d45",
+  "selected_term_keys": [
+    "2747607d7eab3b2b1cc6aca0"
+  ],
+  "topic_fingerprint": "8a82356c29064aa1ce49a789"
+}
