@@ -1,17 +1,11 @@
 {
   "bgm_balance_score": 5,
-  "dialogue_naturalness_score": 4,
+  "dialogue_naturalness_score": 5,
   "has_internal_repetition": false,
-  "issues": [
-    {
-      "category": "pronunciation",
-      "severity": "warning",
-      "timestamp": "01:31"
-    }
-  ],
-  "overall_score": 4,
+  "issues": [],
+  "overall_score": 5,
   "pacing_score": 5,
-  "requires_human_review": true,
+  "requires_human_review": false,
   "speech_clarity_score": 5,
   "status": "completed"
 }
