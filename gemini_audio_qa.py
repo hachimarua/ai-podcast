@@ -7,6 +7,7 @@ import json
 import os
 import re
 import tempfile
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Literal
@@ -210,9 +211,13 @@ def analyze_audio(client, model: str, audio_path: str | os.PathLike[str]) -> Aud
 
 
 def run_shadow_audio_qa(
-    audio_path: str | os.PathLike[str], model: str | None = None
+    audio_path: str | os.PathLike[str],
+    model: str | None = None,
+    *,
+    max_retries: int = 2,
+    retry_delays: tuple[float, ...] = (10.0, 30.0),
 ) -> dict:
-    """Return a bounded QA result. Errors are recorded but never block publishing."""
+    """Return a bounded QA result. Transient errors are retried before failing safe."""
     load_dotenv()
     selected_model = normalize_gemini_model(
         model or os.getenv("GEMINI_AUDIO_QA_MODEL"), default=DEFAULT_AUDIO_QA_MODEL
@@ -229,21 +234,40 @@ def run_shadow_audio_qa(
             "issues": [],
         }
 
-    try:
-        analysis = analyze_audio(genai.Client(api_key=api_key), selected_model, audio_path)
-        return {
-            "status": "completed",
-            "model": selected_model,
-            "evaluated_at": datetime.now(timezone.utc).isoformat(),
-            **analysis.model_dump(),
-        }
-    except Exception as exc:
-        return {
-            "status": "unavailable",
-            "model": selected_model,
-            "error_type": type(exc).__name__,
-            "issues": [],
-        }
+    client = genai.Client(api_key=api_key)
+    last_exc: Exception | None = None
+    for attempt in range(max_retries + 1):
+        try:
+            analysis = analyze_audio(client, selected_model, audio_path)
+            return {
+                "status": "completed",
+                "model": selected_model,
+                "evaluated_at": datetime.now(timezone.utc).isoformat(),
+                **analysis.model_dump(),
+            }
+        except Exception as exc:
+            last_exc = exc
+            if attempt < max_retries:
+                delay = retry_delays[attempt] if attempt < len(retry_delays) else retry_delays[-1]
+                print(
+                    f"[Warning] Gemini audio QA attempt {attempt + 1}/{max_retries + 1} "
+                    f"failed ({type(exc).__name__}: {exc}). Retrying in {delay:.0f}s...",
+                    flush=True,
+                )
+                time.sleep(delay)
+            else:
+                print(
+                    f"[Warning] Gemini audio QA failed safely after {max_retries + 1} attempts: "
+                    f"{type(exc).__name__}: {exc}",
+                    flush=True,
+                )
+
+    return {
+        "status": "unavailable",
+        "model": selected_model,
+        "error_type": type(last_exc).__name__ if last_exc else "unknown_error",
+        "issues": [],
+    }
 
 
 def needs_improvement_proposal(qa_result: dict) -> bool:

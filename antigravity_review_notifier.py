@@ -16,6 +16,7 @@ from typing import Callable
 
 
 PENDING_PREFIX = "quality_reports/pending/"
+EVALUATION_PREFIX = "quality_reports/evaluations/"
 MANIFEST_PREFIX = "episode_manifests/"
 DEFAULT_FEED_URL = "https://hachimarua.github.io/ai-podcast/podcast.xml"
 DEFAULT_RUNS_URL_BASE = (
@@ -277,6 +278,55 @@ def fetch_latest_manifest(workspace: Path) -> dict | None:
             return local
         raise
     return _latest_manifest([item for item in (remote, local) if item])
+
+
+def fetch_local_evaluation(workspace: Path, episode_id: str) -> dict | None:
+    eval_path = workspace / EVALUATION_PREFIX / f"{episode_id}.json"
+    if not eval_path.exists():
+        return None
+    try:
+        raw = eval_path.read_text(encoding="utf-8")
+        data = json.loads(raw)
+        return data if isinstance(data, dict) else None
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def fetch_origin_evaluation(workspace: Path, episode_id: str) -> dict | None:
+    _run(["git", "fetch", "--quiet", "origin", "main"], cwd=workspace, timeout=120)
+    relative_path = f"{EVALUATION_PREFIX}{episode_id}.json"
+    try:
+        raw = _run(["git", "show", f"origin/main:{relative_path}"], cwd=workspace)
+        data = json.loads(raw)
+        return data if isinstance(data, dict) else None
+    except (NotifierError, json.JSONDecodeError):
+        return None
+
+
+def fetch_evaluation(workspace: Path, episode_id: str | None) -> dict | None:
+    if not episode_id:
+        return None
+    local = fetch_local_evaluation(workspace, episode_id)
+    try:
+        remote = fetch_origin_evaluation(workspace, episode_id)
+        return remote or local
+    except NotifierError:
+        return local
+
+
+def enrich_manifest_with_evaluation(manifest: dict | None, workspace: Path) -> dict | None:
+    """Enrich manifest with separately evaluated shadow QA when manifest is unavailable."""
+    if not manifest:
+        return None
+    qa = manifest.get("gemini_qa_summary")
+    if isinstance(qa, dict) and qa.get("status") == "completed":
+        return manifest
+    evaluation = fetch_evaluation(workspace, manifest.get("episode_id"))
+    if evaluation and evaluation.get("status") == "completed":
+        enriched = dict(manifest)
+        enriched["gemini_qa_summary"] = evaluation
+        return enriched
+    return manifest
 
 
 def fetch_origin_pending_proposals(workspace: Path) -> list[dict]:
@@ -622,6 +672,7 @@ def notify_daily_report(
         fcntl.flock(lock, fcntl.LOCK_EX)
         state = load_state(state_path)
         manifest = fetch_latest_manifest(workspace)
+        manifest = enrich_manifest_with_evaluation(manifest, workspace)
         is_current = bool(manifest and manifest.get("broadcast_date") == today)
         report_key = manifest["episode_id"] if is_current else f"missing:{today}"
         delivery = (
@@ -660,7 +711,13 @@ def notify_daily_report(
                 alert["sent_at"] = datetime.now(timezone.utc).isoformat()
             save_state_atomic(state_path, state)
 
-        if report_key in state["daily_reports"]:
+        prior_report = state["daily_reports"].get(report_key)
+        is_upgrade = (
+            isinstance(prior_report, dict)
+            and prior_report.get("verdict") in {"監査未完了", "生成結果未確認"}
+            and verdict not in {"監査未完了", "生成結果未確認"}
+        )
+        if report_key in state["daily_reports"] and not is_upgrade:
             return 0
 
         proposal = None

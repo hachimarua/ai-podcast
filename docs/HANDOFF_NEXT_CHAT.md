@@ -3,6 +3,15 @@
 最終確認: 2026-08-28
 状態: **現役の運用HANDOFF。Phase 7〜10、Siriフィードバックの受付Worker・D1、3本のショートカットは実装済み。日次配信は継続中。**
 
+## 2026-08-28 変更: 音声監査の2段階リカバリ機構（短時間リトライ ＋ 評価エンリッチ/再監査昇格）
+
+- **背景**: 早朝のGemini API一時過負荷（503）や瞬断により、Gemini 3.6 Flashによる音声監査が `status: "unavailable"`（監査未完了）にフォールバックする問題への根本対策を実施した。
+- **第1段階（パイプライン内短時間リトライ）**: `gemini_audio_qa.py` 内で、API例外発生時に最大2回（待機10秒、30秒）の自動リトライと詳細な警告ログ出力を追加。一時的な瞬断から即時復旧する。
+- **第2段階（評価エンリッチ＆監査結果の自動昇格）**:
+  - `antigravity_review_notifier.py` で、マニフェストが `unavailable` の場合でも `quality_reports/evaluations/{episode_id}.json` から最新の完了評価を自動補完（`enrich_manifest_with_evaluation`）するように改修。
+  - Sidecarおよび日次通知において、同日エピソードが「監査未完了」から「正常/注意」に昇格した際にレポートを自動更新・再通知する仕組みを導入。
+  - `antigravity_sidecar_runner.py` の起動時再チェック（`recheck_same_day_audit_on_startup`）を「生成結果未確認」だけでなく「監査未完了」にも対応させ、06:01/06:16/06:31等のオフセット時刻での再チェック時に自動復旧できるようにした。
+
 ## 2026-08-28 変更: 配信トリガー二重化（Cloudflare Primary + GitHub Actions Backup）と日次冪等性ガード
 
 - **背景**: GitHub Actions内蔵cronの未発火・遅延（8/26〜8/28連続）対策として、Cloudflare WorkersとGitHub Actionsのトリガーを二重化し、日次の冪等性チェック（二重生成防止）を導入した。

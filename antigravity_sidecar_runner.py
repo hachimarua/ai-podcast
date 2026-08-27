@@ -83,17 +83,32 @@ def run_checks(workspace: Path) -> None:
         print(f"Review notification check failed safely: {type(exc).__name__}", flush=True)
 
 
+def recheck_same_day_audit_on_startup(
+    workspace: Path,
+    state_path: Path | None = None,
+) -> int:
+    """On restart only, re-audit a same-day result that was previously missing or incomplete."""
+    state_path = state_path or default_state_path()
+    today = datetime.now().astimezone().date().isoformat()
+    daily_reports = load_state(state_path).get("daily_reports", {})
+    for key, prior in daily_reports.items():
+        if not isinstance(prior, dict):
+            continue
+        report_date = prior.get("report_date") or (
+            key.split(":", 1)[1] if key.startswith("missing:") else None
+        )
+        if report_date == today:
+            if prior.get("verdict") in {"生成結果未確認", "監査未完了"}:
+                return notify_daily_report(workspace, state_path, report_date=today)
+    return 0
+
+
 def recheck_missing_generation_on_startup(
     workspace: Path,
     state_path: Path | None = None,
 ) -> int:
-    """On restart only, re-audit a same-day result that was previously missing."""
-    state_path = state_path or default_state_path()
-    today = datetime.now().astimezone().date().isoformat()
-    prior = load_state(state_path).get("daily_reports", {}).get(f"missing:{today}")
-    if not isinstance(prior, dict) or prior.get("verdict") != "生成結果未確認":
-        return 0
-    return notify_daily_report(workspace, state_path, report_date=today)
+    """Backward compatibility alias for same-day startup audit rechecks."""
+    return recheck_same_day_audit_on_startup(workspace, state_path)
 
 
 def run_loop(
@@ -111,7 +126,7 @@ def run_loop(
         )
         print(f"Wall-clock scheduler armed for {hour:02d}:{minute:02d}", flush=True)
         try:
-            recovered = recheck_missing_generation_on_startup(workspace)
+            recovered = recheck_same_day_audit_on_startup(workspace)
             if recovered:
                 print("Same-day recovery audit report created", flush=True)
         except NotifierError as exc:
