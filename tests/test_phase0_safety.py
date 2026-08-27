@@ -1337,11 +1337,11 @@ class ImprovementApplicationTests(unittest.TestCase):
 
     def test_tts_normalizes_latest_pronunciation_findings(self):
         normalized = audio_generator.apply_pronunciation_dict(
-            "必須の設定とHugging Face、DeepMind、TechCrunchのモデルを確認します"
+            "必須の設定とHugging Face、DeepMind、TechCrunch、GitHub Actions、GitHub、Cloudflareのモデルを確認します"
         )
         self.assertEqual(
             normalized,
-            "ひっすの設定とハギングフェイス、ディープマインド、テッククランチのモデルを確認します",
+            "ひっすの設定とハギングフェイス、ディープマインド、テッククランチ、ギットハブアクションズ、ギットハブ、クラウドフレアのモデルを確認します",
         )
 
 

@@ -243,10 +243,12 @@ def apply_pronunciation_dict(text):
         # Edge TTSが「必須」の読みを崩すことがあるため、
         # TTS直前だけ読みを明示する。保存台本・表示文は変更しない。
         r'必須': 'ひっす',
-        # Hugging Faceの語尾のgを落とさないよう、音声用表記へ固定する。
         r'(?i)(?<![A-Za-z])Hugging[\s　]*Face(?![A-Za-z])': 'ハギングフェイス',
         r'(?i)(?<![A-Za-z])DeepMind(?![A-Za-z])': 'ディープマインド',
         r'(?i)(?<![A-Za-z])TechCrunch(?![A-Za-z])': 'テッククランチ',
+        r'(?i)(?<![A-Za-z])GitHub[\s　]*Actions(?![A-Za-z])': 'ギットハブアクションズ',
+        r'(?i)(?<![A-Za-z])GitHub(?![A-Za-z])': 'ギットハブ',
+        r'(?i)(?<![A-Za-z])Cloudflare(?![A-Za-z])': 'クラウドフレア',
     }
     
     result = text
