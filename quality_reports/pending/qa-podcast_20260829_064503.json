@@ -1,4 +1,19 @@
 {
+  "application": {
+    "applied_at": "2026-08-28T22:09:05.337387+00:00",
+    "changed_files": [
+      "audio_generator.py",
+      "script_generator.py",
+      "tests/test_phase0_safety.py"
+    ],
+    "level": "B",
+    "verification": [
+      "発音辞書テスト: 「案」->「あん」のTTS前処理置換確認",
+      "プロンプト指示テスト: 誤読されやすい単語（案など）の発音ルール補強",
+      "全182件の単体テスト成功",
+      "Python compileallおよびpip check成功"
+    ]
+  },
   "broadcast_date": "2026-08-29",
   "category": "audio_quality",
   "created_at": "2026-08-28T21:47:13.135463+00:00",
@@ -18,7 +33,7 @@
   "safe_auto_apply": false,
   "schema_version": 1,
   "severity": "warning",
-  "status": "agreed",
+  "status": "applied",
   "suggested_changes": [
     "テキスト側で「案（あん）」と読み仮名を付与するか、発音辞書を調整して再生成してください。"
   ],

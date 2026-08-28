@@ -1420,7 +1420,7 @@ class ImprovementApplicationTests(unittest.TestCase):
         self.assertIn("台詞では「深掘り」という表記を使わず", script_generator.SYSTEM_INSTRUCTION)
         self.assertIn("数値と単位の間に読点を挟まないでください", script_generator.SYSTEM_INSTRUCTION)
         self.assertIn("プレースホルダーや仮の表現をそのまま台詞として出力・読み上げさせないでください", script_generator.SYSTEM_INSTRUCTION)
-        self.assertIn("「必須」は音声では「ひっす」と明瞭に読める表記", script_generator.SYSTEM_INSTRUCTION)
+        self.assertIn("「必須」は音声では「ひっす」、「案」は「あん」のように", script_generator.SYSTEM_INSTRUCTION)
         self.assertIn("1つのセリフが長くなりすぎないように適度な長さ", script_generator.SYSTEM_INSTRUCTION)
         self.assertIn("音声合成で自然なテンポと間（ポーズ）が保たれるように", script_generator.SYSTEM_INSTRUCTION)
 
@@ -1435,11 +1435,11 @@ class ImprovementApplicationTests(unittest.TestCase):
 
     def test_tts_normalizes_latest_pronunciation_findings(self):
         normalized = audio_generator.apply_pronunciation_dict(
-            "必須の設定とHugging Face、DeepMind、TechCrunch、GitHub Actions、GitHub、Cloudflareのモデルを確認します"
+            "必須の設定と案を検討し、Hugging Face、DeepMind、TechCrunch、GitHub Actions、GitHub、Cloudflareのモデルを確認します"
         )
         self.assertEqual(
             normalized,
-            "ひっすの設定とハギングフェイス、ディープマインド、テッククランチ、ギットハブアクションズ、ギットハブ、クラウドフレアのモデルを確認します",
+            "ひっすの設定とあんを検討し、ハギングフェイス、ディープマインド、テッククランチ、ギットハブアクションズ、ギットハブ、クラウドフレアのモデルを確認します",
         )
 
 
