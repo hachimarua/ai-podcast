@@ -1,7 +1,15 @@
 # AI学習ラジオ 次チャット申し送り
 
-最終確認: 2026-08-28
+最終確認: 2026-08-29
 状態: **現役の運用HANDOFF。Phase 7〜10、Siriフィードバックの受付Worker・D1、3本のショートカットは実装済み。日次配信は継続中。**
+
+## 2026-08-29 変更: Cloudflare Worker（Primary定時トリガー）の本番デプロイとToken設定完了
+
+- **背景**: 8/28にPR #21で実装されたCloudflare WorkerによるPrimary定時トリガー（04:17 JST）が、Cloudflare本番環境へのデプロイ未実施およびSecret未設定のため未発火となっていた。
+- **対応**:
+  - `ai-radio-feedback` WorkerにSecret `GITHUB_DISPATCH_TOKEN` を設定完了。
+  - `wrangler deploy` を実行し、本番環境に Cron トリガー `17 19 * * *`（JST 04:17）をデプロイ完了。
+  - 8/29分のエピソード（`podcast_20260829_064503.mp3`）を手動実行で正常生成・公開完了。
 
 ## 2026-08-28 変更: 音声監査の2段階リカバリ機構（短時間リトライ ＋ 評価エンリッチ/再監査昇格）
 

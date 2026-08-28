@@ -23,6 +23,7 @@ obsidian-import-state.json
 phase10_trials/
 comparisons/
 feedback-worker/.wrangler/
+.wrangler/
 feedback-worker/node_modules/
 
 # OS Files
