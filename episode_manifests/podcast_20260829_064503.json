@@ -1,0 +1,184 @@
+{
+  "audio_sha256": "14df9f14ae836b33bf753ed5f9b0a87f81ebfeb48e56b7e41ed7f8af40f3bc7a",
+  "broadcast_date": "2026-08-29",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 257.616,
+      "file_size_bytes": 1844301,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.3,
+      "mean_volume_db": -18.2,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 15,
+      "explainer_line_count": 7,
+      "first_speaker": "アミ",
+      "navigator_line_count": 8,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "ケンジ",
+      "navigator": "アミ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0938,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.0938,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 4,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "research",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "arXiv cs.AI (Artificial Intelligence)"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "different_source",
+          "source": "TechCrunch AI"
+        }
+      ],
+      "selected_sources": [
+        "arXiv cs.AI (Artificial Intelligence)",
+        "TechCrunch AI"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1724,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 257,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260829_064503",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "pronunciation",
+        "severity": "warning",
+        "timestamp": "00:27"
+      }
+    ],
+    "overall_score": 4,
+    "pacing_score": 5,
+    "requires_human_review": true,
+    "speech_clarity_score": 4,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-28T21:47:13.055128+00:00",
+  "news_urls": [
+    "https://arxiv.org/abs/2608.26107",
+    "https://techcrunch.com/2026/08/28/anthropic-gets-its-first-court-win-over-the-pentagons-supply-chain-risk-label/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "AI予測のブラックボックス解消とプルリクエストの考え方",
+  "public_topic": "AI予測のブラックボックス解消とプルリクエストの考え方",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    6894108390455778,
+    3578101645384711,
+    3479471768774524,
+    10358758452366578,
+    5082630134943987,
+    42227237600012376,
+    554475275508760,
+    2797625372037893,
+    9648108115934027,
+    2347305425313509,
+    14849894123494117,
+    7304047452045319,
+    25266500684780821,
+    5960357219124046,
+    10243562999956230,
+    32519598481659344,
+    22078216825106815,
+    2511340136353037,
+    11118344494447834,
+    770571134726460,
+    41332533552835579,
+    14251744845037841,
+    20168253552262,
+    9748464983948628,
+    30686330907259462,
+    10730759312354849,
+    37266724802732455,
+    21439594027200575,
+    2871167390095097,
+    36738972583764017,
+    62208468071674578,
+    13515901656717863,
+    83436077979929942,
+    12118741610666400,
+    21238272387870744,
+    2622757952197589,
+    10378104883701481,
+    10697947398112756,
+    3823658196275176,
+    90596257929613389,
+    1198015230622136,
+    10933381224326122,
+    6437130321743836,
+    25909429246615855,
+    13910066578860446,
+    787722859700443,
+    1083242867217381,
+    24850290209354636,
+    216813722752005,
+    11782526085240916,
+    735433581506514,
+    21706122208155682,
+    9942456049161172,
+    5421410012012404,
+    738511611095084,
+    19824217875503762,
+    37021475660459276,
+    3809383068610512,
+    43354170647672026,
+    15804331397936728,
+    13639541857041990,
+    3970400794750889,
+    8091618047224370
+  ],
+  "script_sha256": "d4dd7de990b0e12b4e8618a9cbb0b0aa3f280b72151a4edaa2cb3f8ff44fd079",
+  "selected_term_keys": [
+    "885e12843492f32f8cc13e24"
+  ],
+  "topic_fingerprint": "10429d98cebfecb2067bad66"
+}
