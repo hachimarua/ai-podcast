@@ -1,7 +1,16 @@
 # AI学習ラジオ 次チャット申し送り
 
-最終確認: 2026-08-29
+最終確認: 2026-08-30
 状態: **現役の運用HANDOFF。Phase 7〜10、Siriフィードバックの受付Worker・D1、3本のショートカットは実装済み。日次配信は継続中。**
+
+## 2026-08-30 変更: 日次監査における番組形式フォールバック（日曜Weekly Lab→Daily等）の明示的報告
+
+- **背景**: 日曜日のWeekly Lab（8〜12分・10分目安の深掘り版）において、公式一次ソースの実践的テーマが不足した際に安全にDaily Brief（通常4〜6分版）へフォールバックする設計となっているが、日次監査プロンプトにフォールバック情報が含まれておらず、ユーザーへ「設定が無視されたのか正常な挙動なのか」が伝わらない問題があった。
+- **対応**:
+  - `antigravity_review_notifier.py` で `FORMAT_NAMES` および `FORMAT_FALLBACK_REASONS` 辞書を新設。
+  - `build_daily_report_prompt` の `audit_data` に `scheduled_format`、`scheduled_format_label`、`episode_format_label`、`format_fallback_reason`、`format_fallback_reason_label` を追加。
+  - プロンプトの報告ルールに、予定形式と異なる場合（フォールバック発生時）に「条件を満たすテーマ不足による正常な安全フォールバックであること」と理由を必ず明記する指示を追加。
+  - `tests/test_phase0_safety.py` にテストケースを追加。
 
 ## 2026-08-29 変更: Cloudflare Worker（Primary定時トリガー）の本番デプロイとToken設定完了
 
