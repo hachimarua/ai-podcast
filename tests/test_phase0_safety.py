@@ -859,6 +859,26 @@ class AntigravityNotifierTests(unittest.TestCase):
         self.assertIn("正常な日も省略せず", prompt)
         self.assertNotIn("Agreed / Disagree / Later", prompt)
 
+    def test_daily_report_prompt_includes_format_fallback_information(self):
+        manifest = self.sample_manifest()
+        manifest["episode_format"] = "daily"
+        manifest["deterministic_checks"]["scheduled_format"] = "lab"
+        manifest["deterministic_checks"]["format_fallback_reason"] = "insufficient_weekly_lab_topic"
+        prompt = antigravity_review_notifier.build_daily_report_prompt(
+            manifest,
+            None,
+            Path("/tmp/workspace"),
+            "2026-07-16",
+        )
+        self.assertIn('"scheduled_format": "lab"', prompt)
+        self.assertIn('"scheduled_format_label": "AI実装ラボ / Weekly Lab（8〜12分）"', prompt)
+        self.assertIn('"episode_format": "daily"', prompt)
+        self.assertIn('"episode_format_label": "Daily Brief（4〜6分）"', prompt)
+        self.assertIn('"format_fallback_reason": "insufficient_weekly_lab_topic"', prompt)
+        self.assertIn("Weekly Lab（10分版）の要件を満たす公式一次ソースの実践的深掘りテーマが不足していたため", prompt)
+        self.assertIn("番組形式（予定形式とフォールバック有無）", prompt)
+        self.assertIn("本来予定されていた形式", prompt)
+
     def test_degraded_publication_is_reported_as_caution_not_failure(self):
         manifest = self.sample_manifest()
         manifest["deterministic_checks"]["degradations"] = [

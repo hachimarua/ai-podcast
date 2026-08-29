@@ -44,6 +44,13 @@ DEGRADATION_STAGES = {
     "dialogue_style_gate": "対話スタイルゲート（定型的な返答冒頭の検査）",
     "script_length_gate": "台本文字数ゲート（規定の文字数範囲の検査）",
 }
+FORMAT_NAMES = {
+    "daily": "Daily Brief（4〜6分）",
+    "lab": "AI実装ラボ / Weekly Lab（8〜12分）",
+}
+FORMAT_FALLBACK_REASONS = {
+    "insufficient_weekly_lab_topic": "Weekly Lab（10分版）の要件を満たす公式一次ソースの実践的深掘りテーマが不足していたため、安全にDaily Brief（通常版）へ切り替えた",
+}
 
 
 def check_feed_delivery(episode_id: str | None, feed_url: str | None = None) -> dict:
@@ -493,12 +500,27 @@ def build_daily_report_prompt(
     )
     if current_manifest:
         checks = current_manifest.get("deterministic_checks", {})
+        scheduled_format = checks.get(
+            "scheduled_format", current_manifest.get("episode_format")
+        )
+        format_fallback_reason = checks.get("format_fallback_reason")
         audit_data = {
             "report_date": report_date,
             "verdict": verdict,
             "episode_id": current_manifest.get("episode_id"),
             "broadcast_date": current_manifest.get("broadcast_date"),
+            "scheduled_format": scheduled_format,
+            "scheduled_format_label": FORMAT_NAMES.get(scheduled_format, scheduled_format),
             "episode_format": current_manifest.get("episode_format"),
+            "episode_format_label": FORMAT_NAMES.get(
+                current_manifest.get("episode_format"), current_manifest.get("episode_format")
+            ),
+            "format_fallback_reason": format_fallback_reason,
+            "format_fallback_reason_label": (
+                FORMAT_FALLBACK_REASONS.get(format_fallback_reason, format_fallback_reason)
+                if format_fallback_reason
+                else None
+            ),
             "publish_status": current_manifest.get("publish_status"),
             "primary_topic": current_manifest.get("public_topic")
             or current_manifest.get("primary_topic"),
@@ -535,8 +557,14 @@ Sidecarの日次チェックは実行済みです。正常な日も省略せず�
 
 報告ルール:
 - 冒頭を「【AIラジオ日次監査 {report_date}】{verdict}」としてください。
-- 本日分がある場合は、公開状態、機械検査（尺・平均/最大音量・長時間無音・台本長）、
+- 本日分がある場合は、公開状態、番組形式（予定形式とフォールバック有無）、機械検査（尺・平均/最大音量・長時間無音・台本長）、
   Gemini音声監査（総合、明瞭度、対話自然さ、BGM、テンポ、反復、人間確認要否）を簡潔に示してください。
+- 番組形式について:
+  - `scheduled_format` と `episode_format` が異なる場合（または `format_fallback_reason` がある場合）は、
+    本来予定されていた形式（例: 日曜のWeekly Lab 10分版）から通常版（Daily Brief）へフォールバックした事実と、
+    その理由（`format_fallback_reason_label`）を必ず報告してください。
+    「設定が無視されたのではなく、条件を満たすテーマがなかったための正常な安全設計（フォールバック挙動）である」ことが
+    ユーザーに明確に伝わるように説明してください。
 - 問題がある場合は、重大度、分類、タイムスタンプを示してください。
 - `degradations` が空でない場合は「配信を優先した判断」という見出しを必ず設け、各項目について
   どの検査か(stage_label)、何が起きたか(reason_label)、どう対処したか(action_label)を1件ずつ書いてください。
