@@ -1,0 +1,177 @@
+{
+  "audio_sha256": "72cda6a82d884b72f274baf166137910b51d15cef87ec88c5cc891cf6d4f5a8d",
+  "broadcast_date": "2026-08-31",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 215.952,
+      "file_size_bytes": 1576005,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.5,
+      "mean_volume_db": -18.2,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 17,
+      "explainer_line_count": 8,
+      "first_speaker": "アミ",
+      "navigator_line_count": 9,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "ケンジ",
+      "navigator": "アミ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0312,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.0312,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 5,
+        "Hugging Face Blog": 3,
+        "ITmedia AI+": 4,
+        "TechCrunch AI": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Google AI Blog"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "candidate_fallback",
+          "source": "Google AI Blog"
+        }
+      ],
+      "selected_sources": [
+        "Google AI Blog",
+        "Google AI Blog"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1470,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 215,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260831_041830",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-30T19:20:03.103791+00:00",
+  "news_urls": [
+    "https://blog.google/products-and-platforms/products/search/book-travel-ai-mode/",
+    "https://blog.google/products-and-platforms/products/search/home-decor-tips/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "グーグル検索AIモードから考えるフェイルオープンとフェイルクローズド",
+  "public_topic": "グーグル検索AIモードから考えるフェイルオープンとフェイルクローズド",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    3763151847621841,
+    21837981314131213,
+    14487548678656764,
+    33189579049740434,
+    12002958033435862,
+    10853512551581068,
+    6691043036872476,
+    16992112737141373,
+    32958357514728309,
+    17812989980331679,
+    14992668161707846,
+    9405711783136265,
+    12171852392862658,
+    2906709689430903,
+    1501293186491845,
+    4776489332439206,
+    38186443386012564,
+    460496789689142,
+    14078028198841440,
+    34552285491066679,
+    1606268670843090,
+    30559335727166941,
+    19683568305342419,
+    47753091265135271,
+    66122689449439460,
+    9726492658779106,
+    17542238362107359,
+    14913226711761553,
+    30243115137237876,
+    30300587248896610,
+    45676941628944161,
+    12220751025299920,
+    4154885349474682,
+    1275646508856654,
+    26202841512427415,
+    55700493331804021,
+    15663314001305309,
+    16556648318845305,
+    30511696513212286,
+    5602281775951419,
+    8699428948940563,
+    1065897487463778,
+    26057733322971914,
+    10612008577560369,
+    11524855521937546,
+    58500272847602392,
+    1556439025847335,
+    81322035029164520,
+    61993917914407227,
+    75238130495550899,
+    15601874718095495,
+    3572780426666945,
+    1860804812282411,
+    11038610727469688,
+    7050395057009360,
+    23436073344346026,
+    4232287483249042,
+    13918391551481935,
+    27258719387894534,
+    6934231257520507,
+    13639541857041990,
+    11853356903800907,
+    5422030915549793
+  ],
+  "script_sha256": "50cc044f6bb986533805f27fa7553dbf340ec4a89d2221049474a4bf35542af3",
+  "selected_term_keys": [
+    "37d526a406145ef4d21e3d9f"
+  ],
+  "topic_fingerprint": "98f8228d0f8c00cdefc26285"
+}

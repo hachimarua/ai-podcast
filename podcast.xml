@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜グーグル検索AIモードから考えるフェイルオープンとフェイルクローズド</title>
+      <description>Daily Brief（4〜6分）｜テーマ: グーグル検索AIモードから考えるフェイルオープンとフェイルクローズド</description>
+      <pubDate>Mon, 31 Aug 2026 04:18:30 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260831_041830.mp3" length="1576005" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260831_041830.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>03:35</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜ハギングフェイスの音声認識評価拡充と四ビット圧縮モデルの進化</title>
       <description>Daily Brief（4〜6分）｜テーマ: ハギングフェイスの音声認識評価拡充と四ビット圧縮モデルの進化</description>
       <pubDate>Sun, 30 Aug 2026 04:18:18 +0900</pubDate>
