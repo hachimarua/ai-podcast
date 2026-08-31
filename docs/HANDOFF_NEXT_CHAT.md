@@ -3,6 +3,20 @@
 最終確認: 2026-08-30
 状態: **現役の運用HANDOFF。Phase 7〜10、Siriフィードバックの受付Worker・D1、3本のショートカットは実装済み。日次配信は継続中。**
 
+## 2026-08-31 変更: 日次監査の判定時刻を08:30へ移動し、判定を保留・再確認できるようにした
+
+- **背景**: 運用ステータス盤で AI Podcast line が赤（運転見合わせ）になるが、Podcast自体は正常に生成・公開されている日が続いていた（7/27・8/7・8/16・8/17・8/23・8/31）。原因は2つ。
+  - **(1) 判定時刻に生成が間に合わない日がある**: 直近34日の実生成時刻を調べたところ、07:00以降の生成が4日（12%）。GitHub Actions の cron 遅延（予定04:27に対し実測 +95〜+414分）が原因で、Primary（Cloudflare Worker 04:17）が落ちた日にBackupの着地が数時間ばらつく。
+  - **(2) スリープ復帰直後にoriginを読めない**: 判定時刻の07:00がユーザーの外出時刻と重なり、Wi-Fi が切れていく帯だった。8/31は wake_catchup が復帰直後に発火し、`git fetch` が失敗（FETCH_HEAD 0バイト・監査全体が2秒で完了）。`fetch_latest_manifest()` が黙って前日のローカルmanifestへ縮退し、当日分を「生成結果未確認」と誤判定した。
+- **対応**:
+  - `--daily-check-time` を `07:00` → `08:30` へ変更（`docs/developer/antigravity-sidecar/sidecar.json` と、デプロイ先の `~/.gemini/config/sidecars/ai-radio-review/sidecar.json`）。職場到着後の安定した回線で判定する。取りこぼしは実測 18%（06:45案）→ 6%（08:30）。
+  - `antigravity_review_notifier.fetch_latest_manifest()` に `require_origin_for` を追加。当日分を判定する呼び出しでは、originを読めずローカルにも当日分が無い場合に `NotifierError` を投げ、**前日のmanifestで当日を判定しない**。保留した日は判定も音付き通知も書かない。
+  - `antigravity_sidecar_runner` に `same_day_audit_is_unsettled()` / `recheck_same_day_audit()` を追加。当日の判定が未確定（判定なし・生成結果未確認・監査未完了）なら、判定時刻〜21:00の間、**30分間隔で当日分を確認し直す**。確定済みの日はローカルstateを読むだけでネットワークには出ない。起動時の再監査もこの経路へ統一した。
+  - 既存の重複抑止（`is_upgrade` と `native_alerts` の report_key 単位のdedup）により、再確認しても会話・通知は増えない。改善したときだけ1件作られる。
+  - `tests/test_phase0_safety.py` に5件追加（保留の判定・保留日に判定を書かないこと・未確定判定の定義・再確認の時間帯・確定済み日を触らないこと）。
+- **確認**: 8/31 16:16 に sidecar が新設定で再起動し、`Same-day recovery audit report created` → 当日の判定が「生成結果未確認」から `podcast_20260831_041830` の「正常」へ自動回収された。運用ステータス盤も平常運転へ戻ることを確認。
+- **関連**: Gravi-sentinel 側で、監査が結果を読めなかった状態を赤（運転見合わせ）ではなく黄（監視不良）で表す新状態を追加した。`config/board.json` の `expected_by` / `schedule` も08:30系へ揃えている。
+
 ## 2026-08-30 変更: 日次監査における番組形式フォールバック（日曜Weekly Lab→Daily等）の明示的報告
 
 - **背景**: 日曜日のWeekly Lab（8〜12分・10分目安の深掘り版）において、公式一次ソースの実践的テーマが不足した際に安全にDaily Brief（通常4〜6分版）へフォールバックする設計となっているが、日次監査プロンプトにフォールバック情報が含まれておらず、ユーザーへ「設定が無視されたのか正常な挙動なのか」が伝わらない問題があった。

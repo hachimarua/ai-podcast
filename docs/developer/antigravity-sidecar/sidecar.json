@@ -7,7 +7,7 @@
     "--workspace",
     "/Users/sakiya/Documents/Antigravity 2.0/AI news knowledge learning system",
     "--daily-check-time",
-    "07:00"
+    "08:30"
   ],
   "restart_policy": "always"
 }

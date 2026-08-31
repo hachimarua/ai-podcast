@@ -275,15 +275,31 @@ def fetch_local_latest_manifest(workspace: Path) -> dict | None:
     return _latest_manifest(manifests)
 
 
-def fetch_latest_manifest(workspace: Path) -> dict | None:
-    """Prefer the latest origin manifest and retain a local fallback."""
+def fetch_latest_manifest(
+    workspace: Path,
+    *,
+    require_origin_for: str | None = None,
+) -> dict | None:
+    """Prefer the latest origin manifest and retain a local fallback.
+
+    ローカルへの縮退は、originを読めなかった事実を隠す。前日のmanifestを
+    「最新」として返すと、生成できていない日と、読みに行けなかった日を
+    区別できなくなる。当日分を判定する呼び出しは require_origin_for に
+    その日付を渡し、ローカルだけでは答えられないときは判定させずに保留する。
+    """
     local = fetch_local_latest_manifest(workspace)
     try:
         remote = fetch_origin_latest_manifest(workspace)
     except NotifierError:
-        if local:
+        if local and (
+            require_origin_for is None
+            or local.get("broadcast_date") == require_origin_for
+        ):
             return local
-        raise
+        raise NotifierError(
+            "origin/mainのmanifestを読めないため、当日分の判定を保留しました"
+            "（ネットワーク未接続の可能性）"
+        )
     return _latest_manifest([item for item in (remote, local) if item])
 
 
@@ -699,7 +715,7 @@ def notify_daily_report(
     with open(lock_path, "w", encoding="utf-8") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         state = load_state(state_path)
-        manifest = fetch_latest_manifest(workspace)
+        manifest = fetch_latest_manifest(workspace, require_origin_for=today)
         manifest = enrich_manifest_with_evaluation(manifest, workspace)
         is_current = bool(manifest and manifest.get("broadcast_date") == today)
         report_key = manifest["episode_id"] if is_current else f"missing:{today}"

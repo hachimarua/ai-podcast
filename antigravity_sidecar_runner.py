@@ -17,6 +17,14 @@ from antigravity_review_notifier import (
 )
 from daily_schedule import claim_daily_run, finish_daily_run, poll_delay
 
+# 当日の判定が確定していない状態。生成がGitHub側の遅延で判定時刻に間に合わ
+# なかった日と、スリープ復帰直後でoriginを読めず判定を保留した日の両方が入る。
+UNSETTLED_VERDICTS = frozenset({"生成結果未確認", "監査未完了"})
+# 未確定の日だけ、日中に間隔をあけて確認し直す。確定済みの日はローカルの
+# state を読むだけで終わり、ネットワークには出ない。
+RECHECK_INTERVAL_SECONDS = 1800
+RECHECK_UNTIL = (21, 0)
+
 
 def run_obsidian_intake(workspace: Path) -> str:
     """Run intake in an isolated child process; the notifier never reads .env."""
@@ -83,6 +91,67 @@ def run_checks(workspace: Path) -> None:
         print(f"Review notification check failed safely: {type(exc).__name__}", flush=True)
 
 
+def latest_same_day_report(state_path: Path, now: datetime) -> dict | None:
+    """当日分の判定のうち、いちばん新しいものを返す。
+
+    生成が遅れた日は `missing:<日付>` と実エピソードの両方が残るので、
+    古いほうの「生成結果未確認」を当日の結論として読まないようにする。
+    """
+    today = now.date().isoformat()
+    daily_reports = load_state(state_path).get("daily_reports", {})
+    latest: tuple[str, dict] | None = None
+    for key, prior in daily_reports.items():
+        if not isinstance(prior, dict):
+            continue
+        report_date = prior.get("report_date") or (
+            key.split(":", 1)[1] if key.startswith("missing:") else None
+        )
+        if report_date != today:
+            continue
+        stamp = str(prior.get("notified_at") or "")
+        if latest is None or stamp >= latest[0]:
+            latest = (stamp, prior)
+    return latest[1] if latest else None
+
+
+def same_day_audit_is_unsettled(state_path: Path, now: datetime) -> bool:
+    """当日の監査結果が、まだ確定していないかどうか。
+
+    判定がひとつも書かれていない日（originを読めず保留した日を含む）も
+    未確定として扱う。保留を放置すると、その日は誰も監査しないまま終わる。
+    """
+    report = latest_same_day_report(state_path, now)
+    if report is None:
+        return True
+    return report.get("verdict") in UNSETTLED_VERDICTS
+
+
+def recheck_same_day_audit(
+    workspace: Path,
+    state_path: Path | None = None,
+    *,
+    now: datetime | None = None,
+    daily_check_time: tuple[int, int] | None = None,
+) -> int:
+    """当日の判定が未確定なら、その日のうちにもう一度監査する。
+
+    判定時刻より前と、夜になってからは走らせない。確定済みなら state を
+    読むだけで返すので、通常日に追加のネットワーク処理は発生しない。
+    """
+    state_path = state_path or default_state_path()
+    now = now or datetime.now().astimezone()
+    if now >= now.replace(hour=RECHECK_UNTIL[0], minute=RECHECK_UNTIL[1],
+                          second=0, microsecond=0):
+        return 0
+    if daily_check_time is not None:
+        hour, minute = daily_check_time
+        if now < now.replace(hour=hour, minute=minute, second=0, microsecond=0):
+            return 0
+    if not same_day_audit_is_unsettled(state_path, now):
+        return 0
+    return notify_daily_report(workspace, state_path, report_date=now.date().isoformat())
+
+
 def recheck_same_day_audit_on_startup(
     workspace: Path,
     state_path: Path | None = None,
@@ -98,7 +167,7 @@ def recheck_same_day_audit_on_startup(
             key.split(":", 1)[1] if key.startswith("missing:") else None
         )
         if report_date == today:
-            if prior.get("verdict") in {"生成結果未確認", "監査未完了"}:
+            if prior.get("verdict") in UNSETTLED_VERDICTS:
                 return notify_daily_report(workspace, state_path, report_date=today)
     return 0
 
@@ -126,7 +195,9 @@ def run_loop(
         )
         print(f"Wall-clock scheduler armed for {hour:02d}:{minute:02d}", flush=True)
         try:
-            recovered = recheck_same_day_audit_on_startup(workspace)
+            recovered = recheck_same_day_audit(
+                workspace, daily_check_time=daily_check_time
+            )
             if recovered:
                 print("Same-day recovery audit report created", flush=True)
         except NotifierError as exc:
@@ -134,6 +205,7 @@ def run_loop(
         except Exception as exc:
             print(f"Same-day recovery audit failed safely: {type(exc).__name__}", flush=True)
         previous_tick = None
+        last_recheck_at = datetime.now().astimezone()
         while True:
             now = datetime.now().astimezone()
             daily_run = claim_daily_run(
@@ -166,6 +238,21 @@ def run_loop(
                         error_type=type(exc).__name__,
                     )
                     print(f"Review sidecar failed safely: {type(exc).__name__}", flush=True)
+                last_recheck_at = now
+            elif (now - last_recheck_at).total_seconds() >= RECHECK_INTERVAL_SECONDS:
+                # 判定時刻に生成が間に合わなかった日と、originを読めず保留した日を、
+                # その日のうちに回収する。確定済みの日はここで何もしない。
+                try:
+                    recovered = recheck_same_day_audit(
+                        workspace, now=now, daily_check_time=daily_check_time
+                    )
+                    if recovered:
+                        print("Same-day recheck audit report created", flush=True)
+                except NotifierError as exc:
+                    print(f"Same-day recheck deferred: {exc}", flush=True)
+                except Exception as exc:
+                    print(f"Same-day recheck failed safely: {type(exc).__name__}", flush=True)
+                last_recheck_at = now
             previous_tick = now
             time.sleep(poll_delay(daily_check_time, now))
 
