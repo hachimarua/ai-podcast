@@ -1218,6 +1218,161 @@ class AntigravityNotifierTests(unittest.TestCase):
         self.assertEqual(len(native_calls), 1)
         self.assertEqual(state["native_alerts"]["missing:2026-07-16"]["status"], "sent")
 
+    def test_stale_local_manifest_is_not_used_when_origin_is_unreachable(self):
+        """originを読めない日は、前日のmanifestで当日を判定させずに保留する。"""
+        stale = {"episode_id": "podcast_yesterday", "broadcast_date": "2026-08-30"}
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            with (
+                patch.object(
+                    antigravity_review_notifier,
+                    "fetch_local_latest_manifest",
+                    return_value=stale,
+                ),
+                patch.object(
+                    antigravity_review_notifier,
+                    "fetch_origin_latest_manifest",
+                    side_effect=antigravity_review_notifier.NotifierError("no network"),
+                ),
+            ):
+                with self.assertRaises(antigravity_review_notifier.NotifierError):
+                    antigravity_review_notifier.fetch_latest_manifest(
+                        workspace, require_origin_for="2026-08-31"
+                    )
+                # 当日分がローカルにあるなら、originを読めなくても判定できる
+                self.assertEqual(
+                    antigravity_review_notifier.fetch_latest_manifest(
+                        workspace, require_origin_for="2026-08-30"
+                    ),
+                    stale,
+                )
+                # 日付を問わない呼び出しは従来どおりローカルへ縮退する
+                self.assertEqual(
+                    antigravity_review_notifier.fetch_latest_manifest(workspace),
+                    stale,
+                )
+
+    def test_deferred_day_writes_no_verdict(self):
+        """保留した日は判定を書かない。誤った『生成結果未確認』を残さない。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp) / "workspace"
+            (workspace / ".git").mkdir(parents=True)
+            state_path = Path(tmp) / "state" / "notifier.json"
+            with patch.object(
+                antigravity_review_notifier,
+                "fetch_latest_manifest",
+                side_effect=antigravity_review_notifier.NotifierError("no network"),
+            ):
+                with self.assertRaises(antigravity_review_notifier.NotifierError):
+                    antigravity_review_notifier.notify_daily_report(
+                        workspace, state_path, report_date="2026-08-31"
+                    )
+            state = (
+                json.loads(state_path.read_text(encoding="utf-8"))
+                if state_path.exists()
+                else {}
+            )
+        self.assertEqual(state.get("daily_reports", {}), {})
+        self.assertEqual(state.get("native_alerts", {}), {})
+
+    def test_same_day_audit_is_unsettled_covers_missing_and_deferred_days(self):
+        now = datetime(2026, 8, 31, 12, 0).astimezone()
+        today = now.date().isoformat()
+        cases = {
+            "判定なし（保留された日）": ({}, True),
+            "生成結果未確認": (
+                {f"missing:{today}": {"verdict": "生成結果未確認",
+                                      "notified_at": "2026-08-31T08:30:00+09:00"}},
+                True,
+            ),
+            "監査未完了": (
+                {"podcast_a": {"report_date": today, "verdict": "監査未完了",
+                               "notified_at": "2026-08-31T08:30:00+09:00"}},
+                True,
+            ),
+            "正常": (
+                {"podcast_a": {"report_date": today, "verdict": "正常",
+                               "notified_at": "2026-08-31T08:30:00+09:00"}},
+                False,
+            ),
+            "未確認のあとに正常が届いた": (
+                {
+                    f"missing:{today}": {"verdict": "生成結果未確認",
+                                         "notified_at": "2026-08-31T08:30:00+09:00"},
+                    "podcast_a": {"report_date": today, "verdict": "正常",
+                                  "notified_at": "2026-08-31T09:00:00+09:00"},
+                },
+                False,
+            ),
+            "前日の判定しかない": (
+                {"podcast_old": {"report_date": "2026-08-30", "verdict": "正常",
+                                 "notified_at": "2026-08-30T08:30:00+09:00"}},
+                True,
+            ),
+        }
+        for label, (reports, expected) in cases.items():
+            with self.subTest(label):
+                with tempfile.TemporaryDirectory() as tmp:
+                    state_path = Path(tmp) / "notifier.json"
+                    state_path.write_text(
+                        json.dumps({"daily_reports": reports}), encoding="utf-8"
+                    )
+                    self.assertEqual(
+                        antigravity_sidecar_runner.same_day_audit_is_unsettled(
+                            state_path, now
+                        ),
+                        expected,
+                    )
+
+    def test_recheck_runs_only_between_the_check_time_and_the_evening(self):
+        today = datetime(2026, 8, 31, 12, 0).astimezone().date().isoformat()
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp) / "workspace"
+            workspace.mkdir()
+            state_path = Path(tmp) / "notifier.json"
+            state_path.write_text(
+                json.dumps({"daily_reports": {}}), encoding="utf-8"
+            )
+            for hour, minute, expected in ((8, 0, 0), (8, 30, 1), (12, 0, 1), (21, 0, 0)):
+                with self.subTest(f"{hour:02d}:{minute:02d}"):
+                    with patch.object(
+                        antigravity_sidecar_runner,
+                        "notify_daily_report",
+                        return_value=1,
+                    ):
+                        count = antigravity_sidecar_runner.recheck_same_day_audit(
+                            workspace,
+                            state_path,
+                            now=datetime(2026, 8, 31, hour, minute).astimezone(),
+                            daily_check_time=(8, 30),
+                        )
+                    self.assertEqual(count, expected)
+
+    def test_recheck_skips_a_settled_day_without_touching_the_network(self):
+        now = datetime(2026, 8, 31, 12, 0).astimezone()
+        today = now.date().isoformat()
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp) / "workspace"
+            workspace.mkdir()
+            state_path = Path(tmp) / "notifier.json"
+            state_path.write_text(
+                json.dumps({"daily_reports": {
+                    "podcast_a": {"report_date": today, "verdict": "正常",
+                                  "notified_at": "2026-08-31T08:30:00+09:00"},
+                }}),
+                encoding="utf-8",
+            )
+            with patch.object(
+                antigravity_sidecar_runner,
+                "notify_daily_report",
+                return_value=1,
+            ) as notify:
+                count = antigravity_sidecar_runner.recheck_same_day_audit(
+                    workspace, state_path, now=now, daily_check_time=(8, 30)
+                )
+        self.assertEqual(count, 0)
+        notify.assert_not_called()
+
     def test_sidecar_startup_rechecks_same_day_missing_generation(self):
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp) / "workspace"
