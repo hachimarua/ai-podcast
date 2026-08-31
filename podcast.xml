@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜サイボウズ「kintone」の動向に見る、AI時代に向けた大企業の課題と対策</title>
+      <description>Daily Brief（4〜6分）｜テーマ: サイボウズ「kintone」の動向に見る、AI時代に向けた大企業の課題と対策</description>
+      <pubDate>Tue, 01 Sep 2026 04:18:12 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260901_041812.mp3" length="1876557" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260901_041812.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:14</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜グーグル検索AIモードから考えるフェイルオープンとフェイルクローズド</title>
       <description>Daily Brief（4〜6分）｜テーマ: グーグル検索AIモードから考えるフェイルオープンとフェイルクローズド</description>
       <pubDate>Mon, 31 Aug 2026 04:18:30 +0900</pubDate>

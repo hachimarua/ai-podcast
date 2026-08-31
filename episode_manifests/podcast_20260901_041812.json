@@ -1,0 +1,169 @@
+{
+  "audio_sha256": "17f1f43e2feef181b9b92edd3a8d02f3e3987708bdb8b71dc80510acc0925810",
+  "broadcast_date": "2026-09-01",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 254.76,
+      "file_size_bytes": 1876557,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.7,
+      "mean_volume_db": -18.1,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 19,
+      "explainer_line_count": 9,
+      "first_speaker": "ケンジ",
+      "navigator_line_count": 10,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "アミ",
+      "navigator": "ケンジ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0781,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.0781,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 3,
+        "Hugging Face Blog": 3,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 4
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "ITmedia AI+"
+        }
+      ],
+      "selected_sources": [
+        "ITmedia AI+"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1728,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 254,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260901_041812",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-08-31T19:20:58.999470+00:00",
+  "news_urls": [
+    "https://www.itmedia.co.jp/enterprise/articles/2608/31/news095.html"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "サイボウズ「kintone」の動向に見る、AI時代に向けた大企業の課題と対策",
+  "public_topic": "サイボウズ「kintone」の動向に見る、AI時代に向けた大企業の課題と対策",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    3764495316867123,
+    33362461148924851,
+    1716913137633815,
+    3803078663601876,
+    34113235422773052,
+    45405491157608192,
+    26124872738174911,
+    30223518264376614,
+    2495515721631490,
+    3967669317424698,
+    25428404591012516,
+    4547984082713046,
+    22034691212379134,
+    836491860915861,
+    6310804232395672,
+    8959615470663319,
+    5549482252328246,
+    448667669752022,
+    42970611540663883,
+    40110005444777720,
+    7983392701390740,
+    31643951245487830,
+    37515653144692206,
+    924302684576652,
+    45951070497721138,
+    12711148323369405,
+    28984904811976998,
+    15060304186387605,
+    4736123207973396,
+    36738972583764017,
+    22250405156004887,
+    932986746914361,
+    4154885349474682,
+    27775712910631332,
+    24211707451208259,
+    2814661980300268,
+    20189567206969961,
+    11298021946294363,
+    40945901602717825,
+    5602281775951419,
+    6452760649806118,
+    1065897487463778,
+    4810925521655239,
+    974811790384690,
+    6305335556194916,
+    8241019861076626,
+    18137299684371569,
+    33095127198416125,
+    40241975538602468,
+    1049159332611480,
+    30342200853743156,
+    35762072591573520,
+    18095418926530705,
+    20029408629006534,
+    13460912326199543,
+    15519079681559227,
+    17450089207246532,
+    2178088302083558,
+    24371921234206080,
+    24483209746003733,
+    13639541857041990,
+    708747236168736,
+    23920015661312469
+  ],
+  "script_sha256": "89023ed94d29cf6582f128ce085e7fca00b8c1d3f4d82964f70da6d75ae5197a",
+  "selected_term_keys": [
+    "95f4f7cdcbf1bfa154aabd04"
+  ],
+  "topic_fingerprint": "afae8382148a2f56834a4d5e"
+}
