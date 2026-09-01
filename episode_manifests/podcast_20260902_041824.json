@@ -1,0 +1,178 @@
+{
+  "audio_sha256": "c23bfdf63b5bf3251369bf327664fd4881bebdb774d0a2a5119094d5c259afec",
+  "broadcast_date": "2026-09-02",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 274.896,
+      "file_size_bytes": 1966269,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.5,
+      "mean_volume_db": -18.1,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 17,
+      "explainer_line_count": 8,
+      "first_speaker": "アミ",
+      "navigator_line_count": 9,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "ケンジ",
+      "navigator": "アミ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0312,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.0312,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 3,
+        "Hugging Face Blog": 3,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "TechCrunch AI"
+        },
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "fresh_japan_lane",
+          "source": "ITmedia AI+"
+        }
+      ],
+      "selected_sources": [
+        "TechCrunch AI",
+        "ITmedia AI+"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1912,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 274,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260902_041824",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-09-01T19:20:53.738995+00:00",
+  "news_urls": [
+    "https://techcrunch.com/2026/09/01/googles-answer-to-canva-is-an-ai-tool-where-you-prompt-instead-of-design/",
+    "https://www.itmedia.co.jp/business/articles/2609/01/news074.html"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "プロンプト駆動への移行：Google Picsと専門的な音声調整の未来",
+  "public_topic": "プロンプト駆動への移行：Google Picsと専門的な音声調整の未来",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    2643213988106355,
+    8286181615333349,
+    5146083496221918,
+    14531341503641568,
+    13286027431276973,
+    1582100185322727,
+    29152909448423923,
+    45078574287848501,
+    6282074694232021,
+    61462759201028446,
+    9886581343852840,
+    14849894123494117,
+    4733483616858399,
+    13294552358444045,
+    23204155396339117,
+    33460389328092671,
+    3250406996063925,
+    44626104791005487,
+    6960620576432912,
+    10703803923142040,
+    758730930555092,
+    1005196085963382,
+    44490241118480898,
+    31337423247649943,
+    10643329481488877,
+    3257580232380639,
+    14768705750940758,
+    1188598255777269,
+    10337170407052678,
+    65752561952231,
+    4327782313121102,
+    9410184736340444,
+    12220751025299920,
+    10216812290644024,
+    14071006930710254,
+    22823526654762925,
+    2814661980300268,
+    1496409327975917,
+    11298021946294363,
+    2842053998412516,
+    11535150852157535,
+    21117436138005688,
+    11305772180535685,
+    34274527233544187,
+    91809558490044,
+    3962303973959989,
+    59578960185246144,
+    46716993835218855,
+    13830060393256041,
+    709414879785732,
+    27611118428123515,
+    3551673636690227,
+    29457415816848034,
+    25279049439946665,
+    25466168974724508,
+    738511611095084,
+    10088194369799361,
+    14854708051707842,
+    2259172369404772,
+    21815307934330753,
+    21182099829653115,
+    2563212829651551,
+    18048330082994681,
+    21278321611478131
+  ],
+  "script_sha256": "2f82dd9d7f28151ff0d5a6ead17d6bb8468dea497bda9be50e5de649550946e4",
+  "selected_term_keys": [
+    "deb67c5ebcd933fffbce953f"
+  ],
+  "topic_fingerprint": "a92d15d63f0c3f5ef06e445e"
+}
