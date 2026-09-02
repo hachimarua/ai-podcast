@@ -1,0 +1,178 @@
+{
+  "audio_sha256": "b4ea92a6bc71e5b972ff9def2be941c7d6716497362dc3ad37444ac90c7fa5a3",
+  "broadcast_date": "2026-09-03",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 235.752,
+      "file_size_bytes": 1681221,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -2.3,
+      "mean_volume_db": -17.9,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 17,
+      "explainer_line_count": 8,
+      "first_speaker": "ケンジ",
+      "navigator_line_count": 9,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "アミ",
+      "navigator": "ケンジ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0781,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.0781,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 3,
+        "Hugging Face Blog": 5,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 4,
+        "arXiv cs.AI (Artificial Intelligence)": 4
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Hugging Face Blog"
+        },
+        {
+          "lane": "research",
+          "matched_notion_terms": false,
+          "reason": "different_source",
+          "source": "arXiv cs.AI (Artificial Intelligence)"
+        }
+      ],
+      "selected_sources": [
+        "Hugging Face Blog",
+        "arXiv cs.AI (Artificial Intelligence)"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1622,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 235,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260903_041814",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-09-02T19:20:12.994048+00:00",
+  "news_urls": [
+    "https://arxiv.org/abs/2609.00002",
+    "https://huggingface.co/blog/ibm-research/real-time-intelligence"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "AIモデルとリアルタイム処理基盤を支えるCI/CDの実践",
+  "public_topic": "AIモデルとリアルタイム処理基盤を支えるCI/CDの実践",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    7786387394005901,
+    11299898409098398,
+    9080225734417954,
+    120159778521415,
+    5082630134943987,
+    3015270836214827,
+    5469200327088865,
+    9491449898024493,
+    24001090068695413,
+    17812989980331679,
+    3951002038063917,
+    22958773726272577,
+    19355456024816774,
+    7143810781134385,
+    103912398901368917,
+    13355575280333318,
+    4341124051296378,
+    12616957902586953,
+    43989632730609926,
+    3293678741264018,
+    1420743943595046,
+    8014423382208791,
+    31337423247649943,
+    20529128763849829,
+    49753555766600077,
+    2611261554578319,
+    17542238362107359,
+    8225590611119009,
+    4553052842218198,
+    1235227120138444,
+    1094896650462021,
+    6458945216187226,
+    8279222987374474,
+    9099966054453732,
+    7851094428478794,
+    1764591955917032,
+    9965986091448932,
+    11298021946294363,
+    14494678048752429,
+    6195368167324331,
+    1198015230622136,
+    10984378102322313,
+    5750887823387381,
+    17458176474881602,
+    17258006978283707,
+    29745699504570296,
+    22876122485231318,
+    28056129978859964,
+    216813722752005,
+    1241790058636328,
+    23962023903795409,
+    21903442725383541,
+    1860804812282411,
+    4304021582955037,
+    13460912326199543,
+    2682207552902210,
+    40717871876513402,
+    58430968948595795,
+    38362085718151956,
+    1271607579230267,
+    13639541857041990,
+    18048330082994681,
+    40484879449523115
+  ],
+  "script_sha256": "892861b3a331b1b1f3c209ce85db2cea5a06d46bde7c0dd82dbc6e3ef5d887ff",
+  "selected_term_keys": [
+    "f765ad5f8d74db7533b0f5fe"
+  ],
+  "topic_fingerprint": "a4f3abadc6542e47b526d407"
+}

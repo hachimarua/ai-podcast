@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜AIモデルとリアルタイム処理基盤を支えるCI/CDの実践</title>
+      <description>Daily Brief（4〜6分）｜テーマ: AIモデルとリアルタイム処理基盤を支えるCI/CDの実践</description>
+      <pubDate>Thu, 03 Sep 2026 04:18:14 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260903_041814.mp3" length="1681221" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260903_041814.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>03:55</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜プロンプト駆動への移行：Google Picsと専門的な音声調整の未来</title>
       <description>Daily Brief（4〜6分）｜テーマ: プロンプト駆動への移行：Google Picsと専門的な音声調整の未来</description>
       <pubDate>Wed, 02 Sep 2026 04:18:24 +0900</pubDate>
