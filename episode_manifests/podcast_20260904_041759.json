@@ -1,0 +1,170 @@
+{
+  "audio_sha256": "b8e777cb05814351bfcc5d103786594d9d8f5760e61cb7b18881dafe943d473e",
+  "broadcast_date": "2026-09-04",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 231.48,
+      "file_size_bytes": 1654989,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -0.7,
+      "mean_volume_db": -17.7,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 15,
+      "explainer_line_count": 7,
+      "first_speaker": "アミ",
+      "navigator_line_count": 8,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "ケンジ",
+      "navigator": "アミ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0625,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.0625,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 5,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 4,
+        "TechCrunch AI": 5,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Google AI Blog"
+        }
+      ],
+      "selected_sources": [
+        "Google AI Blog"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1594,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 231,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260904_041759",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-09-03T19:19:35.232194+00:00",
+  "news_urls": [
+    "https://blog.google/innovation-and-ai/technology/safety-security/fairwind-program/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "プログラムの安全な導入管理とGoogleの最新サイバー防衛プログラム",
+  "public_topic": "プログラムの安全な導入管理とGoogleの最新サイバー防衛プログラム",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    1614582572965660,
+    11299898409098398,
+    14531341503641568,
+    12879938932144816,
+    29484082029298718,
+    1806229865935177,
+    13686024887905682,
+    18708671430516303,
+    26056704896334501,
+    11252810904056340,
+    14992668161707846,
+    10062997841822005,
+    11853367305671824,
+    47638315618874860,
+    16965514785251848,
+    35199392638948289,
+    52745923743477202,
+    25451126759300841,
+    2696765561941579,
+    10655232609676054,
+    1506526720440378,
+    8881938157771917,
+    42441728024360087,
+    7013587692884996,
+    15665743486172332,
+    32197413387079446,
+    11160604953981904,
+    633879557904849,
+    6713316936252196,
+    8555692413090186,
+    8933334430329103,
+    12663206535310532,
+    4154885349474682,
+    5277447546549988,
+    11533365528061997,
+    22031297749135850,
+    2683348923153012,
+    16103643678054809,
+    71145560639925171,
+    35190781433815462,
+    1198015230622136,
+    6977268087762522,
+    4810925521655239,
+    29216363351450517,
+    23301589725068374,
+    14085213915153335,
+    24986164639351158,
+    2216844256797195,
+    415670288714125,
+    14111083298087600,
+    3830361458794273,
+    3890012596261101,
+    32208688735228282,
+    3192310532998282,
+    3189473233090305,
+    27145083795944113,
+    19860693747644977,
+    19819724800854139,
+    9979437795907066,
+    13749308438722672,
+    4926536866697495,
+    49960629853528550,
+    23920015661312469
+  ],
+  "script_sha256": "5fec9ecd335a50d037e408b8710298b36f338bcdd681189b29be064c6b4c115e",
+  "selected_term_keys": [
+    "b93927b4435d794d17464196"
+  ],
+  "topic_fingerprint": "f454a9dac2333626d52442a1"
+}
