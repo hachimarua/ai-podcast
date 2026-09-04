@@ -1,0 +1,170 @@
+{
+  "audio_sha256": "6df1258a56415aa98084439e707f57454a35fa265cfef1af42ba293fc836de57",
+  "broadcast_date": "2026-09-05",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 246.12,
+      "file_size_bytes": 1801965,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.1,
+      "mean_volume_db": -17.9,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 18,
+      "explainer_line_count": 9,
+      "first_speaker": "ケンジ",
+      "navigator_line_count": 9,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "アミ",
+      "navigator": "ケンジ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0781,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.0781,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "AI Watch"
+        }
+      ],
+      "selected_sources": [
+        "AI Watch"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1638,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 246,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260905_041808",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-09-04T19:20:03.868475+00:00",
+  "news_urls": [
+    "https://ai.watch.impress.co.jp/docs/news/2138460.html"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "NTTドコモビジネス、千歳市の次世代半導体産業拠点を目指す包括提携",
+  "public_topic": "NTTドコモビジネス、千歳市の次世代半導体産業拠点を目指す包括提携",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    2643213988106355,
+    3199991370231809,
+    21837981314131213,
+    20387918029960038,
+    2683722803872827,
+    5082630134943987,
+    16658523996411883,
+    31055237458328360,
+    9956725621284687,
+    9162315698730950,
+    45671940019209255,
+    35922360705149114,
+    3545283636429961,
+    4181737521563882,
+    14312550945852449,
+    18107095726284675,
+    2728892310432662,
+    13413281001689273,
+    8468751028075317,
+    48468668817952030,
+    770571134726460,
+    1506526720440378,
+    46052724845905761,
+    21837073109740918,
+    42105862280470822,
+    13358106925806431,
+    32197413387079446,
+    13951853803451963,
+    11106245192012168,
+    7735522707430131,
+    31279971129279409,
+    6303964263478896,
+    9157663162781755,
+    4154885349474682,
+    19665742950615685,
+    11533365528061997,
+    22031297749135850,
+    9782259274278817,
+    11298021946294363,
+    11843487849296302,
+    17841658285742952,
+    8699428948940563,
+    34683570941097590,
+    9069931150054288,
+    97053913234316931,
+    13910066578860446,
+    29510280985501556,
+    16474348166217874,
+    5543406987252004,
+    6763533088374338,
+    24690943604621030,
+    2659727415522882,
+    16241030132488367,
+    28115343764676516,
+    4945029620318933,
+    26625002916698782,
+    24658066194344942,
+    8617753714436231,
+    9237823389307936,
+    31379779458881800,
+    15804331397936728,
+    13639541857041990,
+    6993506851458039,
+    34279461286478842
+  ],
+  "script_sha256": "03a5a0c6b05296076c4b7a05ccdfc4c0f06ef8452804bdeb69f3439152e58156",
+  "selected_term_keys": [
+    "6ee18d50c8a4d3f1697be8d1"
+  ],
+  "topic_fingerprint": "3983ec45ef1826d3273b810d"
+}
