@@ -695,7 +695,7 @@ class GeminiAudioQATests(unittest.TestCase):
         ):
             result = gemini_audio_qa.run_shadow_audio_qa("unused.mp3")
         self.assertEqual(result["status"], "unavailable")
-        self.assertEqual(result["model"], "gemini-3.1-pro-preview")
+        self.assertEqual(result["model"], "gemini-3.7-flash")
 
     def test_shadow_audio_qa_retries_on_transient_error_and_succeeds(self):
         sample_analysis = gemini_audio_qa.AudioQAAnalysis(

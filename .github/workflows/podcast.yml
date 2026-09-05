@@ -115,8 +115,8 @@ jobs:
         BASE_URL: "https://hachimarua.github.io/ai-podcast"
         BGM_VOLUME: "0.30"
         ALLOW_MOCK_DATA: "false"
-        # 台本生成は3.7 Flashの503集中を避け、3.1 Pro previewへ退避する。
-        GEMINI_MODEL_NAME: "gemini-3.1-pro-preview"
+        # 台本生成はGemini 3.7 Flash、音声監査は別の低コストFlash(3.6)で実行する。
+        GEMINI_MODEL_NAME: "gemini-3.7-flash"
         GEMINI_AUDIO_QA_MODEL: "gemini-3.6-flash"
         PHASE10_TRIAL_MODE: ${{ github.event_name == 'workflow_dispatch' && (inputs.phase10_trial == true || inputs.weekly_lab_trial == true) }}
         PHASE10_TRIAL_ANCHOR: ${{ inputs.phase10_trial == true && 'ai_agents' || '' }}
