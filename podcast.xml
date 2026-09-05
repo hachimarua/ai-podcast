@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>AI実装ラボ｜Google Workspace向け画像作成編集ツールGoogle Picsの公式提供開始</title>
+      <description>AI実装ラボ（8〜12分）｜テーマ: Google Workspace向け画像作成編集ツールGoogle Picsの公式提供開始</description>
+      <pubDate>Sun, 06 Sep 2026 07:39:52 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260906_073952.mp3" length="3172605" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260906_073952.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>07:22</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜NTTドコモビジネス、千歳市の次世代半導体産業拠点を目指す包括提携</title>
       <description>Daily Brief（4〜6分）｜テーマ: NTTドコモビジネス、千歳市の次世代半導体産業拠点を目指す包括提携</description>
       <pubDate>Sat, 05 Sep 2026 04:18:08 +0900</pubDate>

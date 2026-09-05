@@ -1,0 +1,170 @@
+{
+  "audio_sha256": "d56ac1902816f5fb65e652a93d2753e48ef1fdc1cd22b56e05e5c89f3af7c1bd",
+  "broadcast_date": "2026-09-06",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 442.152,
+      "file_size_bytes": 3172605,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.5,
+      "mean_volume_db": -18.2,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 720.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 435.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 50,
+      "explainer_line_count": 25,
+      "first_speaker": "アミ",
+      "navigator_line_count": 25,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "ケンジ",
+      "navigator": "アミ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0938,
+    "format_config_version": "formats-v7",
+    "initial_script_similarity": 0.0938,
+    "news_selection": {
+      "anchor_present": false,
+      "candidate_counts_by_source": {
+        "AI Watch": 2,
+        "Google AI Blog": 1,
+        "ITmedia AI+": 3,
+        "TechCrunch AI": 2
+      },
+      "evidence_roles": [
+        "official"
+      ],
+      "official_basis_present": true,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "official_basis",
+          "source": "Google AI Blog"
+        }
+      ],
+      "selected_sources": [
+        "Google AI Blog"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "lab",
+    "script_length": {
+      "character_count": 3060,
+      "hard_max": 3600,
+      "hard_min": 1600,
+      "passed": true,
+      "target_max": 3300,
+      "target_min": 3000
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 442,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "lab",
+  "episode_id": "podcast_20260906_073952",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-09-05T22:42:04.617972+00:00",
+  "news_urls": [
+    "https://blog.google/products-and-platforms/products/workspace/google-pics/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "Google Workspace向け画像作成編集ツールGoogle Picsの公式提供開始",
+  "public_topic": "Google Workspace向け画像作成編集ツールGoogle Picsの公式提供開始",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    2099022094324870,
+    13091796328099974,
+    21837981314131213,
+    10199747343336461,
+    2683722803872827,
+    5082630134943987,
+    20625075087765408,
+    18009305744608678,
+    683564153900063,
+    32792796218252343,
+    6957506309129103,
+    14992668161707846,
+    1988799339330026,
+    9248300354096776,
+    21992398630315688,
+    3412809593772868,
+    18685813465251651,
+    16232345560423294,
+    17940075949008104,
+    11590863125572098,
+    770571134726460,
+    1881784822045662,
+    7558064901680187,
+    4306995308246049,
+    860651731585329,
+    10771171459175940,
+    6969673190464077,
+    8714452221605347,
+    17825216225103801,
+    26695921068402658,
+    852392198105870,
+    1539943401502254,
+    11381617590814552,
+    2587908791910922,
+    3025505526221659,
+    70438705824755613,
+    5105883266718772,
+    4543891634210564,
+    5811409513803839,
+    4605895947786664,
+    9613750449654705,
+    2637753105041503,
+    146086183434062,
+    9069931150054288,
+    778074446172153,
+    13910066578860446,
+    12883920137996869,
+    2940092533991095,
+    33095127198416125,
+    216813722752005,
+    14111083298087600,
+    4087865205913781,
+    21706122208155682,
+    1860804812282411,
+    4923810982112505,
+    10340007925367659,
+    8254414437293945,
+    13194185687478678,
+    14532260583958565,
+    5353356516357049,
+    3628120300419758,
+    5249880732427904,
+    21400001213452606,
+    27970881427718192
+  ],
+  "script_sha256": "9b9f13668562506cfcdac377700bf99c4187a97b16003b1cd51150da657b8ee7",
+  "selected_term_keys": [],
+  "topic_fingerprint": "9279dad9dad16660b69e268b"
+}
