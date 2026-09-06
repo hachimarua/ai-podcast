@@ -60,7 +60,7 @@ class FormatSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     display_name: Literal["Daily Brief", "AI実装ラボ"]
-    duration_label: Literal["4〜6分", "8〜12分"]
+    duration_label: Literal["4〜6分", "5〜10分", "8〜12分"]
     prompt_character_min: int = Field(gt=0)
     prompt_character_max: int = Field(gt=0)
     hard_character_min: int = Field(gt=0)
@@ -129,13 +129,20 @@ class EpisodeFormatsConfig(BaseModel):
             daily.hard_character_max,
         ) != (1200, 1400, 900, 2000):
             raise ValueError("daily script target must remain 1200-1400 characters")
-        if lab.duration_label != "8〜12分" or (
+        if lab.duration_label != "5〜10分" or (
             lab.audio_thresholds.min_duration_seconds,
             lab.audio_thresholds.max_duration_seconds,
-        ) != (435.0, 720.0):
+        ) != (210.0, 600.0):
             raise ValueError(
-                "lab target must remain 8-12 minutes with 7.25-minute acceptance floor"
+                "lab target must remain 5-10 minutes with 3.5-minute acceptance floor"
             )
+        if (
+            lab.prompt_character_min,
+            lab.prompt_character_max,
+            lab.hard_character_min,
+            lab.hard_character_max,
+        ) != (1200, 2600, 900, 2800):
+            raise ValueError("lab script target must remain 1200-2600 characters")
         if lab.speech_rate != "+10%":
             raise ValueError("lab speech rate is fixed at +10%")
         if not re.fullmatch(r"formats-v[1-9][0-9]*", self.config_version):

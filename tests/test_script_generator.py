@@ -109,10 +109,54 @@ def test_asymmetric_register_is_rejected():
         raise AssertionError("asymmetric dialogue register was accepted")
 
 
+def test_script_repetition_passes_for_progressive_dialogue():
+    script = """
+ケンジ：皆さん、おはようございます！ケンジです。
+アミ：おはようございます、解説者のアミです。今日はGoogle Picsの提供開始を取り上げます。
+ケンジ：Google Workspaceの中で直接画像を生成・編集できるツールですね。
+アミ：はい、プレゼン資料やドキュメントの作成中に、別タブを開かずにプロンプトで画像を作成できます。
+ケンジ：開発現場や社内共有の場面で、挿絵を素早く用意したいときに重宝しそうですね。
+アミ：ただし、現時点では一部のビジネスプラン向けに段階展開されている点には注意が必要です。
+ケンジ：使えるプランを確認した上で、日々のドキュメント作成に活用してみたいですね。
+アミ：それでは、今日も良い一日を！
+"""
+    result = script_generator.validate_script_repetition(script)
+    assert result["passed"] is True
+    assert result["repeated_utterance_pairs"] == 0
+
+
+def test_script_repetition_rejects_looping_script():
+    # 同じ内容を3回ループして水増しした台本
+    script = """
+ケンジ：おはようございます！今日はGoogle Picsについて話します。
+アミ：Google PicsはWorkspace内で直接画像を作成できるのが魅力ですね。
+ケンジ：そうですね、スライドやドキュメントに直接画像を挿入できるんです。
+アミ：プロンプトを入力するだけで画像が作れるのは便利ですよね。
+ケンジ：改めて、Google PicsはWorkspace内で直接画像を作成できるのが魅力ですね。
+アミ：はい、スライドやドキュメントに直接画像を挿入できるんです。
+ケンジ：やっぱりプロンプトを入力するだけで画像が作れるのは本当に便利ですよね。
+アミ：Google PicsはWorkspace内で直接画像を作成できるのが魅力なんですよ。
+ケンジ：スライドやドキュメントに直接画像を挿入できるのが最大のメリットです。
+アミ：プロンプトを入力するだけで画像が作れるから時短になりますね。
+"""
+    try:
+        script_generator.validate_script_repetition(script)
+    except EpisodeFormatError as exc:
+        assert "repetitive dialogue or looping content" in str(exc)
+    else:
+        raise AssertionError("looping script was accepted")
+
+    measured = script_generator.validate_script_repetition(script, enforce=False)
+    assert measured["passed"] is False
+    assert measured["repeated_utterance_pairs"] > measured["max_allowed_repeated_pairs"]
+
+
 if __name__ == "__main__":
     test_transient_generation_has_one_final_delayed_retry()
     test_transient_generation_stops_after_final_retry()
     test_polite_register_is_consistent()
     test_casual_register_is_allowed_when_both_speakers_use_it()
     test_asymmetric_register_is_rejected()
+    test_script_repetition_passes_for_progressive_dialogue()
+    test_script_repetition_rejects_looping_script()
     print("test_script_generator: ok")

@@ -41,6 +41,8 @@ PUBLIC_CHECK_KEYS = {
     "degradations", "stage", "action",
     "dialogue_roles", "navigator", "explainer", "dialogue_role_check", "dialogue_line_count",
     "navigator_line_count", "explainer_line_count", "first_speaker",
+    "script_repetition", "repeated_utterance_pairs", "max_allowed_repeated_pairs",
+    "sample_repeated_pairs", "text_1", "text_2", "speaker_1", "speaker_2", "similarity",
 }
 PUBLIC_CHECK_STRINGS = PUBLIC_NEWS_SOURCES | {
     "daily", "lab", "world", "japan", "research", "official", "reporting",

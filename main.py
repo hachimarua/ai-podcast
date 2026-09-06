@@ -20,6 +20,7 @@ from script_generator import (
     validate_dialogue_roles,
     validate_dialogue_register,
     validate_dialogue_style,
+    validate_script_repetition,
 )
 from audio_generator import synthesize_podcast
 from podcast_generator import archive_today_podcast, generate_podcast_rss
@@ -361,14 +362,17 @@ async def async_main():
     try:
         dialogue_style = validate_dialogue_style(script)
         dialogue_register = validate_dialogue_register(script)
+        script_repetition = validate_script_repetition(script)
     except EpisodeFormatError as quality_error:
         if script_regenerations_used >= script_regeneration_limit:
             raise RuntimeError(
                 "Generated script failed the dialogue quality gate after the single "
                 "script-regeneration allowance was used"
             ) from quality_error
+        is_repetition_error = "repetitive dialogue or looping content" in str(quality_error)
+        retry_msg = "同じ話題や説明のループ・水増し" if is_repetition_error else "定型的な応答または話者間の敬語レベル"
         print(
-            "[Dialogue Quality Gate] 定型的な応答または話者間の敬語レベルに問題があるため、"
+            f"[Dialogue Quality Gate] {retry_msg}に問題があるため、"
             "同じ出典のまま1回だけ再生成します。"
         )
         script_regenerations_used += 1
@@ -380,7 +384,8 @@ async def async_main():
             avoid_topics=recent_topics,
             episode_format=episode_format,
             spec=format_spec,
-            style_retry=True,
+            style_retry=not is_repetition_error,
+            repetition_retry=is_repetition_error,
             role_plan=dialogue_role_plan,
         )
         retry_script, retry_public_topic = split_generated_script_output(raw_script)
@@ -394,12 +399,14 @@ async def async_main():
         retry_length = validate_script_length(retry_script, format_spec)
         retry_style = validate_dialogue_style(retry_script)
         retry_register = validate_dialogue_register(retry_script)
+        retry_repetition = validate_script_repetition(retry_script)
         script = retry_script
         generated_public_topic = retry_public_topic
         final_similarity = retry_similarity
         script_length = retry_length
         dialogue_style = retry_style
         dialogue_register = retry_register
+        script_repetition = retry_repetition
 
     # 台本の保存
     if trial_mode:
@@ -530,6 +537,7 @@ async def async_main():
                 "script_regenerations_used": script_regenerations_used,
                 "dialogue_style": dialogue_style,
                 "dialogue_register": dialogue_register,
+                "script_repetition": script_repetition,
                 "dialogue_roles": dialogue_role_plan,
                 "dialogue_role_check": dialogue_role_check,
                 "scheduled_format": scheduled_format,
@@ -576,6 +584,7 @@ async def async_main():
                     "script_regenerations_used": script_regenerations_used,
                     "dialogue_style": dialogue_style,
                     "dialogue_register": dialogue_register,
+                    "script_repetition": script_repetition,
                     "dialogue_roles": dialogue_role_plan,
                     "dialogue_role_check": dialogue_role_check,
                     "scheduled_format": scheduled_format,

@@ -871,7 +871,7 @@ class AntigravityNotifierTests(unittest.TestCase):
             "2026-07-16",
         )
         self.assertIn('"scheduled_format": "lab"', prompt)
-        self.assertIn('"scheduled_format_label": "AI実装ラボ / Weekly Lab（8〜12分）"', prompt)
+        self.assertIn('"scheduled_format_label": "AI実装ラボ / Weekly Lab（5〜10分）"', prompt)
         self.assertIn('"episode_format": "daily"', prompt)
         self.assertIn('"episode_format_label": "Daily Brief（4〜6分）"', prompt)
         self.assertIn('"format_fallback_reason": "insufficient_weekly_lab_topic"', prompt)

@@ -10,15 +10,6 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
-      <title>AI実装ラボ｜Google Workspace向け画像作成編集ツールGoogle Picsの公式提供開始</title>
-      <description>AI実装ラボ（8〜12分）｜テーマ: Google Workspace向け画像作成編集ツールGoogle Picsの公式提供開始</description>
-      <pubDate>Sun, 06 Sep 2026 07:39:52 +0900</pubDate>
-      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260906_073952.mp3" length="3172605" type="audio/mpeg"/>
-      <guid isPermaLink="false">podcast_20260906_073952.mp3</guid>
-      <itunes:author>Antigravity Agent</itunes:author>
-      <itunes:duration>07:22</itunes:duration>
-    </item>
-    <item>
       <title>Daily Brief｜NTTドコモビジネス、千歳市の次世代半導体産業拠点を目指す包括提携</title>
       <description>Daily Brief（4〜6分）｜テーマ: NTTドコモビジネス、千歳市の次世代半導体産業拠点を目指す包括提携</description>
       <pubDate>Sat, 05 Sep 2026 04:18:08 +0900</pubDate>
@@ -137,7 +128,7 @@
     </item>
     <item>
       <title>AI実装ラボ｜Googleスプレッドシートをプロンプトでダッシュボード化するSheets canvasの衝撃</title>
-      <description>AI実装ラボ（8〜12分）｜テーマ: Googleスプレッドシートをプロンプトでダッシュボード化するSheets canvasの衝撃</description>
+      <description>AI実装ラボ（5〜10分）｜テーマ: Googleスプレッドシートをプロンプトでダッシュボード化するSheets canvasの衝撃</description>
       <pubDate>Sun, 23 Aug 2026 07:35:16 +0900</pubDate>
       <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260823_073516.mp3" length="3487173" type="audio/mpeg"/>
       <guid isPermaLink="false">podcast_20260823_073516.mp3</guid>
@@ -200,7 +191,7 @@
     </item>
     <item>
       <title>AI実装ラボ｜Google AdsとAnalyticsにおけるAIとエージェント体験</title>
-      <description>AI実装ラボ（8〜12分）｜テーマ: Google AdsとAnalyticsにおけるAIとエージェント体験</description>
+      <description>AI実装ラボ（5〜10分）｜テーマ: Google AdsとAnalyticsにおけるAIとエージェント体験</description>
       <pubDate>Sun, 16 Aug 2026 11:54:10 +0900</pubDate>
       <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260816_115410.mp3" length="3281853" type="audio/mpeg"/>
       <guid isPermaLink="false">podcast_20260816_115410.mp3</guid>
@@ -236,7 +227,7 @@
     </item>
     <item>
       <title>AI実装ラボ｜35万人が学ぶAIエージェント構築とバイブコーディングの現在地</title>
-      <description>AI実装ラボ（8〜12分）｜テーマ: 35万人が学ぶAIエージェント構築とバイブコーディングの現在地</description>
+      <description>AI実装ラボ（5〜10分）｜テーマ: 35万人が学ぶAIエージェント構築とバイブコーディングの現在地</description>
       <pubDate>Wed, 12 Aug 2026 08:35:23 +0900</pubDate>
       <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260812_083523.mp3" length="3255429" type="audio/mpeg"/>
       <guid isPermaLink="false">podcast_20260812_083523.mp3</guid>
@@ -586,33 +577,6 @@
       <itunes:duration>06:00</itunes:duration>
     </item>
     <item>
-      <title>2026年07月05日 05:12 のAI学習ラジオ</title>
-      <description>本日の復習用語を交えた最新AIニュースの要約解説です。</description>
-      <pubDate>Sun, 05 Jul 2026 05:12:41 +0900</pubDate>
-      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260705_051241.mp3" length="2301213" type="audio/mpeg"/>
-      <guid isPermaLink="false">podcast_20260705_051241.mp3</guid>
-      <itunes:author>Antigravity Agent</itunes:author>
-      <itunes:duration>05:08</itunes:duration>
-    </item>
-    <item>
-      <title>2026年07月04日 05:17 のAI学習ラジオ</title>
-      <description>本日の復習用語を交えた最新AIニュースの要約解説です。</description>
-      <pubDate>Sat, 04 Jul 2026 05:17:34 +0900</pubDate>
-      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260704_051734.mp3" length="2531637" type="audio/mpeg"/>
-      <guid isPermaLink="false">podcast_20260704_051734.mp3</guid>
-      <itunes:author>Antigravity Agent</itunes:author>
-      <itunes:duration>05:28</itunes:duration>
-    </item>
-    <item>
-      <title>2026年07月03日 05:21 のAI学習ラジオ</title>
-      <description>本日の復習用語を交えた最新AIニュースの要約解説です。</description>
-      <pubDate>Fri, 03 Jul 2026 05:21:53 +0900</pubDate>
-      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260703_052153.mp3" length="2243325" type="audio/mpeg"/>
-      <guid isPermaLink="false">podcast_20260703_052153.mp3</guid>
-      <itunes:author>Antigravity Agent</itunes:author>
-      <itunes:duration>04:54</itunes:duration>
-    </item>
-    <item>
       <title>2026年07月02日 05:50 のAI学習ラジオ</title>
       <description>本日の復習用語を交えた最新AIニュースの要約解説です。</description>
       <pubDate>Thu, 02 Jul 2026 05:50:26 +0900</pubDate>
@@ -640,13 +604,13 @@
       <itunes:duration>06:01</itunes:duration>
     </item>
     <item>
-      <title>2026年06月29日 07:32 のAI学習ラジオ</title>
+      <title>2026年06月29日 07:17 のAI学習ラジオ</title>
       <description>本日の復習用語を交えた最新AIニュースの要約解説です。</description>
-      <pubDate>Mon, 29 Jun 2026 07:32:00 +0900</pubDate>
-      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260629_073200.mp3" length="442821" type="audio/mpeg"/>
-      <guid isPermaLink="false">podcast_20260629_073200.mp3</guid>
+      <pubDate>Mon, 29 Jun 2026 07:17:23 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260629_071723.mp3" length="1750608" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260629_071723.mp3</guid>
       <itunes:author>Antigravity Agent</itunes:author>
-      <itunes:duration>00:59</itunes:duration>
+      <itunes:duration>04:51</itunes:duration>
     </item>
     <item>
       <title>2026年06月29日 07:31 のAI学習ラジオ</title>
@@ -658,13 +622,13 @@
       <itunes:duration>00:59</itunes:duration>
     </item>
     <item>
-      <title>2026年06月29日 07:17 のAI学習ラジオ</title>
+      <title>2026年06月29日 07:32 のAI学習ラジオ</title>
       <description>本日の復習用語を交えた最新AIニュースの要約解説です。</description>
-      <pubDate>Mon, 29 Jun 2026 07:17:23 +0900</pubDate>
-      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260629_071723.mp3" length="1750608" type="audio/mpeg"/>
-      <guid isPermaLink="false">podcast_20260629_071723.mp3</guid>
+      <pubDate>Mon, 29 Jun 2026 07:32:00 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260629_073200.mp3" length="442821" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260629_073200.mp3</guid>
       <itunes:author>Antigravity Agent</itunes:author>
-      <itunes:duration>04:51</itunes:duration>
+      <itunes:duration>00:59</itunes:duration>
     </item>
     <item>
       <title>2026年06月28日 08:29 のAI学習ラジオ</title>
@@ -672,24 +636,6 @@
       <pubDate>Sun, 28 Jun 2026 08:29:04 +0900</pubDate>
       <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260628_082904.mp3" length="410013" type="audio/mpeg"/>
       <guid isPermaLink="false">podcast_20260628_082904.mp3</guid>
-      <itunes:author>Antigravity Agent</itunes:author>
-      <itunes:duration>00:59</itunes:duration>
-    </item>
-    <item>
-      <title>2026年06月28日 08:22 のAI学習ラジオ</title>
-      <description>本日の復習用語を交えた最新AIニュースの要約解説です。</description>
-      <pubDate>Sun, 28 Jun 2026 08:22:48 +0900</pubDate>
-      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260628_082248.mp3" length="470013" type="audio/mpeg"/>
-      <guid isPermaLink="false">podcast_20260628_082248.mp3</guid>
-      <itunes:author>Antigravity Agent</itunes:author>
-      <itunes:duration>00:59</itunes:duration>
-    </item>
-    <item>
-      <title>2026年06月28日 08:22 のAI学習ラジオ</title>
-      <description>本日の復習用語を交えた最新AIニュースの要約解説です。</description>
-      <pubDate>Sun, 28 Jun 2026 08:22:30 +0900</pubDate>
-      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260628_082230.mp3" length="470013" type="audio/mpeg"/>
-      <guid isPermaLink="false">podcast_20260628_082230.mp3</guid>
       <itunes:author>Antigravity Agent</itunes:author>
       <itunes:duration>00:59</itunes:duration>
     </item>
@@ -728,6 +674,24 @@
       <guid isPermaLink="false">podcast_20260625_055027.mp3</guid>
       <itunes:author>Antigravity Agent</itunes:author>
       <itunes:duration>05:08</itunes:duration>
+    </item>
+    <item>
+      <title>2026年06月28日 08:22 のAI学習ラジオ</title>
+      <description>本日の復習用語を交えた最新AIニュースの要約解説です。</description>
+      <pubDate>Sun, 28 Jun 2026 08:22:30 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260628_082230.mp3" length="470013" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260628_082230.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>00:59</itunes:duration>
+    </item>
+    <item>
+      <title>2026年06月28日 08:22 のAI学習ラジオ</title>
+      <description>本日の復習用語を交えた最新AIニュースの要約解説です。</description>
+      <pubDate>Sun, 28 Jun 2026 08:22:48 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260628_082248.mp3" length="470013" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260628_082248.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>00:59</itunes:duration>
     </item>
     <item>
       <title>2026年06月24日 06:28 のAI学習ラジオ</title>

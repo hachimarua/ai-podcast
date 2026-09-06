@@ -46,7 +46,7 @@ DEGRADATION_STAGES = {
 }
 FORMAT_NAMES = {
     "daily": "Daily Brief（4〜6分）",
-    "lab": "AI実装ラボ / Weekly Lab（8〜12分）",
+    "lab": "AI実装ラボ / Weekly Lab（5〜10分）",
 }
 FORMAT_FALLBACK_REASONS = {
     "insufficient_weekly_lab_topic": "Weekly Lab（10分版）の要件を満たす公式一次ソースの実践的深掘りテーマが不足していたため、安全にDaily Brief（通常版）へ切り替えた",

@@ -173,15 +173,20 @@ class AudioQAAnalysis(BaseModel):
 QA_PROMPT = """
 この日本語AI学習ラジオを、公開後の品質監査担当として最後まで聞いてください。
 
-評価対象:
+【最重要監査項目：内容の堂々巡り・水増し・反復ループの検知】
+- 番組内で同じ説明、同じ話題、同じ結論を言葉を変えて何度も繰り返していないか（内容ループ・堂々巡りの厳格検知）。
+- 情報量が少ない話題を無理に長尺へ引き伸ばし、1回聞けば分かる話を3回も4回も繰り返す「中身のない水増し」になっていないか。
+- 新しい事実や論点の展開がなく、同じ感想や相づちをループさせて時間を稼いでいる場合は、音質や発音が明瞭であっても必ず repetition カテゴリの問題（severity: warning または critical）として指摘してください。
+- その場合、has_internal_repetition を true にし、requires_human_review を true（黄色信号）にし、overall_score は 3 以下（深刻なら 1〜2）に減点してください。
+
+【その他の音声品質評価】
 - ケンジとアミの音声が明瞭で、話者の切り替えが不自然でないか
-- 誤読、記号の読み上げ、文の途中切れ、同じ文の不自然な反復がないか
+- 誤読、記号の読み上げ、文の途中切れ、単語やフレーズの吃音・音声ループがないか
 - BGMが声を覆っていないか、急な音量変化やクリッピングがないか
 - 間、テンポ、会話の応酬が通勤中に聞きやすいか
-- 番組内で同じ説明を何度も繰り返していないか
 
 音声から確認できない事実は推測しないでください。問題を挙げる場合はMM:SSの時刻と、
-実際に聞こえた根拠を付けてください。単なる好みはinfoとし、人間の確認が必要な問題だけ
+実際に聞こえた根拠を付けてください。単なる好みはinfoとし、人間の確認が必要な問題（内容ループ・水増しを含む）は
 requires_human_reviewをtrueにしてください。
 """.strip()
 
@@ -273,7 +278,7 @@ def run_shadow_audio_qa(
 def needs_improvement_proposal(qa_result: dict) -> bool:
     if qa_result.get("status") != "completed":
         return False
-    if qa_result.get("requires_human_review"):
+    if qa_result.get("requires_human_review") or qa_result.get("has_internal_repetition"):
         return True
     return any(
         issue.get("severity") in {"warning", "critical"}
