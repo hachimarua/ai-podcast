@@ -417,6 +417,71 @@ def validate_dialogue_roles(script: str, role_plan=None, *, enforce: bool = True
     return result
 
 
+def validate_script_repetition(
+    script: str,
+    *,
+    similarity_threshold: float = 0.55,
+    enforce: bool = True,
+) -> dict:
+    """Reject scripts that loop, repeat talking points, or pad content excessively."""
+    lines = _dialogue_lines(script)
+    if len(lines) < 6:
+        return {
+            "passed": True,
+            "dialogue_line_count": len(lines),
+            "repeated_utterance_pairs": 0,
+            "max_allowed_repeated_pairs": 1,
+            "sample_repeated_pairs": [],
+        }
+
+    def _extract_3grams(text: str) -> set[str]:
+        cleaned = re.sub(r"[^ぁ-んァ-ヶ一-龠a-zA-Z0-9]+", "", text)
+        if len(cleaned) < 3:
+            return {cleaned} if cleaned else set()
+        return {cleaned[i : i + 3] for i in range(len(cleaned) - 2)}
+
+    utterance_ngrams = [_extract_3grams(text) for _, text in lines]
+    n = len(lines)
+    high_similarity_pairs = []
+
+    for i in range(n):
+        for j in range(i + 2, n):
+            ngrams_i = utterance_ngrams[i]
+            ngrams_j = utterance_ngrams[j]
+            if not ngrams_i or not ngrams_j:
+                continue
+            union = ngrams_i | ngrams_j
+            if not union:
+                continue
+            sim = len(ngrams_i & ngrams_j) / len(union)
+            if sim >= similarity_threshold:
+                high_similarity_pairs.append({
+                    "speaker_1": lines[i][0],
+                    "text_1": lines[i][1][:40],
+                    "speaker_2": lines[j][0],
+                    "text_2": lines[j][1][:40],
+                    "similarity": round(sim, 2),
+                })
+
+    duplicate_count = len(high_similarity_pairs)
+    max_allowed = max(1, len(lines) // 15)
+    passed = duplicate_count <= max_allowed
+
+    result = {
+        "passed": passed,
+        "dialogue_line_count": len(lines),
+        "repeated_utterance_pairs": duplicate_count,
+        "max_allowed_repeated_pairs": max_allowed,
+        "sample_repeated_pairs": high_similarity_pairs[:5],
+    }
+    if not passed and enforce:
+        raise EpisodeFormatError(
+            f"generated script contains excessive repetitive dialogue or looping content "
+            f"({duplicate_count} repetitive pairs detected, maximum allowed is {max_allowed})"
+        )
+    return result
+
+
 def _format_spec(episode_format: str) -> FormatSpec:
     config = load_episode_formats()
     if episode_format not in {"daily", "lab"}:
@@ -437,7 +502,9 @@ def build_format_instruction(episode_format: str, spec: FormatSpec) -> str:
     if episode_format == "lab":
         return f"""
 【番組形式: AI実装ラボ】
-- 目標尺は{spec.duration_label}、台本文字数は{spec.prompt_character_min}〜{spec.prompt_character_max}文字を目安にする。
+- 目標尺は{spec.duration_label}（基本は5分程度、ニュースの情報量に応じて最大10分まで自然に展開）。
+- 台本文字数は{spec.prompt_character_min}〜{spec.prompt_character_max}文字を目安とする。情報が少ない時は無理に引き伸ばさずコンパクト（1,200〜1,400文字前後）にまとめ、深掘りできる論点が豊富な場合のみ後ろへ広げること。
+- 同じ説明、同一論点、同じ結論の反復・水増しは絶対に禁止。情報量が尽きたら無理に引き延ばさず、自然に会話を締めくくること。
 - 日曜はNotion復習を休み、今週のニュースからバイブコーダーが知っておく価値の高い1テーマだけを深掘りする。
 - officialソースを主な根拠にし、関連する2件目以降は理解を補強できる場合だけ使う。ソース別のニュース紹介へ分割しない。
 - 「なぜ今重要か」から背景、仕組み、個人開発での使いどころ、注意点へ会話を自然につなぐ。章立てやチェックリストの読み上げにしない。
@@ -474,6 +541,7 @@ def build_prompt_content(
     length_retry=False,
     style_retry=False,
     duration_retry=False,
+    repetition_retry=False,
     role_plan=None,
 ):
     """プロンプトのコンテキスト（一次情報）を組み立てる"""
@@ -552,6 +620,13 @@ def build_prompt_content(
             "直前の具体語を受けた言い換え、疑問、対比のいずれかで各返答を最初から再構成してください。"
             "同じ相づちや訂正の型を繰り返さないでください。\n"
         )
+    if repetition_retry:
+        content += (
+            "直前の台本は同じ話題や説明のループ・水増しが検知されました。"
+            "一度伝えた内容を言葉を変えて何度も繰り返さないでください。"
+            "一次情報から確認できる事実を自然に整理し、情報が尽きたら無理に引き伸ばさず、"
+            f"自然な会話の締めくくりへ進んでください（目標: {spec.prompt_character_min}〜{spec.prompt_character_max}文字）。\n"
+        )
     if duration_retry:
         acceptance_floor_minutes = spec.audio_thresholds.min_duration_seconds / 60
         content += (
@@ -582,6 +657,7 @@ def generate_radio_script(
     length_retry=False,
     style_retry=False,
     duration_retry=False,
+    repetition_retry=False,
     role_plan=None,
 ):
     """Gemini APIを使用してラジオ台本を生成"""
@@ -617,6 +693,7 @@ def generate_radio_script(
         length_retry=length_retry,
         style_retry=style_retry,
         duration_retry=duration_retry,
+        repetition_retry=repetition_retry,
         role_plan=role_plan,
     )
     

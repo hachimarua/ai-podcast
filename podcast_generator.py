@@ -88,6 +88,9 @@ def _manifest_episode_metadata(base_dir, filename):
     if not isinstance(manifest, dict):
         return None
 
+    if manifest.get("publish_status", "published") != "published":
+        return None
+
     episode_format = manifest.get("episode_format")
     if episode_format not in {"daily", "lab"}:
         return None
@@ -95,7 +98,7 @@ def _manifest_episode_metadata(base_dir, filename):
         manifest.get("public_topic", ""), fallback="最新AIニュース", max_length=160
     )
     label = "Daily Brief" if episode_format == "daily" else "AI実装ラボ"
-    duration = "4〜6分" if episode_format == "daily" else "8〜12分"
+    duration = "4〜6分" if episode_format == "daily" else "5〜10分"
     return {
         "title": f"{label}｜{topic}",
         "description": f"{label}（{duration}）｜テーマ: {topic}",
@@ -148,6 +151,18 @@ def generate_podcast_rss():
     # エピソードの追加
     for mp3_path in mp3_files:
         filename = os.path.basename(mp3_path)
+        episode_id = os.path.splitext(filename)[0]
+        manifest_path = os.path.join(base_dir, "episode_manifests", f"{episode_id}.json")
+        if os.path.exists(manifest_path):
+            try:
+                with open(manifest_path, "r", encoding="utf-8") as h:
+                    manifest_data = json.load(h)
+                if isinstance(manifest_data, dict) and manifest_data.get("publish_status", "published") != "published":
+                    print(f"Skipping unpublished/withdrawn episode from RSS: {filename}")
+                    continue
+            except (OSError, json.JSONDecodeError):
+                pass
+
         file_size = os.path.getsize(mp3_path)
         
         # ファイル名から日付をパースして表示用にする (例: podcast_20260619_104300.mp3 -> 2026年06月19日のAIラジオ)

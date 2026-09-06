@@ -86,7 +86,7 @@ class EpisodeFormatConfigTests(unittest.TestCase):
         daily = config.formats["daily"]
         lab = config.formats["lab"]
         self.assertEqual((daily.audio_thresholds.min_duration_seconds, daily.audio_thresholds.max_duration_seconds), (210.0, 360.0))
-        self.assertEqual((lab.audio_thresholds.min_duration_seconds, lab.audio_thresholds.max_duration_seconds), (435.0, 720.0))
+        self.assertEqual((lab.audio_thresholds.min_duration_seconds, lab.audio_thresholds.max_duration_seconds), (210.0, 600.0))
         self.assertEqual(daily.speech_rate, "+10%")
         self.assertEqual(lab.speech_rate, "+10%")
         self.assertEqual(
@@ -96,7 +96,7 @@ class EpisodeFormatConfigTests(unittest.TestCase):
                 lab.hard_character_min,
                 lab.hard_character_max,
             ),
-            (3000, 3300, 1600, 3600),
+            (1200, 2600, 900, 2800),
         )
         self.assertEqual(
             (
@@ -112,7 +112,7 @@ class EpisodeFormatConfigTests(unittest.TestCase):
         self.assertTrue(daily_result["passed"])
         self.assertTrue(lab_result["passed"])
         with self.assertRaises(episode_formats.EpisodeFormatError):
-            episode_formats.validate_script_length("あ" * 1000, lab)
+            episode_formats.validate_script_length("あ" * 800, lab)
 
     def test_dialogue_style_allows_occasional_reaction_but_rejects_repetition(self):
         natural = "\n".join(
@@ -471,7 +471,7 @@ class FormatPromptTests(unittest.TestCase):
         self.assertIn("章立てやチェックリスト", instruction)
         self.assertIn("手順や今日のアクションは本当に役立つ場合だけ", instruction)
         self.assertNotIn("3〜5段階の具体手順", instruction)
-        self.assertIn("8〜12分", instruction)
+        self.assertIn("5〜10分", instruction)
         self.assertNotIn("ニュース2は主題を補強", instruction)
 
     def test_lab_generation_rejects_unsafe_sources_before_mock_or_api(self):
@@ -638,7 +638,7 @@ class LabPipelineIntegrationTests(unittest.TestCase):
         self.assertEqual(generate.call_args.kwargs["episode_format"], "lab")
         self.assertEqual(generate.call_args.args[0], [])
         self.assertEqual(generate.call_count, 1)
-        self.assertEqual(audio_gate.call_args.args[1].min_duration_seconds, 435.0)
+        self.assertEqual(audio_gate.call_args.args[1].min_duration_seconds, 210.0)
 
     def test_scheduled_lab_without_official_corroboration_falls_back_to_daily_spec(self):
         term = {
@@ -921,10 +921,10 @@ class LabPipelineIntegrationTests(unittest.TestCase):
             spec=spec,
             duration_retry=True,
         )
-        self.assertIn("目標尺は8〜12分です", prompt)
-        self.assertIn("3000〜3300文字", prompt)
-        self.assertIn("特に上限寄りの3300文字前後", prompt)
-        self.assertIn("3600文字を超えないでください", prompt)
+        self.assertIn("目標尺は5〜10分です", prompt)
+        self.assertIn("1200〜2600文字", prompt)
+        self.assertIn("特に上限寄りの2600文字前後", prompt)
+        self.assertIn("2800文字を超えないでください", prompt)
 
     def test_same_day_existing_lab_stops_instead_of_falling_back(self):
         today = datetime.now(episode_formats.JST).strftime("%Y-%m-%d")
@@ -1278,7 +1278,7 @@ class PublicEpisodeMetadataTests(unittest.TestCase):
             xml = ET.fromstring(xml_text)
             item = xml.find("./channel/item")
             self.assertEqual(item.findtext("title"), "AI実装ラボ｜RAG & evaluation <test>")
-            self.assertIn("AI実装ラボ（8〜12分）", item.findtext("description"))
+            self.assertIn("AI実装ラボ（5〜10分）", item.findtext("description"))
             self.assertNotIn("editorial-v1", xml_text)
 
     def test_non_object_manifest_falls_back_to_legacy_rss_metadata(self):

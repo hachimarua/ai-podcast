@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "config_version": "formats-v7",
+  "config_version": "formats-v8",
   "timezone": "Asia/Tokyo",
   "default_format": "daily",
   "weekly_lab": {
@@ -31,17 +31,17 @@
     },
     "lab": {
       "display_name": "AI実装ラボ",
-      "duration_label": "8〜12分",
-      "prompt_character_min": 3000,
-      "prompt_character_max": 3300,
-      "hard_character_min": 1600,
-      "hard_character_max": 3600,
+      "duration_label": "5〜10分",
+      "prompt_character_min": 1200,
+      "prompt_character_max": 2600,
+      "hard_character_min": 900,
+      "hard_character_max": 2800,
       "max_news_items": 3,
       "max_review_terms": 1,
       "speech_rate": "+10%",
       "audio_thresholds": {
-        "min_duration_seconds": 435.0,
-        "max_duration_seconds": 720.0,
+        "min_duration_seconds": 210.0,
+        "max_duration_seconds": 600.0,
         "min_mean_volume_db": -28.0,
         "max_mean_volume_db": -10.0,
         "max_peak_volume_db": -0.1,

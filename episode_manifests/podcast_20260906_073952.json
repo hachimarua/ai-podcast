@@ -96,7 +96,10 @@
   "pipeline_version": "phase8",
   "primary_topic": "Google Workspace向け画像作成編集ツールGoogle Picsの公式提供開始",
   "public_topic": "Google Workspace向け画像作成編集ツールGoogle Picsの公式提供開始",
-  "publish_status": "published",
+  "publish_status": "withdrawn",
+  "withdrawn_at": "2026-09-06T11:30:00+09:00",
+  "withdrawn_reason": "excessive_content_repetition_in_single_news_pad",
+  "incident_summary": "1件のみのニュースに対し旧日曜固定長尺（3000文字超）を課したことで内容ループが発生したため、失敗事例としてリポジトリに保存した上で公開RSSから取り下げ。",
   "schema_version": 1,
   "script_minhash": [
     2099022094324870,
