@@ -4,6 +4,7 @@ venv/
 
 # Environment Variables (DO NOT COMMIT SECRETS)
 .env
+.env.bak.*
 
 # Python Cache
 __pycache__/
