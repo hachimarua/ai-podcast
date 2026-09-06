@@ -1,0 +1,176 @@
+{
+  "audio_sha256": "3ff128f33261a1371576b4fde591f9132632a430d5a6a525f7aeded3fba13603",
+  "broadcast_date": "2026-09-07",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 223.512,
+      "file_size_bytes": 1650093,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.6,
+      "mean_volume_db": -17.7,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 19,
+      "explainer_line_count": 9,
+      "first_speaker": "ケンジ",
+      "navigator_line_count": 10,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "アミ",
+      "navigator": "ケンジ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0781,
+    "format_config_version": "formats-v8",
+    "initial_script_similarity": 0.0938,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 4,
+        "Google AI Blog": 3,
+        "Hugging Face Blog": 5,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 4
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "TechCrunch AI"
+        }
+      ],
+      "selected_sources": [
+        "TechCrunch AI"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1485,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1400,
+      "target_min": 1200
+    },
+    "script_repetition": {
+      "dialogue_line_count": 19,
+      "max_allowed_repeated_pairs": 1,
+      "passed": true,
+      "repeated_utterance_pairs": 0,
+      "sample_repeated_pairs": []
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 223,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260907_041856",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-09-06T19:20:02.506638+00:00",
+  "news_urls": [
+    "https://techcrunch.com/2026/09/06/travis-kalanicks-atoms-might-be-getting-into-the-robotaxi-business/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "Atomsのロボタクシー事業参入報道とキューの基礎知識",
+  "public_topic": "Atomsのロボタクシー事業参入報道とキューの基礎知識",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    867149852104500,
+    1033850234154406,
+    490305752435790,
+    1705583346366812,
+    2683722803872827,
+    14100050135791309,
+    12142949138697531,
+    52304828285733452,
+    46592230455641501,
+    21729325497347188,
+    74604044391597362,
+    18307321848205879,
+    7833870145706316,
+    2509014050104190,
+    12053228025275938,
+    6996490096348614,
+    8959615470663319,
+    37647654423240477,
+    5111300730870775,
+    21486814321395431,
+    12835302927990227,
+    14798672972238113,
+    21579389443746315,
+    3057471476659148,
+    10404787019425993,
+    29748550003779973,
+    12711148323369405,
+    25560472233656225,
+    25488116725612133,
+    4736123207973396,
+    8312810266622811,
+    24503697764802241,
+    9157663162781755,
+    8004477460176053,
+    874719033031561,
+    31654219505349420,
+    5415063915412842,
+    1496800898790716,
+    584024533904177,
+    2113729683550366,
+    36537600159007381,
+    17657316974094383,
+    8678635061271049,
+    9069931150054288,
+    44290376595597192,
+    11524855521937546,
+    18294846297144056,
+    31357939143236813,
+    631103193672087,
+    6763533088374338,
+    27251492007603620,
+    450965783430410,
+    13476582407555612,
+    315360289699213,
+    20029408629006534,
+    10340007925367659,
+    8254414437293945,
+    31780988176179305,
+    31655098376521771,
+    8920872511730446,
+    3628120300419758,
+    198004950031846,
+    3970400794750889,
+    2630732003560596
+  ],
+  "script_sha256": "dbcba034012c926ab4f63f824eedcb1e829d2ad9fe4556808d0a15fbf6079419",
+  "selected_term_keys": [
+    "0bb2e464d55cee52bb3f409c"
+  ],
+  "topic_fingerprint": "286063db01bf13c95700642a"
+}
