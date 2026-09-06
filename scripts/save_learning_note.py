@@ -8,8 +8,8 @@ is read or modified.
 A clipboard that opens with `# 用語名` is already in the final shape and is kept
 verbatim (`format: structured`).  Plain prose from a side chat is accepted too
 and marked `format: raw`, so the intake stage can name and organise it later.
-Only an empty or oversized clipboard is refused here: judging what is worth
-keeping happens downstream, where the whole text is available.
+An empty, oversized, or secret-bearing clipboard is refused here: judging what
+is worth keeping happens downstream, where the whole text is available.
 """
 
 from __future__ import annotations
@@ -33,6 +33,51 @@ FALLBACK_TITLE = "学習メモ"
 LIST_MARKER = re.compile(r"^\s*(?:[-*+•・>]|\d+[.)])\s+")
 INLINE_MARKUP = re.compile(r"[*_`#\[\]]+")
 SENTENCE_BREAK = re.compile(r"[。．.!?！？:：、,]")
+
+# クリップボード誤爆で秘密情報がvault→Notion受信箱→LLMへ流れるのを、唯一の流入口である
+# ここで止める。判定は「その文字列でしか成立しない形」だけに絞り、学習ノートの本文
+# （APIキーの説明そのものなど）を巻き込まないようにする。
+SECRET_PATTERNS = (
+    ("Anthropic APIキー", re.compile(r"\bsk-ant-[A-Za-z0-9_-]{24,}")),
+    ("OpenAI APIキー", re.compile(r"\bsk-(?:proj-|svcacct-)?[A-Za-z0-9_-]{24,}")),
+    ("Google APIキー", re.compile(r"\bAIza[A-Za-z0-9_-]{30,}")),
+    ("Notionトークン", re.compile(r"\b(?:ntn_|secret_)[A-Za-z0-9]{36,}")),
+    ("GitHubトークン", re.compile(r"\b(?:gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{50,})")),
+    ("Slackトークン", re.compile(r"\bxox[baprs]-[A-Za-z0-9-]{20,}")),
+    ("AWSアクセスキー", re.compile(r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b")),
+    ("秘密鍵", re.compile(r"-----BEGIN (?:[A-Z ]+ )?PRIVATE KEY-----")),
+)
+
+# `.env` を丸ごとコピーした場合の受け皿。値が実在のキーらしい長さのときだけ拾い、
+# プレースホルダ（YOUR_..., <your-key> 等）は学習ノートとして通す。
+ENV_ASSIGNMENT = re.compile(
+    r"(?im)^[ \t]*(?:export[ \t]+)?[A-Z0-9_]*"
+    r"(?:API_?KEY|ACCESS_?TOKEN|AUTH_?TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIALS?)"
+    r"[A-Z0-9_]*[ \t]*[=:][ \t]*[\"\']?([A-Za-z0-9_\-\.]{24,})[\"\']?[ \t]*$"
+)
+ENV_PLACEHOLDER = re.compile(
+    r"(?i)your|placeholder|example|sample|dummy|changeme|xxxx|_here\b|\.\.\."
+)
+# 定数名を代入しているだけの行を通すための逃がし。ここだけは大文字であることが
+# 判定の根拠なので、上の (?i) とは意図的に分けている。
+ENV_CONSTANT_NAME = re.compile(r"^[A-Z0-9_]+$")
+
+
+def detect_secret(body: str) -> str | None:
+    """Name the kind of secret found in the clipboard, or return ``None``.
+
+    Only the label is returned. The matched text itself is never surfaced,
+    because the caller prints the message and Hammerspoon shows it on screen.
+    """
+    for label, pattern in SECRET_PATTERNS:
+        if pattern.search(body):
+            return label
+    for match in ENV_ASSIGNMENT.finditer(body):
+        value = match.group(1)
+        if ENV_PLACEHOLDER.search(value) or ENV_CONSTANT_NAME.match(value):
+            continue
+        return "環境変数ファイルの秘密値"
+    return None
 
 
 class SaveNoteError(RuntimeError):
@@ -134,6 +179,9 @@ def save_note(text: str, *, vault: Path, today: date | None = None) -> Path:
         raise SaveNoteError("クリップボードが空です")
     if len(body) > MAX_NOTE_CHARACTERS:
         raise SaveNoteError(f"本文が{MAX_NOTE_CHARACTERS}文字を超えています")
+    secret = detect_secret(body)
+    if secret:
+        raise SaveNoteError(f"{secret}らしき文字列を検出しました")
 
     learning_root = (vault.expanduser() / LEARNING_RELATIVE_PATH).resolve()
     if not learning_root.is_dir():

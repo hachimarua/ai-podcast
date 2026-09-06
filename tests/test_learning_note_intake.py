@@ -129,6 +129,68 @@ class SaveLearningNoteTests(unittest.TestCase):
         self.assertEqual(path.parent, (vault / "20_Dev_開発" / "Learning").resolve())
 
 
+class SecretRejectionTests(unittest.TestCase):
+    """⌥⌘L の誤爆で秘密情報がvault→Notion受信箱→LLMへ流れないことを固定する。
+
+    テスト値は走査ツールに拾われないよう、リテラルを分割して組み立てる。
+    """
+
+    def make_vault(self, root: Path) -> Path:
+        vault = root / "MainVault"
+        (vault / "20_Dev_開発" / "Learning").mkdir(parents=True)
+        return vault
+
+    def assert_refused(self, text: str):
+        with tempfile.TemporaryDirectory() as tmp:
+            vault = self.make_vault(Path(tmp))
+            with self.assertRaises(save_learning_note.SaveNoteError) as caught:
+                save_learning_note.save_note(text, vault=vault)
+            learning = vault / "20_Dev_開発" / "Learning"
+            self.assertEqual(list(learning.glob("*.md")), [], "拒否したのにノートが残っている")
+        return str(caught.exception)
+
+    def test_provider_tokens_are_refused(self):
+        body = "# メモ\n\n設定値は {} です。\n"
+        cases = {
+            "OpenAI APIキー": "sk-" + "proj-" + "a1B2c3D4e5F6g7H8i9J0k1L2m3N4",
+            "Anthropic APIキー": "sk-" + "ant-" + "api03-" + "Zx9Yw8Vu7Ts6Rq5Po4Nm3Lk2Ji1H",
+            "Google APIキー": "AIza" + "SyD" + "e5F6g7H8i9J0k1L2m3N4o5P6q7R8s9T2u3V",
+            "Notionトークン": "ntn_" + "b" * 40,
+            "GitHubトークン": "gh" + "p_" + "c" * 36,
+            "Slackトークン": "xox" + "b-" + "1234567890-0987654321-AbCdEfGhIjKl",
+            "AWSアクセスキー": "AKIA" + "IOSFODNN7EXAMPLB",
+            "秘密鍵": "-----BEGIN" + " RSA PRIVATE KEY-----",
+        }
+        for label, token in cases.items():
+            with self.subTest(label=label):
+                message = self.assert_refused(body.format(token))
+                self.assertIn(label, message)
+                self.assertNotIn(token, message, "拒否メッセージに秘密そのものが漏れている")
+
+    def test_pasted_env_file_is_refused(self):
+        message = self.assert_refused(
+            'GEMINI_API_KEY="' + "d" * 39 + '"\n' + "BGM_VOLUME=0.30\n"
+        )
+        self.assertIn("環境変数ファイルの秘密値", message)
+
+    def test_a_note_that_merely_explains_api_keys_is_saved(self):
+        """本文が鍵の解説でも、実物が無ければ通す（誤検知で学習が止まらないこと）。"""
+        note = (
+            "# APIキー\n\n"
+            "OpenAIのキーは sk- で始まり、Notionは ntn_ で始まる。\n"
+            "`.env` には GEMINI_API_KEY=YOUR_GEMINI_API_KEY_HERE のように書き、\n"
+            "OPENAI_API_KEY=<your-key-here> は決してコミットしない。\n"
+            "値そのものはGitHub Secretsに置く。\n"
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            vault = self.make_vault(Path(tmp))
+            path = save_learning_note.save_note(note, vault=vault, today=date(2026, 9, 6))
+        self.assertEqual(path.name, "2026-09-06_APIキー.md")
+
+    def test_existing_learning_notes_still_pass(self):
+        self.assertIsNone(save_learning_note.detect_secret(GEM_ANSWER))
+
+
 class NotionRoundTripTests(unittest.TestCase):
     def test_markdown_survives_the_notion_paragraph_round_trip(self):
         body = "\n".join(f"## 見出し{index}\n- 箇条書き{index}" for index in range(200))
