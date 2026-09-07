@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜NeoMMEの公開とデータ処理の基礎シリアライゼーション</title>
+      <description>Daily Brief（4〜6分）｜テーマ: NeoMMEの公開とデータ処理の基礎シリアライゼーション</description>
+      <pubDate>Tue, 08 Sep 2026 07:23:09 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260908_072309.mp3" length="1801245" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260908_072309.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:06</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜Atomsのロボタクシー事業参入報道とキューの基礎知識</title>
       <description>Daily Brief（4〜6分）｜テーマ: Atomsのロボタクシー事業参入報道とキューの基礎知識</description>
       <pubDate>Mon, 07 Sep 2026 04:18:56 +0900</pubDate>

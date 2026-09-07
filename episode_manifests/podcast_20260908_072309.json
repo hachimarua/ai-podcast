@@ -1,0 +1,177 @@
+{
+  "audio_sha256": "55f247c15077160650c4156d382a2338e7ba6185d4d55244e594d73e91eeb852",
+  "broadcast_date": "2026-09-08",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_seconds": 246.192,
+      "file_size_bytes": 1801245,
+      "issues": [],
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.7,
+      "mean_volume_db": -17.9,
+      "passed": true,
+      "thresholds": {
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 180.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0
+      }
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 15,
+      "explainer_line_count": 7,
+      "first_speaker": "アミ",
+      "navigator_line_count": 8,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "ケンジ",
+      "navigator": "アミ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0625,
+    "format_config_version": "formats-v9",
+    "initial_script_similarity": 0.0625,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 5,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 4,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Hugging Face Blog"
+        }
+      ],
+      "selected_sources": [
+        "Hugging Face Blog"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1680,
+      "hard_max": 2000,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1650,
+      "target_min": 1400
+    },
+    "script_repetition": {
+      "dialogue_line_count": 15,
+      "max_allowed_repeated_pairs": 1,
+      "passed": true,
+      "repeated_utterance_pairs": 0,
+      "sample_repeated_pairs": []
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 246,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260908_072309",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-09-07T22:24:32.993554+00:00",
+  "news_urls": [
+    "https://huggingface.co/blog/Hcompany/neomme"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "NeoMMEの公開とデータ処理の基礎シリアライゼーション",
+  "public_topic": "NeoMMEの公開とデータ処理の基礎シリアライゼーション",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    8874304524615170,
+    11037874235134648,
+    7801293616769968,
+    11640383527970583,
+    1144587647952928,
+    5082630134943987,
+    3015270836214827,
+    50465983465513621,
+    11177856222785338,
+    1548359563687035,
+    11313014067587461,
+    14992668161707846,
+    4685883254784252,
+    78401278378283625,
+    1429089445849674,
+    23478288455823487,
+    19834881161452868,
+    4341124051296378,
+    41424408815054259,
+    37572475375739064,
+    47358060602304149,
+    3794250509784601,
+    52560856680538169,
+    13407609783372080,
+    11749673359462598,
+    23455844669289666,
+    21646793443474046,
+    14236606238747647,
+    29674530878785820,
+    4736123207973396,
+    26504751790564957,
+    7316690137363096,
+    33465810799349171,
+    60431549038848769,
+    33959509727274213,
+    36083733539371155,
+    24664065676860791,
+    13340752848296757,
+    7295246606352056,
+    8509795767683157,
+    9613750449654705,
+    8699428948940563,
+    821056654312835,
+    22880020999813560,
+    29216363351450517,
+    11524855521937546,
+    21260871287134942,
+    8345137286544266,
+    1649643916181555,
+    4450836825591063,
+    1049159332611480,
+    221244819777868,
+    5402556462064147,
+    24633887016999716,
+    4923810982112505,
+    2575463197139035,
+    13409277768803105,
+    18678769764722768,
+    9522073160932034,
+    31379779458881800,
+    6934231257520507,
+    7946866946171338,
+    3970400794750889,
+    28812998950126270
+  ],
+  "script_sha256": "0ba65ad711ca74f20a372db3146a7baa542eb76bf703d2d155032f41c5886194",
+  "selected_term_keys": [
+    "5c94515f6f8c04ac3395bc40"
+  ],
+  "topic_fingerprint": "e6ce3b32ab21ef407dc134ec"
+}
