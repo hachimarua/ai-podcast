@@ -218,7 +218,10 @@ def apply_pronunciation_dict(text):
         return ""
         
     # 置換用辞書 (大文字小文字を区別せずマッチさせるため、正規表現を作成)
+    # 置換は上から順に適用されるため、長い語を短い語より必ず先に置く。
+    # （"Google AI Blog" が "Google" に先を越されると「グーグル AI Blog」になる）
     replacements = {
+        # --- 誤読しやすい日本語表現 ---
         r'深[掘堀]りしていきたい': '詳しく見ていきたい',
         r'深[掘堀]りしていきます': '詳しく見ていきます',
         r'深[掘堀]りします': '詳しく見ます',
@@ -227,29 +230,83 @@ def apply_pronunciation_dict(text):
         r'(?i)(?<![A-Za-z])stateless(?![A-Za-z])': 'ステートレス',
         r'(?i)(?<![A-Za-z])idempotency(?![A-Za-z])': 'べき等性',
         r'冪等性': 'べき等性',
+
+        # --- 複合固有名詞（単体語より先に置くこと） ---
+        # 配信元の名前は台本で必ず声に出るため、6フィードすべてを収録する。
+        r'(?i)(?<![A-Za-z])Google[\s　]*AI[\s　]*Blog(?![A-Za-z])': 'グーグルエーアイブログ',
+        r'(?i)(?<![A-Za-z])Google[\s　]*Cloud(?![A-Za-z])': 'グーグルクラウド',
+        r'(?i)(?<![A-Za-z])Google[\s　]*Pics(?![A-Za-z])': 'グーグルピックス',
+        r'(?i)(?<![A-Za-z])Google[\s　]*Workspace(?![A-Za-z])': 'グーグルワークスペース',
+        r'(?i)(?<![A-Za-z])Hugging[\s　]*Face[\s　]*Blog(?![A-Za-z])': 'ハギングフェイスブログ',
+        r'(?i)(?<![A-Za-z])ITmedia[\s　]*AI\+': 'アイティメディアエーアイプラス',
+        r'(?i)(?<![A-Za-z])AI[\s　]*Watch(?![A-Za-z])': 'エーアイウォッチ',
+        # arXiv の分野コード。単体の "arXiv" より先に潰さないと "cs.AI" が残る。
+        r'(?i)(?<![A-Za-z])arXiv[\s　]*cs\.AI(?![A-Za-z])': 'アーカイブシーエスエーアイ',
+        r'(?i)(?<![A-Za-z])TechCrunch[\s　]*AI(?![A-Za-z])': 'テッククランチエーアイ',
+        r'(?i)(?<![A-Za-z])Cloudflare[\s　]*Workers(?![A-Za-z])': 'クラウドフレアワーカーズ',
+        r'(?i)(?<![A-Za-z])Cloudflare[\s　]*D1(?![A-Za-z0-9])': 'クラウドフレアディーワン',
+        r'(?i)(?<![A-Za-z])Vertex[\s　]*AI(?![A-Za-z])': 'バーテックスエーアイ',
+        r'(?i)(?<![A-Za-z])GitHub[\s　]*Actions(?![A-Za-z])': 'ギットハブアクションズ',
+        r'(?i)(?<![A-Za-z])Hugging[\s　]*Face(?![A-Za-z])': 'ハギングフェイス',
+
+        # --- 企業・サービス（単体） ---
         r'(?i)Claude': 'クロード',
-        r'(?i)MCP': 'エムシーピー',
-        r'(?i)LLMs': 'エルエルエムズ',
-        r'(?i)LLM': 'エルエルエム',
-        r'(?i)(?<![A-Za-z])JSON(?![A-Za-z])': 'ジェイソン',
-        r'(?i)APIs': 'エーピーアイズ',
-        r'(?i)API': 'エーピーアイ',
         r'(?i)Notion': 'ノーション',
         r'(?i)Gemini': 'ジェミニ',
         r'(?i)ChatGPT': 'チャットジーピーティー',
         r'(?i)OpenAI': 'オープンエーアイ',
         r'(?i)Anthropic': 'アンスロピック',
+        r'(?i)(?<![A-Za-z])Google(?![A-Za-z])': 'グーグル',
+        r'(?i)(?<![A-Za-z])Microsoft(?![A-Za-z])': 'マイクロソフト',
+        r'(?i)(?<![A-Za-z])NVIDIA(?![A-Za-z])': 'エヌビディア',
+        r'(?i)(?<![A-Za-z])Amazon(?![A-Za-z])': 'アマゾン',
+        r'(?i)(?<![A-Za-z])Apple(?![A-Za-z])': 'アップル',
+        r'(?i)(?<![A-Za-z])Meta(?![A-Za-z])': 'メタ',
+        r'(?i)(?<![A-Za-z])xAI(?![A-Za-z])': 'エックスエーアイ',
+        r'(?i)(?<![A-Za-z])Grok(?![A-Za-z])': 'グロック',
+        r'(?i)(?<![A-Za-z])Mistral(?![A-Za-z])': 'ミストラル',
+        r'(?i)(?<![A-Za-z])DeepSeek(?![A-Za-z])': 'ディープシーク',
+        r'(?i)(?<![A-Za-z])DeepMind(?![A-Za-z])': 'ディープマインド',
+        r'(?i)(?<![A-Za-z])Perplexity(?![A-Za-z])': 'パープレキシティ',
+        r'(?i)(?<![A-Za-z])TechCrunch(?![A-Za-z])': 'テッククランチ',
+        r'(?i)(?<![A-Za-z])ITmedia(?![A-Za-z])': 'アイティメディア',
+        r'(?i)(?<![A-Za-z])arXiv(?![A-Za-z])': 'アーカイブ',
+        r'(?i)(?<![A-Za-z])GitHub(?![A-Za-z])': 'ギットハブ',
+        r'(?i)(?<![A-Za-z])Cloudflare(?![A-Za-z])': 'クラウドフレア',
+        r'(?i)(?<![A-Za-z])Obsidian(?![A-Za-z])': 'オブシディアン',
+        r'(?i)(?<![A-Za-z])NotebookLM(?![A-Za-z])': 'ノートブックエルエム',
+        r'(?i)(?<![A-Za-z])Copilot(?![A-Za-z])': 'コパイロット',
+        r'(?i)(?<![A-Za-z])Codex(?![A-Za-z])': 'コーデックス',
+        r'(?i)(?<![A-Za-z])Cursor(?![A-Za-z])': 'カーソル',
+        r'(?i)(?<![A-Za-z])Llama(?![A-Za-z])': 'ラマ',
+        r'(?i)(?<![A-Za-z])Whisper(?![A-Za-z])': 'ウィスパー',
+        r'(?i)(?<![A-Za-z])Sora(?![A-Za-z])': 'ソラ',
+        r'(?i)(?<![A-Za-z])Docker(?![A-Za-z])': 'ドッカー',
+        r'(?i)(?<![A-Za-z])Python(?![A-Za-z])': 'パイソン',
+        r'(?i)(?<![A-Za-z])TypeScript(?![A-Za-z])': 'タイプスクリプト',
+        r'(?i)(?<![A-Za-z])JavaScript(?![A-Za-z])': 'ジャバスクリプト',
+        # モデルの等級名。この番組では常に製品名の一部として現れる。
+        r'(?i)(?<![A-Za-z])Flash(?![A-Za-z])': 'フラッシュ',
+
+        # --- 略語（長いものから） ---
+        r'(?i)LLMs': 'エルエルエムズ',
+        r'(?i)LLM': 'エルエルエム',
+        r'(?i)MCP': 'エムシーピー',
+        r'(?i)(?<![A-Za-z])JSON(?![A-Za-z])': 'ジェイソン',
+        r'(?i)APIs': 'エーピーアイズ',
+        r'(?i)API': 'エーピーアイ',
         r'(?i)RAG': 'ラグ',
+        r'(?i)(?<![A-Za-z])SQLite(?![A-Za-z])': 'エスキューライト',
+        r'(?i)(?<![A-Za-z])SQL(?![A-Za-z])': 'エスキューエル',
+        r'(?i)(?<![A-Za-z])SDK(?![A-Za-z])': 'エスディーケー',
+        r'(?i)(?<![A-Za-z])CLI(?![A-Za-z])': 'シーエルアイ',
+        r'(?i)(?<![A-Za-z])PWA(?![A-Za-z])': 'ピーダブリューエー',
+        r'(?i)(?<![A-Za-z])GPU(?![A-Za-z])': 'ジーピーユー',
+
         # Edge TTSが「必須」や「案」の読みを崩すことがあるため、
         # TTS直前だけ読みを明示する。保存台本・表示文は変更しない。
         r'必須': 'ひっす',
         r'案': 'あん',
-        r'(?i)(?<![A-Za-z])Hugging[\s　]*Face(?![A-Za-z])': 'ハギングフェイス',
-        r'(?i)(?<![A-Za-z])DeepMind(?![A-Za-z])': 'ディープマインド',
-        r'(?i)(?<![A-Za-z])TechCrunch(?![A-Za-z])': 'テッククランチ',
-        r'(?i)(?<![A-Za-z])GitHub[\s　]*Actions(?![A-Za-z])': 'ギットハブアクションズ',
-        r'(?i)(?<![A-Za-z])GitHub(?![A-Za-z])': 'ギットハブ',
-        r'(?i)(?<![A-Za-z])Cloudflare(?![A-Za-z])': 'クラウドフレア',
     }
     
     result = text
