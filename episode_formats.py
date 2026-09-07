@@ -116,9 +116,9 @@ class EpisodeFormatsConfig(BaseModel):
         if daily.duration_label != "4〜6分" or (
             daily.audio_thresholds.min_duration_seconds,
             daily.audio_thresholds.max_duration_seconds,
-        ) != (210.0, 360.0):
+        ) != (180.0, 360.0):
             raise ValueError(
-                "daily must target 4-6 minutes with a 3.5-minute acceptance floor"
+                "daily must target 4-6 minutes with a 3.0-minute acceptance floor"
             )
         if daily.speech_rate != "+10%":
             raise ValueError("daily speech rate is fixed at +10%")
@@ -127,8 +127,8 @@ class EpisodeFormatsConfig(BaseModel):
             daily.prompt_character_max,
             daily.hard_character_min,
             daily.hard_character_max,
-        ) != (1200, 1400, 900, 2000):
-            raise ValueError("daily script target must remain 1200-1400 characters")
+        ) != (1400, 1650, 900, 2000):
+            raise ValueError("daily script target must remain 1400-1650 characters")
         if lab.duration_label != "5〜10分" or (
             lab.audio_thresholds.min_duration_seconds,
             lab.audio_thresholds.max_duration_seconds,

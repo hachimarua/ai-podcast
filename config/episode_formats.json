@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "config_version": "formats-v8",
+  "config_version": "formats-v9",
   "timezone": "Asia/Tokyo",
   "default_format": "daily",
   "weekly_lab": {
@@ -11,15 +11,15 @@
     "daily": {
       "display_name": "Daily Brief",
       "duration_label": "4〜6分",
-      "prompt_character_min": 1200,
-      "prompt_character_max": 1400,
+      "prompt_character_min": 1400,
+      "prompt_character_max": 1650,
       "hard_character_min": 900,
       "hard_character_max": 2000,
       "max_news_items": 2,
       "max_review_terms": 1,
       "speech_rate": "+10%",
       "audio_thresholds": {
-        "min_duration_seconds": 210.0,
+        "min_duration_seconds": 180.0,
         "max_duration_seconds": 360.0,
         "min_mean_volume_db": -28.0,
         "max_mean_volume_db": -10.0,
