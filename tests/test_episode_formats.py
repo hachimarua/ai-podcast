@@ -85,7 +85,7 @@ class EpisodeFormatConfigTests(unittest.TestCase):
         config = episode_formats.load_episode_formats()
         daily = config.formats["daily"]
         lab = config.formats["lab"]
-        self.assertEqual((daily.audio_thresholds.min_duration_seconds, daily.audio_thresholds.max_duration_seconds), (210.0, 360.0))
+        self.assertEqual((daily.audio_thresholds.min_duration_seconds, daily.audio_thresholds.max_duration_seconds), (180.0, 360.0))
         self.assertEqual((lab.audio_thresholds.min_duration_seconds, lab.audio_thresholds.max_duration_seconds), (210.0, 600.0))
         self.assertEqual(daily.speech_rate, "+10%")
         self.assertEqual(lab.speech_rate, "+10%")
@@ -105,7 +105,7 @@ class EpisodeFormatConfigTests(unittest.TestCase):
                 daily.hard_character_min,
                 daily.hard_character_max,
             ),
-            (1200, 1400, 900, 2000),
+            (1400, 1650, 900, 2000),
         )
         daily_result = episode_formats.validate_script_length("あ" * 1000, daily)
         lab_result = episode_formats.validate_script_length("あ" * 2200, lab)
@@ -691,7 +691,7 @@ class LabPipelineIntegrationTests(unittest.TestCase):
         self.assertEqual(call.kwargs["episode_format"], "daily")
         self.assertEqual(call.kwargs["spec"].display_name, "Daily Brief")
         runtime_thresholds = audio_gate.call_args.args[1]
-        self.assertEqual(runtime_thresholds.min_duration_seconds, 210.0)
+        self.assertEqual(runtime_thresholds.min_duration_seconds, 180.0)
         self.assertEqual(runtime_thresholds.max_duration_seconds, 360.0)
 
     def test_daily_script_stops_when_length_retry_fails(self):
@@ -819,7 +819,7 @@ class LabPipelineIntegrationTests(unittest.TestCase):
         self.assertEqual(audio_gate.call_count, 2)
         self.assertTrue(
             all(
-                call.args[1].min_duration_seconds == 210.0
+                call.args[1].min_duration_seconds == 180.0
                 for call in audio_gate.call_args_list
             )
         )
@@ -903,7 +903,8 @@ class LabPipelineIntegrationTests(unittest.TestCase):
             spec=spec,
             duration_retry=True,
         )
-        self.assertIn("配信許容下限（3.5分）に届きませんでした", prompt)
+        acceptance_floor_minutes = spec.audio_thresholds.min_duration_seconds / 60
+        self.assertIn(f"配信許容下限（{acceptance_floor_minutes:g}分）に届きませんでした", prompt)
         self.assertIn("目標尺は4〜6分です", prompt)
         self.assertIn(
             f"{spec.prompt_character_min}〜{spec.prompt_character_max}文字", prompt
