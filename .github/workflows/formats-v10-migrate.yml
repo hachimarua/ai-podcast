@@ -1,0 +1,36 @@
+name: Formats v10 migration
+
+on:
+  push:
+    branches: [feature/formats-v10-editorial-flexibility]
+    paths:
+      - scripts/apply_formats_v10_editorial.py
+      - .github/workflows/formats-v10-migrate.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    if: ${{ !contains(github.event.head_commit.message || '', '[formats-v10-applied]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/formats-v10-editorial-flexibility
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Apply deterministic migration
+        run: python scripts/apply_formats_v10_editorial.py
+      - name: Commit migration
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add config/episode_formats.json episode_formats.py script_generator.py news_collector.py main.py episode_history.py tests/test_episode_formats.py
+          git diff --cached --check
+          git commit -m "feat: apply formats-v10 editorial policy [formats-v10-applied]"
+          git push origin HEAD:feature/formats-v10-editorial-flexibility
