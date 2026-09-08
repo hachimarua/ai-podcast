@@ -14,8 +14,9 @@ from pathlib import Path
 class AudioThresholds:
     target_duration_seconds: float = 240.0
     min_duration_seconds: float = 180.0
-    warning_duration_seconds: float = 360.0
-    max_duration_seconds: float = 600.0
+    # formats-v10: this legacy maximum is now a non-blocking warning boundary.
+    max_duration_seconds: float = 360.0
+    hard_max_duration_seconds: float = 600.0
     min_mean_volume_db: float = -28.0
     max_mean_volume_db: float = -10.0
     max_peak_volume_db: float = -0.1
@@ -86,11 +87,7 @@ def _long_silence_seconds(path: Path, thresholds: AudioThresholds) -> float:
 def inspect_audio(
     audio_path: str | os.PathLike[str], thresholds: AudioThresholds | None = None
 ) -> dict:
-    """Return hard issues and non-blocking warnings separately.
-
-    formats-v10 intentionally treats a merely long episode as a warning. Only the
-    extreme hard maximum remains a blocking duration issue.
-    """
+    """Return hard issues separately from non-blocking long-duration warnings."""
     thresholds = thresholds or AudioThresholds()
     path = Path(audio_path)
     if not path.is_file():
@@ -107,9 +104,9 @@ def inspect_audio(
     warnings = []
     if duration < thresholds.min_duration_seconds:
         issues.append("duration_too_short")
-    if duration > thresholds.max_duration_seconds:
+    if duration > thresholds.hard_max_duration_seconds:
         issues.append("duration_too_long")
-    elif duration > thresholds.warning_duration_seconds:
+    elif duration > thresholds.max_duration_seconds:
         warnings.append("duration_long_warning")
     if mean_volume < thresholds.min_mean_volume_db:
         issues.append("mean_volume_too_quiet")
@@ -120,12 +117,11 @@ def inspect_audio(
     if silence_ratio > thresholds.max_long_silence_ratio:
         issues.append("too_much_long_silence")
 
-    rounded_duration = round(duration, 3)
     return {
         "passed": not issues,
         "issues": issues,
         "warnings": warnings,
-        "duration_seconds": rounded_duration,
+        "duration_seconds": round(duration, 3),
         "target_duration_seconds": thresholds.target_duration_seconds,
         "duration_headroom_seconds": round(duration - thresholds.min_duration_seconds, 3),
         "long_duration_warning": bool(warnings),
