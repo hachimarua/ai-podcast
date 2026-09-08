@@ -1,4 +1,4 @@
-"""Trusted Daily Brief / AI implementation lab format configuration."""
+"""Trusted Daily Brief / Weekly AI Review format configuration."""
 
 from __future__ import annotations
 
@@ -35,7 +35,9 @@ class EpisodeFormatError(ValueError):
 class AudioThresholdConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    target_duration_seconds: float = Field(gt=0)
     min_duration_seconds: float = Field(gt=0)
+    warning_duration_seconds: float = Field(gt=0)
     max_duration_seconds: float = Field(gt=0)
     min_mean_volume_db: float
     max_mean_volume_db: float
@@ -46,8 +48,15 @@ class AudioThresholdConfig(BaseModel):
 
     @model_validator(mode="after")
     def validate_ranges(self):
-        if self.min_duration_seconds >= self.max_duration_seconds:
-            raise ValueError("audio duration minimum must be below maximum")
+        if not (
+            self.min_duration_seconds
+            < self.target_duration_seconds
+            < self.warning_duration_seconds
+            < self.max_duration_seconds
+        ):
+            raise ValueError(
+                "audio duration bounds must satisfy min < target < warning < hard maximum"
+            )
         if self.min_mean_volume_db >= self.max_mean_volume_db:
             raise ValueError("mean volume minimum must be below maximum")
         return self
@@ -110,15 +119,18 @@ class EpisodeFormatsConfig(BaseModel):
         if self.formats["daily"].display_name != "Daily Brief":
             raise ValueError("daily display name is fixed")
         if self.formats["lab"].display_name != "AI実装ラボ":
-            raise ValueError("lab display name is fixed")
+            raise ValueError("lab display name is fixed for RSS compatibility")
+
         daily = self.formats["daily"]
         lab = self.formats["lab"]
         if daily.duration_label != "4〜6分" or (
             daily.audio_thresholds.min_duration_seconds,
+            daily.audio_thresholds.target_duration_seconds,
+            daily.audio_thresholds.warning_duration_seconds,
             daily.audio_thresholds.max_duration_seconds,
-        ) != (180.0, 360.0):
+        ) != (180.0, 240.0, 360.0, 600.0):
             raise ValueError(
-                "daily must target 4-6 minutes with a 3.0-minute acceptance floor"
+                "daily must target 240 seconds with 180 floor, 360 warning, 600 hard max"
             )
         if daily.speech_rate != "+10%":
             raise ValueError("daily speech rate is fixed at +10%")
@@ -127,22 +139,27 @@ class EpisodeFormatsConfig(BaseModel):
             daily.prompt_character_max,
             daily.hard_character_min,
             daily.hard_character_max,
-        ) != (1400, 1650, 900, 2000):
-            raise ValueError("daily script target must remain 1400-1650 characters")
+            daily.max_news_items,
+        ) != (1550, 1700, 900, 4000, 3):
+            raise ValueError("daily formats-v10 script/news targets are fixed")
+
         if lab.duration_label != "5〜10分" or (
             lab.audio_thresholds.min_duration_seconds,
+            lab.audio_thresholds.target_duration_seconds,
+            lab.audio_thresholds.warning_duration_seconds,
             lab.audio_thresholds.max_duration_seconds,
-        ) != (210.0, 600.0):
+        ) != (210.0, 480.0, 900.0, 1200.0):
             raise ValueError(
-                "lab target must remain 5-10 minutes with 3.5-minute acceptance floor"
+                "weekly must target 480 seconds with 210 floor, 900 warning, 1200 hard max"
             )
         if (
             lab.prompt_character_min,
             lab.prompt_character_max,
             lab.hard_character_min,
             lab.hard_character_max,
-        ) != (1200, 2600, 900, 2800):
-            raise ValueError("lab script target must remain 1200-2600 characters")
+            lab.max_news_items,
+        ) != (3000, 3400, 900, 6500, 4):
+            raise ValueError("weekly formats-v10 script/news targets are fixed")
         if lab.speech_rate != "+10%":
             raise ValueError("lab speech rate is fixed at +10%")
         if not re.fullmatch(r"formats-v[1-9][0-9]*", self.config_version):
@@ -198,11 +215,7 @@ def count_script_characters(script: str) -> int:
 
 
 def validate_script_length(script: str, spec: FormatSpec, *, enforce: bool = True) -> dict:
-    """Measure script length against the format, raising unless ``enforce`` is off.
-
-    ``enforce=False`` lets a caller that has decided to publish anyway still record
-    the real numbers instead of losing them to the exception.
-    """
+    """Measure script length against broad hard bounds while recording the narrow target."""
     count = count_script_characters(script)
     result = {
         "passed": spec.hard_character_min <= count <= spec.hard_character_max,
