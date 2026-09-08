@@ -1,7 +1,7 @@
 # formats-v10 開発ロードマップ
 
 最終更新: 2026-09-08  
-状態: **設計確定・実装前**  
+状態: **実装完了・回帰CI確認中（実モデルcanaryは未実施）**
 対象ブランチ: `feature/formats-v10-editorial-flexibility`
 
 ## 目的
@@ -48,7 +48,7 @@ Notionの継続学習と最新AIニュースを接続する毎朝の通常版。
 
 - target duration: **約240秒**
 - LLMには「約4分」を明確な中心値として指定する。
-- 現行Edge TTS +10%の実測約6.8文字/秒を参照し、台本は**約1,600〜1,650文字中心**を初期値とする。
+- 現行Edge TTS +10%の実測約6.8文字/秒を参照し、台本は**1,550〜1,750文字を生成中心帯**とする。
 - 文字数は厳格な到達目標ではなく、TTS尺を安定させる制御量とする。
 
 ### ニュース構成
@@ -94,9 +94,9 @@ Notion復習とは独立した「今週のAI界隈で知っておく価値のあ
 ### 尺監査案
 
 - `< 210秒`: Hard Stop候補
-- `210〜900秒`: normal
-- `> 900秒`: long-duration warning、公開継続
-- `> 1200秒`: extreme durationとしてHard Stop候補
+- `210〜600秒`: normal
+- `> 600秒`: long-duration warning、公開継続
+- `> 1200秒`: extreme durationとしてHard Stop
 
 ## 水増し・品質監査
 

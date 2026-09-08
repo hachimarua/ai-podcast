@@ -469,7 +469,7 @@ class FormatPromptTests(unittest.TestCase):
         self.assertIn("1テーマ固定にしない", instruction)
         self.assertIn("今週なぜ重要", prompt)
         self.assertIn("実装テーマに限定しない", instruction)
-        self.assertIn("手順や今日のアクションは本当に役立つ場合だけ", instruction)
+        self.assertIn("仕様、対応条件、具体的操作は入力ソースに根拠がある範囲だけ", instruction)
         self.assertNotIn("3〜5段階の具体手順", instruction)
         self.assertIn("5〜10分", instruction)
         self.assertNotIn("ニュース2は主題を補強", instruction)
