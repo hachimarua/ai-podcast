@@ -51,11 +51,10 @@ JAPAN_NEWS_MAX_AGE_DAYS = 14
 WEEKLY_LAB_NEWS_MAX_AGE_DAYS = 10
 MAX_NEWS_PER_BROADCAST = 3
 
-# Weekly Lab is deliberately independent from the user's Notion review terms.
-# Rank recent stories by whether they teach a reusable skill for an everyday
-# vibe-coding workflow, then require the primary story to come from a trusted
-# first-party feed.  These are selection hints, not facts injected into the
-# generated script.
+# Weekly AI Review is deliberately independent from the user's Notion review
+# terms. Practical implementation signals remain only as ranking hints; they are
+# no longer eligibility requirements, and first-party evidence is preferred but
+# not mandatory.
 WEEKLY_LAB_PRACTICAL_PATTERNS = (
     re.compile(
         r"\b(agent(?:ic|s)?|coding|developer|api|sdk|mcp|cli|pwa|devops|"
@@ -370,6 +369,15 @@ def select_news_for_broadcast(
 
     while len(selected) < max_items:
         remaining = [item for item in ordered_candidates if item not in selected]
+        remaining = [
+            item
+            for item in remaining
+            if not (
+                item.get("lane") == "japan"
+                and _published_at_or_none(item) is not None
+                and not _is_fresh_japan_candidate(item, now)
+            )
+        ]
         if not remaining:
             break
 
@@ -391,8 +399,9 @@ def select_news_for_broadcast(
             candidate = min(different_source, key=sort_key)
             reason = "different_source"
         else:
-            candidate = remaining[0]
-            reason = "candidate_fallback"
+            # Candidate capacity is not a quota. Do not add another story merely
+            # to fill the third slot when it brings no source diversity.
+            break
         add(candidate, reason)
 
     selection = []
@@ -417,7 +426,7 @@ def select_news_for_broadcast(
 
 
 class LabSourceError(RuntimeError):
-    """Raised when Weekly Lab lacks a safe, practical official basis."""
+    """Raised when Weekly AI Review violates the trusted-source boundary."""
 
 
 def validate_lab_sources(news_items):
@@ -488,9 +497,11 @@ def select_news_for_lab(news_items, recent_manifests, *, now=None, max_items=4):
     seen_urls = set()
     for index, item in enumerate(news_items):
         source_config = SOURCE_CONFIG.get(item.get("source"))
+        if not source_config:
+            raise LabSourceError("weekly review source is not trusted")
         canonical_urls = safe_public_news_urls([item.get("link")])
-        if not source_config or len(canonical_urls) != 1:
-            continue
+        if len(canonical_urls) != 1:
+            raise LabSourceError("weekly review requires a public HTTPS source URL")
         if not str(item.get("title", "")).strip() or not str(item.get("content", "")).strip():
             continue
         canonical = canonical_urls[0]

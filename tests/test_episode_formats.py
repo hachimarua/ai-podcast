@@ -917,9 +917,9 @@ class LabPipelineIntegrationTests(unittest.TestCase):
             duration_retry=True,
         )
         self.assertIn("目標尺は5〜10分です", prompt)
-        self.assertIn("1200〜2600文字", prompt)
-        self.assertIn("特に上限寄りの2600文字前後", prompt)
-        self.assertIn("2800文字を超えないでください", prompt)
+        self.assertIn("3000〜3500文字", prompt)
+        self.assertIn("特に上限寄りの3500文字前後", prompt)
+        self.assertIn("8200文字を超えないでください", prompt)
 
     def test_same_day_existing_lab_stops_instead_of_falling_back(self):
         today = datetime.now(episode_formats.JST).strftime("%Y-%m-%d")
@@ -930,6 +930,7 @@ class LabPipelineIntegrationTests(unittest.TestCase):
             "selected_term_keys": [],
         }
         news = self.reporting_news()
+        news["source"] = "Unknown Source"
         with (
             patch.object(pipeline_main, "load_recent_manifests", return_value=[existing]),
             patch.object(pipeline_main, "select_terms_for_review", return_value=[]),

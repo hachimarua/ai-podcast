@@ -494,7 +494,7 @@ def build_format_instruction(episode_format: str, spec: FormatSpec) -> str:
     if episode_format == "daily":
         return f"""
 【番組形式: Daily Brief】
-- 生成中心は読み上げ約{target_minutes:g}分。台本文字数は{spec.prompt_character_min}〜{spec.prompt_character_max}文字を狙う。これは中心値であり、文字数を満たすための言い換え・反復・水増しは禁止する。
+- 表示上の目安は{spec.duration_label}。生成中心は読み上げ約{target_minutes:g}分。台本文字数は{spec.prompt_character_min}〜{spec.prompt_character_max}文字を狙う。これは中心値であり、文字数を満たすための言い換え・反復・水増しは禁止する。
 - 冒頭は2発話以内で、その日に最も価値の高い論点へ入る。
 - ニュース件数は固定しない。1件で十分なら1件だけ扱い、独立した重要ニュースが複数ある場合は、それぞれを十分説明できる限り複数件を扱ってよい。
 - 各ニュースは「何が起きたか」「なぜ重要か」「利用者・開発への意味または制約」のうち、入力ソースで確認できる要素を十分に説明する。件数を増やすための薄い紹介は禁止する。
@@ -504,7 +504,7 @@ def build_format_instruction(episode_format: str, spec: FormatSpec) -> str:
     if episode_format == "lab":
         return f"""
 【番組形式: Weekly AI Review】
-- 生成中心は読み上げ約{target_minutes:g}分。台本文字数は{spec.prompt_character_min}〜{spec.prompt_character_max}文字を狙うが、尺合わせの反復・水増しは禁止する。
+- 表示上の目安は{spec.duration_label}。生成中心は読み上げ約{target_minutes:g}分。台本文字数は{spec.prompt_character_min}〜{spec.prompt_character_max}文字を狙うが、尺合わせの反復・水増しは禁止する。
 - 日曜はNotion復習から独立し、今週のAI界隈で「知らずに週を終えるのは惜しい」内容を編集して伝える。
 - バイブコーディングや実装テーマに限定しない。モデル、エージェント、研究、サービス、デバイス、インフラ、重要な業界変化などを対象にできる。
 - 1テーマ固定にしない。1件で十分なら1件、独立した重要ニュースが複数あるなら複数件を扱い、それぞれの背景と意味が薄くならないようにする。
@@ -606,7 +606,7 @@ def build_prompt_content(
         content += "ニュース件数は固定しません。独立した重要ニュースが複数ある場合は、各ニュースを薄くせず十分に説明できる範囲で複数扱ってください。件数を埋めるための追加は禁止です。Tipsは必須ではありません。\n"
     else:
         content += (
-            "今週知る価値を基準に1件以上を選び、各ニュースについて、なぜ今重要か、背景、意味、制約を自然な会話で十分に説明してください。実装テーマに限定せず、1テーマ固定にもせず、重要事項を削って尺へ合わせないでください。手順や期待結果は入力ソースに根拠があり、実際に役立つ場合だけ含めてください。\n"
+            "今週知る価値を基準に1件以上を選び、各ニュースについて、今週なぜ重要か、背景、意味、制約を自然な会話で十分に説明してください。実装テーマに限定せず、1テーマ固定にもせず、重要事項を削って尺へ合わせないでください。手順や期待結果は入力ソースに根拠があり、実際に役立つ場合だけ含めてください。\n"
         )
     if length_retry:
         content += (
