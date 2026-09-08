@@ -158,8 +158,8 @@ async def async_main():
     elif episode_format == "lab":
         selected_terms = []
         print(
-            "日曜のWeekly Labは復習を休み、今週のニュースから"
-            "バイブコーダー向けの重要テーマを選びます。"
+            "日曜のWeekly AI Reviewは復習を休み、今週のAIニュースから"
+            "知っておく価値の高い内容を自由に編集します。"
         )
     else:
         selected_terms = select_terms_for_review(
@@ -175,7 +175,10 @@ async def async_main():
         
     # 2. ホワイトリストソースからニュースを収集
     print("\n[Step 2] 信頼できるソース(ホワイトリスト)から最新ニュースを収集しています...")
-    all_news = collect_latest_news(max_entries_per_feed=10 if trial_anchor else 5)
+    all_news = collect_latest_news(
+        max_entries_per_feed=10 if trial_anchor else 5,
+        episode_format=episode_format,
+    )
     all_news, recent_news_removed = exclude_recent_news(all_news, history_manifests)
     print(
         f"新規ニュース {len(all_news)} 件を採用候補にしました。"
@@ -228,7 +231,7 @@ async def async_main():
             max_items=format_spec.max_news_items,
         )
     if not broadcast_news:
-        raise RuntimeError("No news candidates remain for the five-minute broadcast")
+        raise RuntimeError("No news candidates remain for the current broadcast")
     selected_matched = [item for item in broadcast_news if item["_matched_for_review"]]
     selected_general = [item for item in broadcast_news if not item["_matched_for_review"]]
     print(f"本日のニュース構成（{format_spec.display_name} 1本）:")

@@ -96,7 +96,7 @@ class EpisodeFormatConfigTests(unittest.TestCase):
                 lab.hard_character_min,
                 lab.hard_character_max,
             ),
-            (1200, 2600, 900, 2800),
+            (3000, 3500, 900, 8200),
         )
         self.assertEqual(
             (
@@ -105,7 +105,7 @@ class EpisodeFormatConfigTests(unittest.TestCase):
                 daily.hard_character_min,
                 daily.hard_character_max,
             ),
-            (1400, 1650, 900, 2000),
+            (1550, 1750, 900, 4200),
         )
         daily_result = episode_formats.validate_script_length("あ" * 1000, daily)
         lab_result = episode_formats.validate_script_length("あ" * 2200, lab)
@@ -436,7 +436,7 @@ class FormatPromptTests(unittest.TestCase):
             episode_format="daily",
         )
         instruction = script_generator.build_system_instruction("daily")
-        self.assertIn("ニュース2は主題を補強できる場合だけ任意", prompt)
+        self.assertIn("ニュース件数は固定しません", prompt)
         self.assertIn("Tipsは必須ではありません", prompt)
         self.assertIn("4〜6分", instruction)
         self.assertIn("【表示タイトル】", instruction)
@@ -466,7 +466,7 @@ class FormatPromptTests(unittest.TestCase):
         )
         instruction = script_generator.build_system_instruction("lab")
         self.assertIn("Evidence role: official", prompt)
-        self.assertIn("1テーマだけ", instruction)
+        self.assertIn("1テーマ固定にしない", instruction)
         self.assertIn("今週なぜ重要", prompt)
         self.assertIn("章立てやチェックリスト", instruction)
         self.assertIn("手順や今日のアクションは本当に役立つ場合だけ", instruction)
@@ -509,23 +509,24 @@ class LabSourceSelectionTests(unittest.TestCase):
         self.assertEqual(len(selected), 1)
         self.assertEqual(selected[0]["source"], "Google AI Blog")
 
-    def test_lab_rejects_reporting_only_candidates(self):
-        with self.assertRaises(news_collector.LabSourceError):
-            news_collector.select_news_for_lab(
-                [
-                    self.item("ITmedia AI+", "one", matched=""),
-                    self.item("AI Watch", "two", matched=""),
-                ],
-                [],
-            )
+    def test_weekly_accepts_reporting_only_candidates(self):
+        selected, audit = news_collector.select_news_for_lab(
+            [
+                self.item("ITmedia AI+", "one", matched=""),
+                self.item("AI Watch", "two", matched=""),
+            ],
+            [],
+        )
+        self.assertEqual(len(selected), 2)
+        self.assertFalse(audit["official_basis_present"])
 
-    def test_lab_does_not_treat_generic_ai_tools_marketing_as_builder_topic(self):
+    def test_weekly_can_consider_non_builder_ai_topic(self):
         marketing = self.item(
             "Google AI Blog", "Evolve your marketing with new AI tools", matched=""
         )
         marketing["content"] = "New AI tools help marketers improve campaigns."
-        with self.assertRaises(news_collector.LabSourceError):
-            news_collector.select_news_for_lab([marketing], [])
+        selected, _ = news_collector.select_news_for_lab([marketing], [])
+        self.assertEqual(selected[0]["title"], marketing["title"])
 
     def test_lab_rejects_unknown_source_that_self_declares_official(self):
         unknown = {
@@ -640,21 +641,14 @@ class LabPipelineIntegrationTests(unittest.TestCase):
         self.assertEqual(generate.call_count, 1)
         self.assertEqual(audio_gate.call_args.args[1].min_duration_seconds, 210.0)
 
-    def test_scheduled_lab_without_official_corroboration_falls_back_to_daily_spec(self):
-        term = {
-            "id": "term",
-            "name": "RAG",
-            "content": "private",
-            "review_count": 0,
-            "last_reviewed": None,
-        }
+    def test_scheduled_weekly_reporting_only_stays_weekly(self):
         news = self.reporting_news()
-        generated_script = "あ" * 1000
+        generated_script = "あ" * 3200
         with tempfile.TemporaryDirectory() as tmp:
             with (
                 patch.object(pipeline_main, "__file__", str(Path(tmp) / "main.py")),
                 patch.object(pipeline_main, "load_recent_manifests", return_value=[]),
-                patch.object(pipeline_main, "select_terms_for_review", return_value=[term]),
+                patch.object(pipeline_main, "select_terms_for_review", return_value=[]),
                 patch.object(pipeline_main, "collect_latest_news", return_value=[news]),
                 patch.object(
                     pipeline_main, "match_news_with_words", return_value=([news], [])
@@ -670,7 +664,7 @@ class LabPipelineIntegrationTests(unittest.TestCase):
                     "require_audio_quality",
                     return_value={
                         "passed": True,
-                        "duration_seconds": 300.0,
+                        "duration_seconds": 480.0,
                         "mean_volume_db": -18.0,
                         "max_volume_db": -1.0,
                     },
@@ -688,11 +682,11 @@ class LabPipelineIntegrationTests(unittest.TestCase):
                 asyncio.run(pipeline_main.async_main())
 
         call = generate.call_args
-        self.assertEqual(call.kwargs["episode_format"], "daily")
-        self.assertEqual(call.kwargs["spec"].display_name, "Daily Brief")
+        self.assertEqual(call.kwargs["episode_format"], "lab")
+        self.assertEqual(call.kwargs["spec"].display_name, "AI実装ラボ")
         runtime_thresholds = audio_gate.call_args.args[1]
-        self.assertEqual(runtime_thresholds.min_duration_seconds, 180.0)
-        self.assertEqual(runtime_thresholds.max_duration_seconds, 360.0)
+        self.assertEqual(runtime_thresholds.min_duration_seconds, 210.0)
+        self.assertEqual(runtime_thresholds.target_duration_seconds, 480.0)
 
     def test_daily_script_stops_when_length_retry_fails(self):
         # 生成し直しても規定尺に戻せない場合は、低品質音声を公開しない。
@@ -704,7 +698,7 @@ class LabPipelineIntegrationTests(unittest.TestCase):
             "last_reviewed": None,
         }
         news = self.reporting_news()
-        oversize_script = "あ" * 2020
+        oversize_script = "あ" * 4300
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             with (
@@ -835,7 +829,7 @@ class LabPipelineIntegrationTests(unittest.TestCase):
         }
         news = self.reporting_news()
         first_script = "あ" * 1000
-        oversize_retry_script = "い" * 2135
+        oversize_retry_script = "い" * 4300
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             with (
@@ -1005,7 +999,7 @@ class LabPipelineIntegrationTests(unittest.TestCase):
                 patch.object(
                     pipeline_main,
                     "generate_radio_script",
-                    side_effect=["あ" * 3650, repetitive_script],
+                    side_effect=["あ" * 8300, repetitive_script],
                 ) as generate,
                 patch.object(
                     pipeline_main, "synthesize_podcast", new=AsyncMock(side_effect=synthesize)

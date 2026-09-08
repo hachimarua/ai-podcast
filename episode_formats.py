@@ -139,8 +139,8 @@ class EpisodeFormatsConfig(BaseModel):
             daily.prompt_character_max,
             daily.hard_character_min,
             daily.hard_character_max,
-        ) != (1400, 1650, 900, 2000):
-            raise ValueError("daily script target must remain 1400-1650 characters")
+        ) != (1550, 1750, 900, 4200):
+            raise ValueError("daily script target must center on 1550-1750 characters")
 
         if lab.duration_label != "5〜10分" or (
             lab.audio_thresholds.min_duration_seconds,
@@ -156,8 +156,8 @@ class EpisodeFormatsConfig(BaseModel):
             lab.prompt_character_max,
             lab.hard_character_min,
             lab.hard_character_max,
-        ) != (1200, 2600, 900, 2800):
-            raise ValueError("lab script target must remain 1200-2600 characters")
+        ) != (3000, 3500, 900, 8200):
+            raise ValueError("weekly script target must center on 3000-3500 characters")
         if lab.speech_rate != "+10%":
             raise ValueError("lab speech rate is fixed at +10%")
         if not re.fullmatch(r"formats-v[1-9][0-9]*", self.config_version):

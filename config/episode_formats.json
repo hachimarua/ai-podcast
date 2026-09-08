@@ -11,11 +11,11 @@
     "daily": {
       "display_name": "Daily Brief",
       "duration_label": "4〜6分",
-      "prompt_character_min": 1400,
-      "prompt_character_max": 1650,
+      "prompt_character_min": 1550,
+      "prompt_character_max": 1750,
       "hard_character_min": 900,
-      "hard_character_max": 2000,
-      "max_news_items": 2,
+      "hard_character_max": 4200,
+      "max_news_items": 3,
       "max_review_terms": 1,
       "speech_rate": "+10%",
       "audio_thresholds": {
@@ -34,11 +34,11 @@
     "lab": {
       "display_name": "AI実装ラボ",
       "duration_label": "5〜10分",
-      "prompt_character_min": 1200,
-      "prompt_character_max": 2600,
+      "prompt_character_min": 3000,
+      "prompt_character_max": 3500,
       "hard_character_min": 900,
-      "hard_character_max": 2800,
-      "max_news_items": 3,
+      "hard_character_max": 8200,
+      "max_news_items": 4,
       "max_review_terms": 1,
       "speech_rate": "+10%",
       "audio_thresholds": {

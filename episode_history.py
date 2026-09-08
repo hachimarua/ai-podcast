@@ -49,6 +49,7 @@ PUBLIC_CHECK_STRINGS = PUBLIC_NEWS_SOURCES | {
     "daily", "lab", "world", "japan", "research", "official", "reporting",
     "notion_match", "least_recent_source", "fresh_japan_lane", "different_source",
     "candidate_fallback", "official_basis", "corroborating_source",
+    "weekly_primary_candidate", "weekly_diverse_candidate",
     "insufficient_multi_source_official_basis", "insufficient_weekly_lab_topic",
     "gemini_audio_transcription",
     "duration_too_short", "duration_too_long", "duration_long_warning",
