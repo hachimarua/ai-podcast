@@ -12,7 +12,9 @@ from pathlib import Path
 
 @dataclass(frozen=True)
 class AudioThresholds:
+    target_duration_seconds: float = 240.0
     min_duration_seconds: float = 180.0
+    warning_duration_seconds: float = 360.0
     max_duration_seconds: float = 600.0
     min_mean_volume_db: float = -28.0
     max_mean_volume_db: float = -10.0
@@ -23,7 +25,7 @@ class AudioThresholds:
 
 
 class AudioQualityError(RuntimeError):
-    """Raised when FFmpeg cannot inspect an audio file."""
+    """Raised when FFmpeg cannot inspect an audio file or a hard gate fails."""
 
 
 def _run(command: list[str], timeout: int = 180) -> subprocess.CompletedProcess[str]:
@@ -84,6 +86,11 @@ def _long_silence_seconds(path: Path, thresholds: AudioThresholds) -> float:
 def inspect_audio(
     audio_path: str | os.PathLike[str], thresholds: AudioThresholds | None = None
 ) -> dict:
+    """Return hard issues and non-blocking warnings separately.
+
+    formats-v10 intentionally treats a merely long episode as a warning. Only the
+    extreme hard maximum remains a blocking duration issue.
+    """
     thresholds = thresholds or AudioThresholds()
     path = Path(audio_path)
     if not path.is_file():
@@ -97,10 +104,13 @@ def inspect_audio(
     silence_ratio = silence_seconds / duration if duration > 0 else 1.0
 
     issues = []
+    warnings = []
     if duration < thresholds.min_duration_seconds:
         issues.append("duration_too_short")
     if duration > thresholds.max_duration_seconds:
         issues.append("duration_too_long")
+    elif duration > thresholds.warning_duration_seconds:
+        warnings.append("duration_long_warning")
     if mean_volume < thresholds.min_mean_volume_db:
         issues.append("mean_volume_too_quiet")
     if mean_volume > thresholds.max_mean_volume_db:
@@ -110,10 +120,15 @@ def inspect_audio(
     if silence_ratio > thresholds.max_long_silence_ratio:
         issues.append("too_much_long_silence")
 
+    rounded_duration = round(duration, 3)
     return {
         "passed": not issues,
         "issues": issues,
-        "duration_seconds": round(duration, 3),
+        "warnings": warnings,
+        "duration_seconds": rounded_duration,
+        "target_duration_seconds": thresholds.target_duration_seconds,
+        "duration_headroom_seconds": round(duration - thresholds.min_duration_seconds, 3),
+        "long_duration_warning": bool(warnings),
         "mean_volume_db": round(mean_volume, 2),
         "max_volume_db": round(max_volume, 2),
         "long_silence_seconds": round(silence_seconds, 3),
