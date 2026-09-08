@@ -24,6 +24,23 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Normalize split prompt literal
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('script_generator.py')
+          text = path.read_text(encoding='utf-8')
+          old = '''            "1テーマだけを扱い、今週なぜ重要なのか、仕組み、バイブコーダーの"
+            "個人開発でどう関係するか、使わない条件や注意点まで自然な会話で深掘りしてください。"
+            "手順や期待結果は公式根拠があり、実際に役立つ場合だけ含めてください。\\n"
+'''
+          new = '''            "1テーマだけを扱い、今週なぜ重要なのか、仕組み、バイブコーダーの個人開発でどう関係するか、使わない条件や注意点まで自然な会話で深掘りしてください。手順や期待結果は公式根拠があり、実際に役立つ場合だけ含めてください。\\n"
+'''
+          count = text.count(old)
+          if count != 1:
+              raise SystemExit(f'expected one split prompt literal, found {count}')
+          path.write_text(text.replace(old, new), encoding='utf-8')
+          PY
       - name: Apply deterministic migration
         run: python scripts/apply_formats_v10_editorial.py
       - name: Commit migration
