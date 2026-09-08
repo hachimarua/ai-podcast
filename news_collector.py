@@ -49,13 +49,12 @@ WHITELIST_FEEDS = {
 
 JAPAN_NEWS_MAX_AGE_DAYS = 14
 WEEKLY_LAB_NEWS_MAX_AGE_DAYS = 10
-MAX_NEWS_PER_BROADCAST = 2
+MAX_NEWS_PER_BROADCAST = 3
 
-# Weekly Lab is deliberately independent from the user's Notion review terms.
-# Rank recent stories by whether they teach a reusable skill for an everyday
-# vibe-coding workflow, then require the primary story to come from a trusted
-# first-party feed.  These are selection hints, not facts injected into the
-# generated script.
+# Weekly AI Review is deliberately independent from the user's Notion review
+# terms. Practical implementation signals remain only as ranking hints; they are
+# no longer eligibility requirements, and first-party evidence is preferred but
+# not mandatory.
 WEEKLY_LAB_PRACTICAL_PATTERNS = (
     re.compile(
         r"\b(agent(?:ic|s)?|coding|developer|api|sdk|mcp|cli|pwa|devops|"
@@ -159,7 +158,7 @@ def fetch_feed_entries(feed_name, feed_url, max_entries=5):
         print(f"[Error] Failed to fetch feed {feed_name}: {e}")
         return []
 
-def filter_business_noise(news_list):
+def filter_business_noise(news_list, *, episode_format="daily"):
     """
     タイトルや本文にビジネス・融資関連のノイズワードが含まれるニュースを除外する。
     """
@@ -170,13 +169,24 @@ def filter_business_noise(news_list):
         r'\bventure\s+capital\b', r'\bipo\b', r'\binvestment\b', r'\binvest\b', 
         r'\braise\s+money\b', r'\braised\s+(?:\$\d+|\d+\s*million|\d+\s*billion)\b'
     ]
+    if episode_format == "lab":
+        # Routine financing remains noise, while acquisitions, mergers, partnerships
+        # and infrastructure investment may be strategically important weekly news.
+        english_noise_words = [
+            r'\bseed\s+round\b', r'\bseries\s+[a-z]\b', r'\bfunding\b',
+            r'\bvaluation\b', r'\bvc\b', r'\bventure\s+capital\b',
+            r'\bipo\b', r'\braise\s+money\b',
+            r'\braised\s+(?:\$\d+|\d+\s*million|\d+\s*billion)\b',
+        ]
+        japanese_noise_words = [
+            "資金調達", "融資", "評価額", "ベンチャーキャピタル", "投資ラウンド"
+        ]
+    else:
+        japanese_noise_words = [
+            "資金調達", "買収", "合併", "融資", "評価額", "子会社", "株式取得",
+            "資本業務提携", "ベンチャーキャピタル", "投資ラウンド", "出資"
+        ]
     english_patterns = [re.compile(pattern, re.IGNORECASE) for pattern in english_noise_words]
-    
-    # 日本語のノイズワード（部分一致で検出）
-    japanese_noise_words = [
-        "資金調達", "買収", "合併", "融資", "評価額", "子会社", "株式取得", 
-        "資本業務提携", "ベンチャーキャピタル", "投資ラウンド", "出資"
-    ]
     
     filtered_news = []
     removed_count = 0
@@ -207,15 +217,17 @@ def filter_business_noise(news_list):
     print(f"Business Noise Filtering: Removed {removed_count} entries. {len(filtered_news)} entries remaining.")
     return filtered_news
 
-def collect_latest_news(max_entries_per_feed=5):
-    """ホワイトリストの全フィードから最新ニュースを収集し、ビジネスノイズをフィルタリング"""
+def collect_latest_news(max_entries_per_feed=5, *, episode_format="daily"):
+    """Collect trusted feeds with format-specific business-noise filtering."""
+    if episode_format not in {"daily", "lab"}:
+        raise ValueError("episode_format must be daily or lab")
     all_news = []
     for name, url in WHITELIST_FEEDS.items():
         entries = fetch_feed_entries(name, url, max_entries_per_feed)
         all_news.extend(entries)
     
     # ビジネスノイズを除外
-    filtered_news = filter_business_noise(all_news)
+    filtered_news = filter_business_noise(all_news, episode_format=episode_format)
     if not filtered_news:
         raise RuntimeError("No valid news entries were collected; pipeline stopped")
     return filtered_news
@@ -291,12 +303,11 @@ def _recent_source_counts(recent_manifests):
 def select_news_for_broadcast(
     matched_news, unmatched_news, recent_manifests, *, now=None, max_items=MAX_NEWS_PER_BROADCAST
 ):
-    """Select at most two source-diverse items for one five-minute broadcast.
+    """Select a small source-diverse candidate pool for one Daily episode.
 
-    A matching item keeps priority.  The second slot prefers a fresh Japanese
-    reporting source, otherwise a source different from the first item.  This is
-    a deterministic fallback policy, not a daily quota: stale Japanese items are
-    never forced into the programme.
+    A Notion match keeps priority, but later slots may be independent stories.
+    The generator decides how many candidates deserve airtime; deterministic
+    selection only prevents one feed from monopolizing the candidate pool.
     """
     if not 1 <= max_items <= 4:
         raise ValueError("max_items must be between 1 and 4")
@@ -357,10 +368,15 @@ def select_news_for_broadcast(
         )
 
     while len(selected) < max_items:
+        remaining = [item for item in ordered_candidates if item not in selected]
         remaining = [
             item
-            for item in ordered_candidates
-            if item not in selected and related_to_primary(item)
+            for item in remaining
+            if not (
+                item.get("lane") == "japan"
+                and _published_at_or_none(item) is not None
+                and not _is_fresh_japan_candidate(item, now)
+            )
         ]
         if not remaining:
             break
@@ -383,8 +399,9 @@ def select_news_for_broadcast(
             candidate = min(different_source, key=sort_key)
             reason = "different_source"
         else:
-            candidate = remaining[0]
-            reason = "candidate_fallback"
+            # Candidate capacity is not a quota. Do not add another story merely
+            # to fill the third slot when it brings no source diversity.
+            break
         add(candidate, reason)
 
     selection = []
@@ -409,32 +426,28 @@ def select_news_for_broadcast(
 
 
 class LabSourceError(RuntimeError):
-    """Raised when Weekly Lab lacks a safe, practical official basis."""
+    """Raised when Weekly AI Review violates the trusted-source boundary."""
 
 
 def validate_lab_sources(news_items):
-    """Accept one official source; optional corroboration must remain trusted and unique."""
+    """Require only trusted, unique, public sources with usable source text."""
 
     if not news_items:
-        raise LabSourceError("weekly lab requires at least one source")
+        raise LabSourceError("weekly review requires at least one trusted source")
     urls = set()
-    trusted_roles = []
     for item in news_items:
         source_config = SOURCE_CONFIG.get(item.get("source"))
         if not source_config:
-            raise LabSourceError("weekly lab source is not trusted")
+            raise LabSourceError("weekly review source is not trusted")
         canonical_urls = safe_public_news_urls([item.get("link")])
         if len(canonical_urls) != 1:
-            raise LabSourceError("weekly lab requires a public HTTPS source URL")
+            raise LabSourceError("weekly review requires a public HTTPS source URL")
         canonical = canonical_urls[0]
         if canonical in urls:
-            raise LabSourceError("weekly lab source URLs must be distinct")
+            raise LabSourceError("weekly review source URLs must be distinct")
         urls.add(canonical)
         if not str(item.get("title", "")).strip() or not str(item.get("content", "")).strip():
-            raise LabSourceError("weekly lab source must include a title and content")
-        trusted_roles.append(source_config.get("evidence_role", "untrusted"))
-    if "official" not in trusted_roles:
-        raise LabSourceError("weekly lab requires an official source")
+            raise LabSourceError("weekly review source must include a title and content")
     return True
 
 
@@ -468,85 +481,73 @@ def _weekly_lab_items_related(primary, candidate):
     return bool(_weekly_lab_title_tokens(primary) & _weekly_lab_title_tokens(candidate))
 
 
-def select_news_for_lab(news_items, recent_manifests, *, now=None, max_items=3):
-    """Select one practical weekly theme with an official source as its basis.
+def select_news_for_lab(news_items, recent_manifests, *, now=None, max_items=4):
+    """Build a recent, trusted, source-diverse candidate pool for Weekly AI Review.
 
-    Notion matching is intentionally not a prerequisite.  A second source is
-    included only when its title or explicit matched terms support the same
-    topic, so the longer episode never pads itself with an unrelated story.
+    Notion matching, a practical coding keyword, and an official first-party source
+    are all optional.  This selector provides several strong source candidates;
+    the script writer may use one or several depending on editorial value.
     """
 
     if not 1 <= max_items <= 4:
-        raise ValueError("lab max_items must be between 1 and 4")
+        raise ValueError("weekly max_items must be between 1 and 4")
     now = now or datetime.now(timezone.utc)
     recent_source_counts = _recent_source_counts(recent_manifests)
     candidates = []
     seen_urls = set()
     for index, item in enumerate(news_items):
         source_config = SOURCE_CONFIG.get(item.get("source"))
+        if not source_config:
+            raise LabSourceError("weekly review source is not trusted")
         canonical_urls = safe_public_news_urls([item.get("link")])
-        if not source_config or len(canonical_urls) != 1:
-            continue
+        if len(canonical_urls) != 1:
+            raise LabSourceError("weekly review requires a public HTTPS source URL")
         if not str(item.get("title", "")).strip() or not str(item.get("content", "")).strip():
             continue
         canonical = canonical_urls[0]
         if canonical in seen_urls:
             continue
         seen_urls.add(canonical)
-        score = _weekly_lab_relevance_score(item)
-        if score <= 0:
-            continue
         published_at = _published_at_or_none(item)
         if published_at and published_at < now - timedelta(days=WEEKLY_LAB_NEWS_MAX_AGE_DAYS):
             continue
         candidate = item.copy()
         candidate["lane"] = candidate.get("lane", source_config.get("lane", "world"))
-        candidate["evidence_role"] = source_config.get("evidence_role", "untrusted")
+        candidate["evidence_role"] = source_config.get("evidence_role", "reporting")
         candidate["_matched_for_review"] = bool(candidate.get("matched_words"))
         candidate["_candidate_index"] = index
-        candidate["_weekly_lab_score"] = score
+        candidate["_weekly_lab_score"] = _weekly_lab_relevance_score(item)
         candidate["_weekly_lab_published_at"] = published_at
         candidates.append(candidate)
+
+    if not candidates:
+        raise LabSourceError("Weekly AI Review has no recent trusted source with usable text")
+
+    role_priority = {"official": 0, "research": 1, "reporting": 2}
 
     def sort_key(candidate):
         published_at = candidate.get("_weekly_lab_published_at")
         freshness = -published_at.timestamp() if published_at else float("inf")
         return (
-            -candidate["_weekly_lab_score"],
             freshness,
+            role_priority.get(candidate.get("evidence_role"), 3),
+            -candidate["_weekly_lab_score"],
             recent_source_counts[candidate.get("source", "")],
             candidate["_candidate_index"],
         )
 
-    official_candidates = [
-        item for item in candidates if item.get("evidence_role") == "official"
-    ]
-    if not official_candidates:
-        raise LabSourceError(
-            "Weekly Lab requires one recent practical topic from an official source"
+    ordered = sorted(candidates, key=sort_key)
+    selected = []
+    selected_sources = set()
+    while ordered and len(selected) < max_items:
+        diverse = [item for item in ordered if item.get("source") not in selected_sources]
+        candidate = diverse[0] if diverse else ordered[0]
+        ordered.remove(candidate)
+        candidate["_selection_reason"] = (
+            "weekly_primary_candidate" if not selected else "weekly_diverse_candidate"
         )
-
-    primary = min(official_candidates, key=sort_key)
-    primary["_selection_reason"] = "official_basis"
-    selected = [primary]
-    selected_sources = {primary.get("source")}
-    related = [
-        item
-        for item in candidates
-        if item is not primary and _weekly_lab_items_related(primary, item)
-    ]
-    for candidate in sorted(
-        related,
-        key=lambda item: (
-            0 if item.get("source") not in selected_sources else 1,
-            *sort_key(item),
-        ),
-    ):
-        candidate["_selection_reason"] = "corroborating_source"
         selected.append(candidate)
         selected_sources.add(candidate.get("source"))
-        if len(selected) >= max_items:
-            break
 
     validate_lab_sources(selected)
     audit_selection = [
@@ -566,7 +567,9 @@ def select_news_for_lab(news_items, recent_manifests, *, now=None, max_items=3):
         "selected_sources": [item.get("source", "") for item in selected],
         "selected": audit_selection,
         "evidence_roles": [item.get("evidence_role", "reporting") for item in selected],
-        "official_basis_present": True,
+        "official_basis_present": any(
+            item.get("evidence_role") == "official" for item in selected
+        ),
     }
 
 # 簡易動作テスト用

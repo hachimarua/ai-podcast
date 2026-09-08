@@ -186,7 +186,7 @@ class PromptBoundaryTests(unittest.TestCase):
         self.assertIn("過去3回の主要テーマ", prompt)
         self.assertIn("- RAG", prompt)
 
-    def test_prompt_keeps_one_programme_to_two_curated_news_items(self):
+    def test_prompt_allows_three_curated_candidates_without_forcing_usage(self):
         news = [
             {"source": "one", "title": "one", "content": "one"},
             {"source": "two", "title": "two", "content": "two"},
@@ -195,8 +195,9 @@ class PromptBoundaryTests(unittest.TestCase):
         prompt = script_generator.build_prompt_content([], [], news)
         self.assertIn("Title: one", prompt)
         self.assertIn("Title: two", prompt)
-        self.assertNotIn("Title: three", prompt)
-        self.assertIn("5分のラジオ番組1本", prompt)
+        self.assertIn("Title: three", prompt)
+        self.assertIn("ニュース件数は固定しません", prompt)
+        self.assertIn("件数を埋めるための追加は禁止", prompt)
 
 
 class NewsSelectionTests(unittest.TestCase):
@@ -248,13 +249,15 @@ class NewsSelectionTests(unittest.TestCase):
         self.assertEqual([item["source"] for item in selected], ["TechCrunch AI", "AI Watch"])
         self.assertTrue(audit["selected"][0]["matched_notion_terms"])
 
-    def test_unrelated_second_item_is_omitted(self):
+    def test_independent_second_item_is_allowed_when_source_diverse(self):
         primary = self.make_news("TechCrunch AI", "world", "model-release")
         unrelated = self.make_news("AI Watch", "japan", "robotics-event")
         selected, _audit = news_collector.select_news_for_broadcast(
             [], [primary, unrelated], [], now=datetime(2026, 7, 12, tzinfo=timezone.utc)
         )
-        self.assertEqual([item["source"] for item in selected], ["TechCrunch AI"])
+        self.assertEqual(
+            [item["source"] for item in selected], ["TechCrunch AI", "AI Watch"]
+        )
 
 
 class DependencyLockTests(unittest.TestCase):
