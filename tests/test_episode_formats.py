@@ -457,7 +457,7 @@ class FormatPromptTests(unittest.TestCase):
         self.assertIn("テーマ、ニュース分野、曜日から推測してはいけません", instruction)
         self.assertNotIn("テーマが「プログラミング", instruction)
 
-    def test_lab_uses_one_official_theme_without_forced_steps_or_sections(self):
+    def test_weekly_allows_multiple_topics_without_forced_steps_or_sections(self):
         prompt = script_generator.build_prompt_content(
             [],
             [self.news("Google AI Blog", "one", "official")],
@@ -468,7 +468,7 @@ class FormatPromptTests(unittest.TestCase):
         self.assertIn("Evidence role: official", prompt)
         self.assertIn("1テーマ固定にしない", instruction)
         self.assertIn("今週なぜ重要", prompt)
-        self.assertIn("章立てやチェックリスト", instruction)
+        self.assertIn("実装テーマに限定しない", instruction)
         self.assertIn("手順や今日のアクションは本当に役立つ場合だけ", instruction)
         self.assertNotIn("3〜5段階の具体手順", instruction)
         self.assertIn("5〜10分", instruction)
