@@ -1,0 +1,198 @@
+{
+  "audio_sha256": "772863dc9b4df9fc9188840310bdb0e1b94557b3220834dba56b8c6f382673d7",
+  "broadcast_date": "2026-09-09",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_headroom_seconds": 71.376,
+      "duration_seconds": 251.376,
+      "file_size_bytes": 1860357,
+      "issues": [],
+      "long_duration_warning": false,
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.4,
+      "mean_volume_db": -17.9,
+      "passed": true,
+      "target_duration_seconds": 240.0,
+      "thresholds": {
+        "hard_max_duration_seconds": 600.0,
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 180.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0,
+        "target_duration_seconds": 240.0
+      },
+      "warnings": []
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 16,
+      "explainer_line_count": 8,
+      "first_speaker": "ケンジ",
+      "navigator_line_count": 8,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "アミ",
+      "navigator": "ケンジ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.125,
+    "format_config_version": "formats-v10",
+    "initial_script_similarity": 0.0781,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 4
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "ITmedia AI+"
+        },
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "different_source",
+          "source": "AI Watch"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "different_source",
+          "source": "TechCrunch AI"
+        }
+      ],
+      "selected_sources": [
+        "ITmedia AI+",
+        "AI Watch",
+        "TechCrunch AI"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1682,
+      "hard_max": 4200,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1750,
+      "target_min": 1550
+    },
+    "script_repetition": {
+      "dialogue_line_count": 16,
+      "max_allowed_repeated_pairs": 1,
+      "passed": true,
+      "repeated_utterance_pairs": 0,
+      "sample_repeated_pairs": []
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 251,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260909_065843",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-09-08T22:00:21.425103+00:00",
+  "news_urls": [
+    "https://ai.watch.impress.co.jp/docs/news/2139234.html",
+    "https://techcrunch.com/2026/09/08/hackers-are-stealing-claude-tokens-from-subscribers/",
+    "https://www.itmedia.co.jp/aiplus/article/2609/08/2000001291/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "マラソン大会のポスターが“AIっぽい”と波紋 「説明に不適切な部分があった」と事務局声明",
+  "public_topic": "マラソン大会のポスターが“AIっぽい”と波紋 「説明に不適切な部分があった」と事務局声明",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    261827451610474,
+    6377487362457122,
+    10956462106292436,
+    3803078663601876,
+    5082630134943987,
+    15313216234889376,
+    722121359503797,
+    28906369083575909,
+    19010457748537352,
+    33554520247292975,
+    7137445239229748,
+    3063033574559400,
+    16269502063729547,
+    9485651038829853,
+    6996490096348614,
+    14998379857649433,
+    11877352697298146,
+    61573222587191021,
+    930547541246055,
+    13193289724255290,
+    7130284255877887,
+    35182930761770275,
+    16762069217662521,
+    6273702354920350,
+    16587491693482540,
+    9389413358666406,
+    17542238362107359,
+    29193770425842565,
+    9270893430502474,
+    26504751790564957,
+    42382970740681657,
+    16691412687303667,
+    2206540955615468,
+    1527167952010352,
+    551915893238701,
+    2814661980300268,
+    24021560906641161,
+    11298021946294363,
+    4605895947786664,
+    13438561997949249,
+    8699428948940563,
+    1065897487463778,
+    9069931150054288,
+    1988152855439845,
+    11524855521937546,
+    8228817030543787,
+    10574827218043282,
+    14273961745117193,
+    19942454985063829,
+    3698753617836118,
+    221244819777868,
+    20028860238267482,
+    1459424818047535,
+    32366771873246510,
+    12221630129170461,
+    33613895814295169,
+    4020087521000250,
+    23917562465372308,
+    31379779458881800,
+    6934231257520507,
+    13639541857041990,
+    3970400794750889,
+    16077661998721863
+  ],
+  "script_sha256": "70aa0180d5681481d77b52c5e38f57e3f58fda7cb11afee15f9804b2a23a401a",
+  "selected_term_keys": [
+    "e6f7a4787fac837e9cd0cfea"
+  ],
+  "topic_fingerprint": "274ded8199d091e85654eda8"
+}
