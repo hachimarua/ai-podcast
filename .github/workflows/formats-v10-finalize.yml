@@ -1,0 +1,35 @@
+name: Formats v10 finalize
+
+on:
+  push:
+    branches: [feature/formats-v10-editorial-flexibility]
+    paths:
+      - scripts/finalize_formats_v10_regression.py
+      - .github/workflows/formats-v10-finalize.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/formats-v10-editorial-flexibility
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Apply final patch
+        run: python scripts/finalize_formats_v10_regression.py
+      - name: Commit final patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tests/test_episode_formats.py docs/developer/FORMATS_V10_ROADMAP.md
+          git diff --cached --check
+          git commit -m "test: finish formats-v10 regression alignment [formats-v10-finalized]"
+          git push origin HEAD:feature/formats-v10-editorial-flexibility
