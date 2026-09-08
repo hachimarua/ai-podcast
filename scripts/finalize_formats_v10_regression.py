@@ -26,6 +26,11 @@ replace_once(
 )
 replace_once(
     "docs/developer/FORMATS_V10_ROADMAP.md",
+    "状態: **実装完了・回帰CI確認中（実モデルcanaryは未実施）**  ",
+    "状態: **実装完了・回帰CI確認中（実モデルcanaryは未実施）**",
+)
+replace_once(
+    "docs/developer/FORMATS_V10_ROADMAP.md",
     "台本は**約1,600〜1,650文字中心**を初期値とする。",
     "台本は**1,550〜1,750文字を生成中心帯**とする。",
 )
