@@ -117,18 +117,15 @@ def split_generated_script_output(value):
 
 
 def choose_public_topic(original_title, generated_japanese_title=None):
-    """Preserve Japanese source titles; translate English titles without extra calls."""
+    """Prefer the generated title for the final script, with source fallback."""
     original = safe_public_text(
         original_title, fallback="最新AIニュース", max_length=160
     )
-    if JAPANESE_CHARACTER_PATTERN.search(original):
-        return original
-    if generated_japanese_title and JAPANESE_CHARACTER_PATTERN.search(
-        generated_japanese_title
-    ):
-        return safe_public_text(
-            generated_japanese_title, fallback=original, max_length=80
-        )
+    generated = safe_public_text(
+        generated_japanese_title, fallback="", max_length=80
+    )
+    if generated and JAPANESE_CHARACTER_PATTERN.search(generated):
+        return generated
     return original
 
 def get_gemini_client():
