@@ -1,0 +1,68 @@
+name: Correct 2026-09-09 published title
+
+on:
+  push:
+    branches:
+      - fix/correct-20260909-published-title
+
+permissions:
+  contents: write
+
+jobs:
+  correct-title:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/correct-20260909-published-title
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Correct published metadata only
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          old = 'マラソン大会のポスターが“AIっぽい”と波紋 「説明に不適切な部分があった」と事務局声明'
+          new = '9月9日のAIニュースまとめ'
+
+          manifest_path = Path('episode_manifests/podcast_20260909_065843.json')
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+          current = manifest.get('public_topic')
+          if current == old:
+              manifest['public_topic'] = new
+              manifest_path.write_text(
+                  json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + '\n',
+                  encoding='utf-8',
+              )
+          elif current != new:
+              raise SystemExit(f'unexpected public_topic: {current!r}')
+
+          rss_path = Path('podcast.xml')
+          rss = rss_path.read_text(encoding='utf-8')
+          old_title = f'<title>Daily Brief｜{old}</title>'
+          new_title = f'<title>Daily Brief｜{new}</title>'
+          old_desc = f'<description>Daily Brief（4〜6分）｜テーマ: {old}</description>'
+          new_desc = f'<description>Daily Brief（4〜6分）｜テーマ: {new}</description>'
+
+          if old_title in rss:
+              if rss.count(old_title) != 1 or rss.count(old_desc) != 1:
+                  raise SystemExit('unexpected RSS occurrence count')
+              rss = rss.replace(old_title, new_title).replace(old_desc, new_desc)
+              rss_path.write_text(rss, encoding='utf-8')
+          elif new_title not in rss or new_desc not in rss:
+              raise SystemExit('expected RSS title/description not found')
+          PY
+      - name: Commit correction if needed
+        run: |
+          if git diff --quiet -- episode_manifests/podcast_20260909_065843.json podcast.xml; then
+            echo "No correction needed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add episode_manifests/podcast_20260909_065843.json podcast.xml
+          git commit -m "fix: correct 2026-09-09 published episode title"
+          git push origin HEAD:fix/correct-20260909-published-title
