@@ -403,7 +403,7 @@ class FormatPromptTests(unittest.TestCase):
         self.assertNotIn("表示タイトル", script)
         self.assertTrue(script.startswith("アミ："))
 
-    def test_public_topic_preserves_japanese_source_and_translates_english_source(self):
+    def test_public_topic_prefers_generated_japanese_title_for_any_source_language(self):
         generated = "自律型無人機の救助を支える3層学習アーキテクチャ"
         self.assertEqual(
             script_generator.choose_public_topic(
@@ -415,7 +415,7 @@ class FormatPromptTests(unittest.TestCase):
         japanese_source = "スマホで動くBonsai 27Bが登場"
         self.assertEqual(
             script_generator.choose_public_topic(japanese_source, "別の日本語見出し"),
-            japanese_source,
+            "別の日本語見出し",
         )
 
     def test_english_or_missing_generated_title_falls_back_to_source_title(self):
@@ -838,8 +838,7 @@ class LabPipelineIntegrationTests(unittest.TestCase):
                 patch.object(pipeline_main, "select_terms_for_review", return_value=[term]),
                 patch.object(pipeline_main, "collect_latest_news", return_value=[news]),
                 patch.object(
-                    pipeline_main,
-                    "match_news_with_words", return_value=([news], [])
+                    pipeline_main, "match_news_with_words", return_value=([news], [])
                 ),
                 patch.object(
                     pipeline_main,
