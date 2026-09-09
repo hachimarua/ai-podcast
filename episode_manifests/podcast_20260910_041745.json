@@ -1,0 +1,198 @@
+{
+  "audio_sha256": "ce3b1057a0c5ff9635692d8283813d03ebafb4ef74e0e3da32468de2357a3abb",
+  "broadcast_date": "2026-09-10",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_headroom_seconds": 70.296,
+      "duration_seconds": 250.296,
+      "file_size_bytes": 1771605,
+      "issues": [],
+      "long_duration_warning": false,
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.2,
+      "mean_volume_db": -18.1,
+      "passed": true,
+      "target_duration_seconds": 240.0,
+      "thresholds": {
+        "hard_max_duration_seconds": 600.0,
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 180.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0,
+        "target_duration_seconds": 240.0
+      },
+      "warnings": []
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 24,
+      "explainer_line_count": 12,
+      "first_speaker": "アミ",
+      "navigator_line_count": 12,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "ケンジ",
+      "navigator": "アミ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0781,
+    "format_config_version": "formats-v10",
+    "initial_script_similarity": 0.0781,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 5,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Google AI Blog"
+        },
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "fresh_japan_lane",
+          "source": "ITmedia AI+"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "different_source",
+          "source": "Hugging Face Blog"
+        }
+      ],
+      "selected_sources": [
+        "Google AI Blog",
+        "ITmedia AI+",
+        "Hugging Face Blog"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1687,
+      "hard_max": 4200,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1750,
+      "target_min": 1550
+    },
+    "script_repetition": {
+      "dialogue_line_count": 24,
+      "max_allowed_repeated_pairs": 1,
+      "passed": true,
+      "repeated_utterance_pairs": 0,
+      "sample_repeated_pairs": []
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 250,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260910_041745",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-09-09T19:19:18.458908+00:00",
+  "news_urls": [
+    "https://blog.google/products-and-platforms/products/search/football-features-google-search/",
+    "https://huggingface.co/blog/ibm-research/ibm-releases-sota-granite-time-series",
+    "https://www.itmedia.co.jp/aiplus/article/2609/10/2000001338/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "Siri AIの日本語版が10月提供へ 定型コードを展開するスニペットの再確認",
+  "public_topic": "Siri AIの日本語版が10月提供へ 定型コードを展開するスニペットの再確認",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    10259585407895290,
+    17124845348780486,
+    7734454137508704,
+    37362747070891808,
+    1454303111994675,
+    258586411722153,
+    420153489462029,
+    2148485568753668,
+    1164416424632199,
+    26565908755931708,
+    146618070516657,
+    4408837227115297,
+    9027311586642439,
+    446020561774276,
+    32190950779199837,
+    6918767350344763,
+    17717472672708695,
+    4341124051296378,
+    60856117115750541,
+    930547541246055,
+    4282598922268961,
+    10604474647395110,
+    1753888852080345,
+    31337423247649943,
+    9019032167852546,
+    9452845442243743,
+    3550902889530492,
+    16400405156766418,
+    29193770425842565,
+    39630817779275353,
+    12261448775924522,
+    34527344251077527,
+    12220751025299920,
+    42375144435490,
+    9099966054453732,
+    5687570816931800,
+    40049668332210592,
+    10378104883701481,
+    26541446507997956,
+    23333859772420653,
+    15424204659636744,
+    8699428948940563,
+    19361165827616283,
+    18388528654240693,
+    12231900652295050,
+    2147557348182545,
+    12883920137996869,
+    15663491913383669,
+    24046614917729112,
+    216813722752005,
+    6681344063907404,
+    45244064719359959,
+    1569673514847586,
+    16217876878497842,
+    16492076550135804,
+    13460912326199543,
+    117319413756043,
+    12620571091736756,
+    58430968948595795,
+    24371921234206080,
+    3628120300419758,
+    13639541857041990,
+    3970400794750889,
+    8091618047224370
+  ],
+  "script_sha256": "a1691529a179df88c93b1563ad5ba3c72cd362a4e36f9fb7182c3693dcdc1033",
+  "selected_term_keys": [
+    "f7acb88ce91a48c75d990a8c"
+  ],
+  "topic_fingerprint": "68421165f8d5e66a335c2b80"
+}

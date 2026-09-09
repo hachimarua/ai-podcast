@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜Siri AIの日本語版が10月提供へ 定型コードを展開するスニペットの再確認</title>
+      <description>Daily Brief（4〜6分）｜テーマ: Siri AIの日本語版が10月提供へ 定型コードを展開するスニペットの再確認</description>
+      <pubDate>Thu, 10 Sep 2026 04:17:45 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260910_041745.mp3" length="1771605" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260910_041745.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:10</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜9月9日のAIニュースまとめ</title>
       <description>Daily Brief（4〜6分）｜テーマ: 9月9日のAIニュースまとめ</description>
       <pubDate>Wed, 09 Sep 2026 06:58:43 +0900</pubDate>
