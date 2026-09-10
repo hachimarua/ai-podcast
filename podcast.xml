@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜LLMが描く過剰な制裁傾向とメタ規範の推論評価</title>
+      <description>Daily Brief（4〜6分）｜テーマ: LLMが描く過剰な制裁傾向とメタ規範の推論評価</description>
+      <pubDate>Fri, 11 Sep 2026 04:17:49 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260911_041749.mp3" length="2023917" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260911_041749.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:41</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜Siri AIの日本語版が10月提供へ 定型コードを展開するスニペットの再確認</title>
       <description>Daily Brief（4〜6分）｜テーマ: Siri AIの日本語版が10月提供へ 定型コードを展開するスニペットの再確認</description>
       <pubDate>Thu, 10 Sep 2026 04:17:45 +0900</pubDate>

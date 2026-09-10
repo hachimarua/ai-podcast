@@ -1,0 +1,199 @@
+{
+  "audio_sha256": "ddf619d118f9750ec71640ebd59178539f5c9e73246a789a52663d843c68e41d",
+  "broadcast_date": "2026-09-11",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_headroom_seconds": 101.688,
+      "duration_seconds": 281.688,
+      "file_size_bytes": 2023917,
+      "issues": [],
+      "long_duration_warning": false,
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.7,
+      "mean_volume_db": -17.7,
+      "passed": true,
+      "target_duration_seconds": 240.0,
+      "thresholds": {
+        "hard_max_duration_seconds": 600.0,
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 180.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0,
+        "target_duration_seconds": 240.0
+      },
+      "warnings": []
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 19,
+      "explainer_line_count": 9,
+      "first_speaker": "ケンジ",
+      "navigator_line_count": 10,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "アミ",
+      "navigator": "ケンジ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.1094,
+    "format_config_version": "formats-v10",
+    "initial_script_similarity": 0.1094,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 3,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 3,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "research",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "arXiv cs.AI (Artificial Intelligence)"
+        },
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "fresh_japan_lane",
+          "source": "AI Watch"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "different_source",
+          "source": "TechCrunch AI"
+        }
+      ],
+      "selected_sources": [
+        "arXiv cs.AI (Artificial Intelligence)",
+        "AI Watch",
+        "TechCrunch AI"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1865,
+      "hard_max": 4200,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1750,
+      "target_min": 1550
+    },
+    "script_repetition": {
+      "dialogue_line_count": 19,
+      "max_allowed_repeated_pairs": 1,
+      "passed": true,
+      "repeated_utterance_pairs": 0,
+      "sample_repeated_pairs": []
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 281,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260911_041749",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-09-10T19:19:11.868201+00:00",
+  "news_urls": [
+    "https://ai.watch.impress.co.jp/docs/news/2140013.html",
+    "https://arxiv.org/abs/2609.05437",
+    "https://techcrunch.com/2026/09/10/anthropic-reveals-rogue-ai-agents-hate-captchas-just-like-you/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "LLMが描く過剰な制裁傾向とメタ規範の推論評価",
+  "public_topic": "LLMが描く過剰な制裁傾向とメタ規範の推論評価",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    2643213988106355,
+    10420026490193831,
+    11299898409098398,
+    4566157136627085,
+    2683722803872827,
+    18988420220891263,
+    19651413426344615,
+    24461659179644589,
+    13890262987787547,
+    9617026409496931,
+    24441834044674327,
+    10817870471838941,
+    7981062541256898,
+    43954406885037168,
+    11847769720230256,
+    6918767350344763,
+    4776489332439206,
+    49149368517536626,
+    1646415430157279,
+    13821888114435496,
+    22171268951217747,
+    1766689953624758,
+    8881938157771917,
+    5899030049235430,
+    8390310845511386,
+    6647646253769434,
+    38479361629374982,
+    17542238362107359,
+    10618351764570999,
+    449429346147515,
+    8330346852194182,
+    17897655617263474,
+    9157663162781755,
+    9658986048161866,
+    5751812214512245,
+    14628612192230474,
+    798607949290932,
+    10378104883701481,
+    5105941517925161,
+    3284010840685174,
+    15554446283173821,
+    1742007399240104,
+    146086183434062,
+    9407163149545468,
+    6086774371131579,
+    2147557348182545,
+    12883920137996869,
+    35151879093053198,
+    4730770361432859,
+    216813722752005,
+    19281924355356672,
+    12956040645792698,
+    25394467908708116,
+    1860804812282411,
+    7258960978015311,
+    738511611095084,
+    2588763212140318,
+    396090408619362,
+    11042256842170692,
+    2033462616375389,
+    3418649606122704,
+    13639541857041990,
+    3970400794750889,
+    10083152966889795
+  ],
+  "script_sha256": "e1bf551d9a1575019dffe1eeb42dad079fb3f5fa3c98148cc71f9286160ef2b6",
+  "selected_term_keys": [
+    "1e34bf6c5bbe4e86a617adc6"
+  ],
+  "topic_fingerprint": "9da087b48f44fb951801bf60"
+}
