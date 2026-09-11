@@ -1,0 +1,205 @@
+{
+  "audio_sha256": "06dfdb1d8f793256725953b2c4b6ac5afd74122032990a5a8190a1690c4162b2",
+  "broadcast_date": "2026-09-12",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_headroom_seconds": 27.36,
+      "duration_seconds": 207.36,
+      "file_size_bytes": 1427733,
+      "issues": [],
+      "long_duration_warning": false,
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -2.2,
+      "mean_volume_db": -18.1,
+      "passed": true,
+      "target_duration_seconds": 240.0,
+      "thresholds": {
+        "hard_max_duration_seconds": 600.0,
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 180.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0,
+        "target_duration_seconds": 240.0
+      },
+      "warnings": []
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 13,
+      "explainer_line_count": 6,
+      "first_speaker": "アミ",
+      "navigator_line_count": 7,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "ケンジ",
+      "navigator": "アミ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.125,
+    "format_config_version": "formats-v10",
+    "initial_script_similarity": 0.125,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5,
+        "arXiv cs.AI (Artificial Intelligence)": 4
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Google AI Blog"
+        },
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "fresh_japan_lane",
+          "source": "ITmedia AI+"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "different_source",
+          "source": "Hugging Face Blog"
+        }
+      ],
+      "selected_sources": [
+        "Google AI Blog",
+        "ITmedia AI+",
+        "Hugging Face Blog"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1364,
+      "hard_max": 4200,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1750,
+      "target_min": 1550
+    },
+    "script_repetition": {
+      "dialogue_line_count": 13,
+      "max_allowed_repeated_pairs": 1,
+      "passed": true,
+      "repeated_utterance_pairs": 0,
+      "sample_repeated_pairs": []
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 207,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260912_065038",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 4,
+    "has_internal_repetition": true,
+    "issues": [
+      {
+        "category": "repetition",
+        "severity": "warning",
+        "timestamp": "01:32"
+      }
+    ],
+    "overall_score": 3,
+    "pacing_score": 3,
+    "requires_human_review": true,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-09-11T21:51:52.919881+00:00",
+  "news_urls": [
+    "https://blog.google/products-and-platforms/products/search/running-race-training-tips/",
+    "https://huggingface.co/blog/gradio-workflow-1111",
+    "https://www.itmedia.co.jp/business/articles/2609/11/news043.html"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "NECのAI自律型組織とメモリ管理を自動化する仕組みの共通点",
+  "public_topic": "NECのAI自律型組織とメモリ管理を自動化する仕組みの共通点",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    17124845348780486,
+    11299898409098398,
+    14531341503641568,
+    12397643744573838,
+    35729890615220305,
+    17014662941669486,
+    9128215371900127,
+    63475164091447599,
+    71667449350317,
+    17812989980331679,
+    14992668161707846,
+    29146892448795524,
+    4902602048145097,
+    9404807511025674,
+    769696625039852,
+    19613900237134265,
+    79348330147108823,
+    23767628944814713,
+    42903184139983242,
+    22393739421350518,
+    9949287469426277,
+    72064146263683871,
+    6446687469104273,
+    17695727857135547,
+    11236467350000044,
+    32296241221780986,
+    15699400806714383,
+    20137377621559481,
+    21485420210147075,
+    18064429833766352,
+    2956402325432716,
+    12220751025299920,
+    4102407078309616,
+    26941092595784177,
+    29961660995406664,
+    1527770600263204,
+    10378104883701481,
+    3783539596141659,
+    36574872608601454,
+    42495534319278749,
+    8699428948940563,
+    12790867059126774,
+    9069931150054288,
+    18731489923827324,
+    13910066578860446,
+    12883920137996869,
+    46746188178319761,
+    27980124475458665,
+    216813722752005,
+    11782526085240916,
+    1002963652712217,
+    56703484449662573,
+    315360289699213,
+    14900102630071926,
+    13460912326199543,
+    3630098571741902,
+    34468121732628588,
+    26498455797209695,
+    15502421400682824,
+    15804331397936728,
+    4229018177187934,
+    3970400794750889,
+    61995042720445241
+  ],
+  "script_sha256": "2c9fe9d171ebbeebf72b6cb502089678fcdb3568c60e590ce2cb125f60fa17e0",
+  "selected_term_keys": [
+    "611ba124a61060ec056efe22"
+  ],
+  "topic_fingerprint": "873e1f42bee821bf050ffea0"
+}

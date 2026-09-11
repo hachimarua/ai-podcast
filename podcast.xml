@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜NECのAI自律型組織とメモリ管理を自動化する仕組みの共通点</title>
+      <description>Daily Brief（4〜6分）｜テーマ: NECのAI自律型組織とメモリ管理を自動化する仕組みの共通点</description>
+      <pubDate>Sat, 12 Sep 2026 06:50:38 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260912_065038.mp3" length="1427733" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260912_065038.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>03:27</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜LLMが描く過剰な制裁傾向とメタ規範の推論評価</title>
       <description>Daily Brief（4〜6分）｜テーマ: LLMが描く過剰な制裁傾向とメタ規範の推論評価</description>
       <pubDate>Fri, 11 Sep 2026 04:17:49 +0900</pubDate>
