@@ -605,6 +605,21 @@ def build_prompt_content(
         content += (
             "今週知る価値を基準に1件以上を選び、各ニュースについて、今週なぜ重要か、背景、意味、制約を自然な会話で十分に説明してください。実装テーマに限定せず、1テーマ固定にもせず、重要事項を削って尺へ合わせないでください。手順や期待結果は入力ソースに根拠があり、実際に役立つ場合だけ含めてください。\n"
         )
+    repair_requested = any(
+        (length_retry, style_retry, duration_retry, repetition_retry)
+    )
+    if repair_requested:
+        repair_center = (spec.prompt_character_min + spec.prompt_character_max) // 2
+        content += (
+            "これは追加回数を増やさないための単発の品質修復です。今回の1回で、"
+            "指摘された項目だけでなく後段の全script品質ゲートも同時に通過する形へ直してください。"
+            f"台本文字数は{spec.prompt_character_min}〜{spec.prompt_character_max}文字を狙い、"
+            f"可能なら{repair_center}〜{spec.prompt_character_max}文字の範囲に収めてください。"
+            "ケンジとアミは両方とも原則としてです・ます調に統一し、片方だけをタメ口にしないでください。"
+            "『そうですね』『なるほど』『確かに』などの定型相づちを繰り返さず、"
+            "同じ論点や結論を言い換えて水増ししないでください。"
+            "出力前に文字数、両話者の文末、定型応答の重複、説明の反復を一度まとめて点検してください。\n"
+        )
     if length_retry:
         content += (
             f"直前の台本は文字数ゲートを通過しませんでした。内容を機械的に切り詰めず、"
@@ -614,7 +629,9 @@ def build_prompt_content(
         )
     if style_retry:
         content += (
-            "直前の台本は返答冒頭の定型表現が多すぎました。相手の発言を採点せず、"
+            "直前の台本は会話品質ゲートを通過しませんでした。返答冒頭の定型表現だけでなく、"
+            "ケンジとアミの敬語レベルが非対称になっていないかも修正してください。"
+            "今回の修復では両者をです・ます調に揃え、相手の発言を採点せず、"
             "直前の具体語を受けた言い換え、疑問、対比のいずれかで各返答を最初から再構成してください。"
             "同じ相づちや訂正の型を繰り返さないでください。\n"
         )
@@ -681,6 +698,21 @@ def generate_radio_script(
         preview += f"{navigator}：それでは、いってらっしゃい！"
         return preview
         
+    repair_reasons = []
+    if length_retry:
+        repair_reasons.append("length")
+    if style_retry:
+        repair_reasons.append("dialogue_quality")
+    if repetition_retry:
+        repair_reasons.append("repetition")
+    if duration_retry:
+        repair_reasons.append("duration")
+    if repair_reasons:
+        print(
+            "[Script Repair] single-budget repair; reasons="
+            + ",".join(repair_reasons)
+        )
+
     prompt = build_prompt_content(
         selected_terms,
         matched_news,
