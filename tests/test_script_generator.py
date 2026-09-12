@@ -14,8 +14,10 @@ class _TransientGeminiError(Exception):
 class _FakeGeminiModels:
     def __init__(self, responses):
         self.responses = list(responses)
+        self.calls = 0
 
     def generate_content(self, **_kwargs):
+        self.calls += 1
         response = self.responses.pop(0)
         if isinstance(response, Exception):
             raise response
@@ -70,6 +72,48 @@ def test_transient_generation_stops_after_final_retry():
         call(60),
         call(300),
     ]
+
+
+def test_quality_repair_keeps_one_model_call_per_generation_request():
+    client = _FakeGeminiClient([_FakeGeminiResponse()])
+    with patch.object(script_generator, "get_gemini_client", return_value=client):
+        result = script_generator.generate_radio_script(
+            [], [], [], style_retry=True
+        )
+
+    assert result == _FakeGeminiResponse.text
+    assert client.models.calls == 1
+
+
+def test_style_retry_covers_register_length_and_repetition_guardrails():
+    prompt = script_generator.build_prompt_content(
+        [], [], [], style_retry=True
+    )
+
+    assert "単発の品質修復" in prompt
+    assert "両方とも原則としてです・ます調" in prompt
+    assert "片方だけをタメ口にしない" in prompt
+    assert "定型相づちを繰り返さず" in prompt
+    assert "同じ論点や結論を言い換えて水増ししない" in prompt
+    assert "敬語レベルが非対称" in prompt
+    assert "1550〜1750文字" in prompt
+
+
+def test_length_retry_also_covers_dialogue_quality_guardrails():
+    prompt = script_generator.build_prompt_content(
+        [], [], [], length_retry=True
+    )
+
+    assert "単発の品質修復" in prompt
+    assert "両方とも原則としてです・ます調" in prompt
+    assert "定型相づちを繰り返さず" in prompt
+    assert "説明の反復" in prompt
+
+
+def test_normal_generation_does_not_add_repair_only_instruction():
+    prompt = script_generator.build_prompt_content([], [], [])
+
+    assert "単発の品質修復" not in prompt
 
 
 def test_polite_register_is_consistent():
@@ -154,6 +198,10 @@ def test_script_repetition_rejects_looping_script():
 if __name__ == "__main__":
     test_transient_generation_has_one_final_delayed_retry()
     test_transient_generation_stops_after_final_retry()
+    test_quality_repair_keeps_one_model_call_per_generation_request()
+    test_style_retry_covers_register_length_and_repetition_guardrails()
+    test_length_retry_also_covers_dialogue_quality_guardrails()
+    test_normal_generation_does_not_add_repair_only_instruction()
     test_polite_register_is_consistent()
     test_casual_register_is_allowed_when_both_speakers_use_it()
     test_asymmetric_register_is_rejected()
