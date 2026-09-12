@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>AI実装ラボ｜AIと対話するだけで営業リストが完成。「URITAIエージェント」提供開始</title>
+      <description>AI実装ラボ（5〜10分）｜テーマ: AIと対話するだけで営業リストが完成。「URITAIエージェント」提供開始</description>
+      <pubDate>Sun, 13 Sep 2026 06:09:40 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260913_060940.mp3" length="3356685" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260913_060940.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>07:35</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜NECのAI自律型組織とメモリ管理を自動化する仕組みの共通点</title>
       <description>Daily Brief（4〜6分）｜テーマ: NECのAI自律型組織とメモリ管理を自動化する仕組みの共通点</description>
       <pubDate>Sat, 12 Sep 2026 06:50:38 +0900</pubDate>

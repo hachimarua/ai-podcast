@@ -1,0 +1,211 @@
+{
+  "audio_sha256": "23d1c87dbec0144d4a935b43911655482c5ce9112069b5d7106cb0bb280ad019",
+  "broadcast_date": "2026-09-13",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_headroom_seconds": 245.976,
+      "duration_seconds": 455.976,
+      "file_size_bytes": 3356685,
+      "issues": [],
+      "long_duration_warning": false,
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.2,
+      "mean_volume_db": -17.8,
+      "passed": true,
+      "target_duration_seconds": 480.0,
+      "thresholds": {
+        "hard_max_duration_seconds": 1200.0,
+        "max_duration_seconds": 600.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0,
+        "target_duration_seconds": 480.0
+      },
+      "warnings": []
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 34,
+      "explainer_line_count": 17,
+      "first_speaker": "ケンジ",
+      "navigator_line_count": 17,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "アミ",
+      "navigator": "ケンジ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0781,
+    "format_config_version": "formats-v10",
+    "initial_script_similarity": 0.0625,
+    "news_selection": {
+      "anchor_present": false,
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 1,
+        "ITmedia AI+": 4,
+        "TechCrunch AI": 3,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "evidence_roles": [
+        "reporting",
+        "reporting",
+        "research",
+        "reporting"
+      ],
+      "official_basis_present": false,
+      "selected": [
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "weekly_primary_candidate",
+          "source": "AI Watch"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "weekly_diverse_candidate",
+          "source": "TechCrunch AI"
+        },
+        {
+          "lane": "research",
+          "matched_notion_terms": false,
+          "reason": "weekly_diverse_candidate",
+          "source": "arXiv cs.AI (Artificial Intelligence)"
+        },
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "weekly_diverse_candidate",
+          "source": "ITmedia AI+"
+        }
+      ],
+      "selected_sources": [
+        "AI Watch",
+        "TechCrunch AI",
+        "arXiv cs.AI (Artificial Intelligence)",
+        "ITmedia AI+"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "lab",
+    "script_length": {
+      "character_count": 3034,
+      "hard_max": 8200,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 3500,
+      "target_min": 3000
+    },
+    "script_repetition": {
+      "dialogue_line_count": 34,
+      "max_allowed_repeated_pairs": 2,
+      "passed": true,
+      "repeated_utterance_pairs": 0,
+      "sample_repeated_pairs": []
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 455,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "lab",
+  "episode_id": "podcast_20260913_060940",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-09-12T21:12:03.427585+00:00",
+  "news_urls": [
+    "https://ai.watch.impress.co.jp/docs/news/2140299.html",
+    "https://arxiv.org/abs/2609.10629",
+    "https://atmarkit.itmedia.co.jp/ait/articles/2609/11/news038.html",
+    "https://techcrunch.com/2026/09/12/anthropic-ceo-outlines-plan-to-pace-the-frontier/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "AIと対話するだけで営業リストが完成。「URITAIエージェント」提供開始",
+  "public_topic": "AIと対話するだけで営業リストが完成。「URITAIエージェント」提供開始",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    2643213988106355,
+    15774262593162,
+    3034075304647402,
+    1716913137633815,
+    2683722803872827,
+    5082630134943987,
+    17014662941669486,
+    21884662895170899,
+    3373478400492444,
+    8269430898314465,
+    3967669317424698,
+    14384080669228309,
+    4547984082713046,
+    4902602048145097,
+    3369036426753577,
+    6918767350344763,
+    3250406996063925,
+    3241767061538098,
+    282414607649882,
+    357053064959735,
+    4963563951186785,
+    24449169742986567,
+    42583302980047014,
+    3057471476659148,
+    384902524956539,
+    9232565394168106,
+    4024845931846739,
+    3797838273187093,
+    1708411864580200,
+    18626299982575598,
+    22795845781048412,
+    43025393584958876,
+    12220751025299920,
+    9578255015358929,
+    11136363640930759,
+    28446910020924983,
+    1153805832457558,
+    1496800898790716,
+    1539094145517475,
+    3498192859629977,
+    7022871741061058,
+    10591336970751705,
+    22253312520174583,
+    3808188738328777,
+    469581840015090,
+    1381113647870541,
+    15211171870463519,
+    21828313081883736,
+    112385539556500,
+    216813722752005,
+    1464743906873466,
+    10223731889845392,
+    13476582407555612,
+    315360289699213,
+    5421410012012404,
+    12221630129170461,
+    7493245903570796,
+    2954312093737847,
+    5268927317622818,
+    663185424031466,
+    12498378834689950,
+    5249880732427904,
+    15556274441934983,
+    19672667632684380
+  ],
+  "script_sha256": "8704d41513f757db42e1d422aaf59fa3874b960d70723c7f28a0d05c190724cb",
+  "selected_term_keys": [],
+  "topic_fingerprint": "d67bc9955f9bdf5c9ca354de"
+}
