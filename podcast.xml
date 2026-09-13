@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜Anthropicが提案するAI開発のペース調整と安全性評価の動向</title>
+      <description>Daily Brief（4〜6分）｜テーマ: Anthropicが提案するAI開発のペース調整と安全性評価の動向</description>
+      <pubDate>Mon, 14 Sep 2026 04:18:51 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260914_041851.mp3" length="1628925" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260914_041851.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>03:42</itunes:duration>
+    </item>
+    <item>
       <title>AI実装ラボ｜AIと対話するだけで営業リストが完成。「URITAIエージェント」提供開始</title>
       <description>AI実装ラボ（5〜10分）｜テーマ: AIと対話するだけで営業リストが完成。「URITAIエージェント」提供開始</description>
       <pubDate>Sun, 13 Sep 2026 06:09:40 +0900</pubDate>

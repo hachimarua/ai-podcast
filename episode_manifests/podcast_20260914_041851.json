@@ -1,0 +1,198 @@
+{
+  "audio_sha256": "a752b3e297d73c4bf7de9e997b1846af8f275f01bb0facaa37bc1b6b7a9bb3fd",
+  "broadcast_date": "2026-09-14",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_headroom_seconds": 42.672,
+      "duration_seconds": 222.672,
+      "file_size_bytes": 1628925,
+      "issues": [],
+      "long_duration_warning": false,
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.1,
+      "mean_volume_db": -18.2,
+      "passed": true,
+      "target_duration_seconds": 240.0,
+      "thresholds": {
+        "hard_max_duration_seconds": 600.0,
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 180.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0,
+        "target_duration_seconds": 240.0
+      },
+      "warnings": []
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 16,
+      "explainer_line_count": 8,
+      "first_speaker": "アミ",
+      "navigator_line_count": 8,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "ケンジ",
+      "navigator": "アミ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.125,
+    "format_config_version": "formats-v10",
+    "initial_script_similarity": 0.1719,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 4,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 3,
+        "TechCrunch AI": 2
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Google AI Blog"
+        },
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "fresh_japan_lane",
+          "source": "ITmedia AI+"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "different_source",
+          "source": "Hugging Face Blog"
+        }
+      ],
+      "selected_sources": [
+        "Google AI Blog",
+        "ITmedia AI+",
+        "Hugging Face Blog"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1424,
+      "hard_max": 4200,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1750,
+      "target_min": 1550
+    },
+    "script_repetition": {
+      "dialogue_line_count": 16,
+      "max_allowed_repeated_pairs": 1,
+      "passed": true,
+      "repeated_utterance_pairs": 0,
+      "sample_repeated_pairs": []
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 222,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260914_041851",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-09-13T19:20:21.895477+00:00",
+  "news_urls": [
+    "https://blog.google/products-and-platforms/products/search/football-features-google-search/",
+    "https://huggingface.co/blog/ibm-research/ibm-releases-sota-granite-time-series",
+    "https://www.itmedia.co.jp/news/article/2609/13/2000001432/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "Anthropicが提案するAI開発のペース調整と安全性評価の動向",
+  "public_topic": "Anthropicが提案するAI開発のペース調整と安全性評価の動向",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    10321248907558590,
+    17124845348780486,
+    2778015835860073,
+    9080225734417954,
+    975091488214825,
+    15017442135065855,
+    2476628822463914,
+    26845820571820837,
+    4368714701786197,
+    10232312111198314,
+    5559516315024573,
+    14992668161707846,
+    3545283636429961,
+    4902602048145097,
+    16988852251058025,
+    6347204480011495,
+    3741005290420904,
+    12218830468328533,
+    37101148408892714,
+    48052068277920967,
+    6337243376880093,
+    1786038141996437,
+    14095999122502748,
+    28135673694493378,
+    384902524956539,
+    18648205638573489,
+    32197413387079446,
+    36299969918910505,
+    17825216225103801,
+    3061178965739060,
+    22244340788915089,
+    5791058685751516,
+    9157663162781755,
+    46277692279650016,
+    9099966054453732,
+    70438705824755613,
+    1527770600263204,
+    10378104883701481,
+    679275496693211,
+    15861072305894682,
+    7446780360445357,
+    8699428948940563,
+    8421059554334623,
+    16878920410338626,
+    19474435229878230,
+    11524855521937546,
+    12883920137996869,
+    54375881198530822,
+    27209898096796,
+    216813722752005,
+    14111083298087600,
+    7161392619836768,
+    3135269978666635,
+    24633887016999716,
+    11463749433085257,
+    18228659696974710,
+    26119117884236035,
+    3969827926282290,
+    4423585834675204,
+    38756130174880715,
+    4336594348972276,
+    198004950031846,
+    18363974004947720,
+    27939786819589197
+  ],
+  "script_sha256": "5e9b41e8a8e4854aa1af5654cdf371352e9b88c8a47554691589ab7918871e4e",
+  "selected_term_keys": [
+    "1c5f450e1ca37fb9743e6bcc"
+  ],
+  "topic_fingerprint": "6f53e312650ee91db97006b5"
+}
