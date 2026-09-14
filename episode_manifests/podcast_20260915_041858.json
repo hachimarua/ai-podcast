@@ -1,0 +1,198 @@
+{
+  "audio_sha256": "671b7c8ec558257a164a2166b27f5fd9661c56d6400834a74dbf6cd922196710",
+  "broadcast_date": "2026-09-15",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_headroom_seconds": 57.984,
+      "duration_seconds": 237.984,
+      "file_size_bytes": 1652877,
+      "issues": [],
+      "long_duration_warning": false,
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.2,
+      "mean_volume_db": -17.8,
+      "passed": true,
+      "target_duration_seconds": 240.0,
+      "thresholds": {
+        "hard_max_duration_seconds": 600.0,
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 180.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0,
+        "target_duration_seconds": 240.0
+      },
+      "warnings": []
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 17,
+      "explainer_line_count": 8,
+      "first_speaker": "ケンジ",
+      "navigator_line_count": 9,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "アミ",
+      "navigator": "ケンジ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0625,
+    "format_config_version": "formats-v10",
+    "initial_script_similarity": 0.0625,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 3,
+        "Hugging Face Blog": 3,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "TechCrunch AI"
+        },
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "fresh_japan_lane",
+          "source": "AI Watch"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "different_source",
+          "source": "Google AI Blog"
+        }
+      ],
+      "selected_sources": [
+        "TechCrunch AI",
+        "AI Watch",
+        "Google AI Blog"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1592,
+      "hard_max": 4200,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1750,
+      "target_min": 1550
+    },
+    "script_repetition": {
+      "dialogue_line_count": 17,
+      "max_allowed_repeated_pairs": 1,
+      "passed": true,
+      "repeated_utterance_pairs": 0,
+      "sample_repeated_pairs": []
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 237,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260915_041858",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-09-14T19:20:20.631302+00:00",
+  "news_urls": [
+    "https://ai.watch.impress.co.jp/docs/news/2140814.html",
+    "https://blog.google/innovation-and-ai/technology/developers-tools/devfest2026/",
+    "https://techcrunch.com/2026/09/14/with-ios-27-im-actually-using-siri-again/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "With iOS 27, I’m actually using Siri again",
+  "public_topic": "With iOS 27, I’m actually using Siri again",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    2643213988106355,
+    17124845348780486,
+    8680811212232585,
+    1629150258042118,
+    28514165599753601,
+    7765940460121483,
+    8722060540676258,
+    38463063421505208,
+    29000386970017412,
+    91085506318855250,
+    52629914160640723,
+    300857862554930,
+    39295498362768110,
+    67194769096429420,
+    31897451555305914,
+    22526239851766513,
+    15696231937365234,
+    3785295288887842,
+    25414104810648298,
+    2758569117211866,
+    35639537379988891,
+    9949287469426277,
+    251146059372998,
+    18749609259121074,
+    4547062690789098,
+    71625540797499156,
+    23326555700101640,
+    429249812360064,
+    25488116725612133,
+    9012547054888017,
+    6720734359269582,
+    41439698532957329,
+    19182670557984068,
+    13795108446226455,
+    28176128170695002,
+    9671428063338071,
+    4421943549005094,
+    1496800898790716,
+    26066448280975659,
+    29607646923155430,
+    33921338741773590,
+    2944431964269593,
+    2809525583107543,
+    10534479211721680,
+    1659554518273776,
+    1003382978550821,
+    7899430489019468,
+    21383906009723414,
+    34480421331937062,
+    216813722752005,
+    9872129407957012,
+    1386716140523081,
+    3122765118753297,
+    30825093058438745,
+    20751587894494184,
+    13460912326199543,
+    7227001232490796,
+    18223581953193425,
+    27296700305602105,
+    212482639813715,
+    21182099829653115,
+    116951845548172,
+    18135733462439458,
+    8091618047224370
+  ],
+  "script_sha256": "706f2f24af1e18b283e4f679c7abf5d42c1be8ad23dee80f56658ac634cba89d",
+  "selected_term_keys": [
+    "29b49f3ffc4a3ada9a748a06"
+  ],
+  "topic_fingerprint": "0495dd24efeeb75a54a68c13"
+}
