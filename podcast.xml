@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜Cloudflareの認証設計と7BモデルZGCM-1のツール連携</title>
+      <description>Daily Brief（4〜6分）｜テーマ: Cloudflareの認証設計と7BモデルZGCM-1のツール連携</description>
+      <pubDate>Wed, 16 Sep 2026 04:18:44 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260916_041844.mp3" length="2085573" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260916_041844.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:52</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜With iOS 27, I’m actually using Siri again</title>
       <description>Daily Brief（4〜6分）｜テーマ: With iOS 27, I’m actually using Siri again</description>
       <pubDate>Tue, 15 Sep 2026 04:18:58 +0900</pubDate>

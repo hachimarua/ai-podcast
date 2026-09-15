@@ -1,0 +1,199 @@
+{
+  "audio_sha256": "521cab1e6df3589e90da05f7cd4932f5539e6ff6c9a513a9a539a523d4ad9532",
+  "broadcast_date": "2026-09-16",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_headroom_seconds": 112.44,
+      "duration_seconds": 292.44,
+      "file_size_bytes": 2085573,
+      "issues": [],
+      "long_duration_warning": false,
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.6,
+      "mean_volume_db": -18.1,
+      "passed": true,
+      "target_duration_seconds": 240.0,
+      "thresholds": {
+        "hard_max_duration_seconds": 600.0,
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 180.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0,
+        "target_duration_seconds": 240.0
+      },
+      "warnings": []
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 13,
+      "explainer_line_count": 6,
+      "first_speaker": "アミ",
+      "navigator_line_count": 7,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "ケンジ",
+      "navigator": "アミ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0625,
+    "format_config_version": "formats-v10",
+    "initial_script_similarity": 0.0625,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 5,
+        "Hugging Face Blog": 5,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5,
+        "arXiv cs.AI (Artificial Intelligence)": 4
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Hugging Face Blog"
+        },
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "fresh_japan_lane",
+          "source": "ITmedia AI+"
+        },
+        {
+          "lane": "research",
+          "matched_notion_terms": false,
+          "reason": "different_source",
+          "source": "arXiv cs.AI (Artificial Intelligence)"
+        }
+      ],
+      "selected_sources": [
+        "Hugging Face Blog",
+        "ITmedia AI+",
+        "arXiv cs.AI (Artificial Intelligence)"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1920,
+      "hard_max": 4200,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1750,
+      "target_min": 1550
+    },
+    "script_repetition": {
+      "dialogue_line_count": 13,
+      "max_allowed_repeated_pairs": 1,
+      "passed": true,
+      "repeated_utterance_pairs": 0,
+      "sample_repeated_pairs": []
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 292,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260916_041844",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-09-15T19:20:27.538031+00:00",
+  "news_urls": [
+    "https://arxiv.org/abs/2609.13356",
+    "https://huggingface.co/blog/ibm-research/altk-evolve-consistency",
+    "https://www.itmedia.co.jp/aiplus/article/2609/15/2000001499/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "Cloudflareの認証設計と7BモデルZGCM-1のツール連携",
+  "public_topic": "Cloudflareの認証設計と7BモデルZGCM-1のツール連携",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    7906083316054774,
+    17124845348780486,
+    21837981314131213,
+    14531341503641568,
+    35497297626284143,
+    13640125640494923,
+    12342665412507434,
+    13740633393971053,
+    25399359259514892,
+    5062672040675348,
+    33358177844065600,
+    14992668161707846,
+    37918979920962912,
+    9846172423983012,
+    2404198190159380,
+    13173996141495278,
+    8959615470663319,
+    1073023234023887,
+    12348295088232826,
+    7183119860196930,
+    26757119620974898,
+    2525347355296513,
+    33298101771499836,
+    10470238298607751,
+    737480060448412,
+    4587680882325117,
+    2624943685470258,
+    23052068652025082,
+    1206588222748654,
+    4611359347449936,
+    22244340788915089,
+    4060285392258877,
+    19027072888980061,
+    16897568912331615,
+    4252550575419878,
+    4925324304120484,
+    44568461872600331,
+    21754133145409763,
+    10697947398112756,
+    22338876176156075,
+    44041901626940623,
+    527954479316927,
+    26417905985249270,
+    9500909658473750,
+    6294619329122485,
+    11524855521937546,
+    46336033155683347,
+    5557333994413069,
+    22687604030932503,
+    11758763860949451,
+    26282441974937413,
+    221244819777868,
+    35762072591573520,
+    6740291516464287,
+    10993886054247781,
+    13460912326199543,
+    2682207552902210,
+    19992453699316574,
+    2178088302083558,
+    43354170647672026,
+    19136104508772001,
+    13639541857041990,
+    15364505312357943,
+    27539659428285516
+  ],
+  "script_sha256": "17bb612c571a417c0edba50367fa7630de06720567f2ebab39a274c496ab21d8",
+  "selected_term_keys": [
+    "52d3f3be94f24989cd0577b8"
+  ],
+  "topic_fingerprint": "86af27fa1e44df160ce6594f"
+}
