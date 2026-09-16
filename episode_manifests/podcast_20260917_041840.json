@@ -1,0 +1,199 @@
+{
+  "audio_sha256": "60fff0c4767be246cb8551f7659b6d42b6b0e0583190342b0fdb8541ae683aec",
+  "broadcast_date": "2026-09-17",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_headroom_seconds": 89.136,
+      "duration_seconds": 269.136,
+      "file_size_bytes": 1908117,
+      "issues": [],
+      "long_duration_warning": false,
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.9,
+      "mean_volume_db": -17.7,
+      "passed": true,
+      "target_duration_seconds": 240.0,
+      "thresholds": {
+        "hard_max_duration_seconds": 600.0,
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 180.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0,
+        "target_duration_seconds": 240.0
+      },
+      "warnings": []
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 24,
+      "explainer_line_count": 12,
+      "first_speaker": "ケンジ",
+      "navigator_line_count": 12,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "アミ",
+      "navigator": "ケンジ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0156,
+    "format_config_version": "formats-v10",
+    "initial_script_similarity": 0.1094,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 5,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "TechCrunch AI"
+        },
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "fresh_japan_lane",
+          "source": "AI Watch"
+        },
+        {
+          "lane": "research",
+          "matched_notion_terms": false,
+          "reason": "different_source",
+          "source": "arXiv cs.AI (Artificial Intelligence)"
+        }
+      ],
+      "selected_sources": [
+        "TechCrunch AI",
+        "AI Watch",
+        "arXiv cs.AI (Artificial Intelligence)"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1801,
+      "hard_max": 4200,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1750,
+      "target_min": 1550
+    },
+    "script_repetition": {
+      "dialogue_line_count": 24,
+      "max_allowed_repeated_pairs": 1,
+      "passed": true,
+      "repeated_utterance_pairs": 0,
+      "sample_repeated_pairs": []
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 269,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260917_041840",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-09-16T19:20:19.213317+00:00",
+  "news_urls": [
+    "https://ai.watch.impress.co.jp/docs/news/2141545.html",
+    "https://arxiv.org/abs/2609.16129",
+    "https://techcrunch.com/2026/09/16/ai-labs-want-in-house-auditors-but-maybe-they-should-shut-the-front-door-first/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "事前読み込みの仕組みとRokidグラス日本展開や枝刈り研究",
+  "public_topic": "事前読み込みの仕組みとRokidグラス日本展開や枝刈り研究",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    9477644859856439,
+    26497631213351245,
+    37362747070891808,
+    2683722803872827,
+    5082630134943987,
+    20876087530371380,
+    540974414803667,
+    114818890693690147,
+    12030705747743231,
+    2595484293588758,
+    11460650132678813,
+    19730250377328308,
+    13989708094337879,
+    25954398668676607,
+    6918767350344763,
+    3250406996063925,
+    24907703008608803,
+    20199426351387760,
+    2696765561941579,
+    4963563951186785,
+    1507090523735083,
+    34381046014552568,
+    20168253552262,
+    21376702470240942,
+    8459135144877757,
+    2611261554578319,
+    20992655755524165,
+    3232488220013411,
+    1242265384926321,
+    12261448775924522,
+    6269673795726424,
+    34457651440195952,
+    70919957639462681,
+    24474506957325413,
+    9950724177507845,
+    39626887321736926,
+    1496800898790716,
+    10697947398112756,
+    11489032478773284,
+    6195368167324331,
+    21117436138005688,
+    9864789054986281,
+    9252497459973309,
+    11870863713674076,
+    7341838561921036,
+    12883920137996869,
+    19447864218901442,
+    24036641657287142,
+    2350270826608015,
+    13405337179633195,
+    45244064719359959,
+    14418732655423880,
+    27759491336552339,
+    19844006653164260,
+    2755451295049638,
+    13612919009087937,
+    27629754417968839,
+    1116925804959972,
+    12905531211584384,
+    34516942556600823,
+    4236604688186254,
+    3970400794750889,
+    284697944909815
+  ],
+  "script_sha256": "929fb4261dfa36a92ff00b6cf2f637cac7cca39417daf376de5fb4ce99195195",
+  "selected_term_keys": [
+    "e281b5035619fd04f82696ac"
+  ],
+  "topic_fingerprint": "0996c9beeb0669b143ac6c6f"
+}
