@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜特別展ポスターのAI利用事例と重複排除による通知設計の基本</title>
+      <description>Daily Brief（4〜6分）｜テーマ: 特別展ポスターのAI利用事例と重複排除による通知設計の基本</description>
+      <pubDate>Fri, 18 Sep 2026 04:18:33 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260918_041833.mp3" length="1872285" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260918_041833.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:29</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜事前読み込みの仕組みとRokidグラス日本展開や枝刈り研究</title>
       <description>Daily Brief（4〜6分）｜テーマ: 事前読み込みの仕組みとRokidグラス日本展開や枝刈り研究</description>
       <pubDate>Thu, 17 Sep 2026 04:18:40 +0900</pubDate>

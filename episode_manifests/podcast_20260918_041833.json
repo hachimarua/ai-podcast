@@ -1,0 +1,199 @@
+{
+  "audio_sha256": "db84a2ae0783f4d28147746b4dbb8297aa1b0990fb956e38a95538f88981763e",
+  "broadcast_date": "2026-09-18",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_headroom_seconds": 89.256,
+      "duration_seconds": 269.256,
+      "file_size_bytes": 1872285,
+      "issues": [],
+      "long_duration_warning": false,
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.7,
+      "mean_volume_db": -18.2,
+      "passed": true,
+      "target_duration_seconds": 240.0,
+      "thresholds": {
+        "hard_max_duration_seconds": 600.0,
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 180.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0,
+        "target_duration_seconds": 240.0
+      },
+      "warnings": []
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 21,
+      "explainer_line_count": 10,
+      "first_speaker": "アミ",
+      "navigator_line_count": 11,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "ケンジ",
+      "navigator": "アミ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0469,
+    "format_config_version": "formats-v10",
+    "initial_script_similarity": 0.0312,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 5,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5,
+        "arXiv cs.AI (Artificial Intelligence)": 4
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Google AI Blog"
+        },
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "fresh_japan_lane",
+          "source": "ITmedia AI+"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "different_source",
+          "source": "Hugging Face Blog"
+        }
+      ],
+      "selected_sources": [
+        "Google AI Blog",
+        "ITmedia AI+",
+        "Hugging Face Blog"
+      ]
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_length": {
+      "character_count": 1742,
+      "hard_max": 4200,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1750,
+      "target_min": 1550
+    },
+    "script_repetition": {
+      "dialogue_line_count": 21,
+      "max_allowed_repeated_pairs": 1,
+      "passed": true,
+      "repeated_utterance_pairs": 0,
+      "sample_repeated_pairs": []
+    },
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 269,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260918_041833",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-09-17T19:20:24.007695+00:00",
+  "news_urls": [
+    "https://blog.google/innovation-and-ai/technology/ai/ai-for-societal-impact/",
+    "https://huggingface.co/blog/asyncgrpo-lora-hfjobs",
+    "https://www.itmedia.co.jp/aiplus/article/2609/17/2000001595/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "特別展ポスターのAI利用事例と重複排除による通知設計の基本",
+  "public_topic": "特別展ポスターのAI利用事例と重複排除による通知設計の基本",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    12275514671084908,
+    9619422856042833,
+    3195805106288057,
+    11145366848068125,
+    2683722803872827,
+    6666530261357445,
+    31649146057059130,
+    9015572745315657,
+    11945824085271752,
+    6562847043179085,
+    27622853153417183,
+    9858274631157712,
+    4488301748858717,
+    37135029713534641,
+    3572018904226201,
+    20437432909855258,
+    3741005290420904,
+    39979230167963713,
+    82065710962741707,
+    4087896691546563,
+    3846273584672388,
+    62592446431684,
+    37091344750859897,
+    5729886355521471,
+    12123167736150375,
+    10134193006824044,
+    18815163558064555,
+    14439551856479197,
+    31962998046122905,
+    9299314370521179,
+    39080581233563316,
+    24503697764802241,
+    1375150015271049,
+    344526004992324,
+    7224977682070113,
+    25161355383600842,
+    44568461872600331,
+    10378104883701481,
+    2003821117191807,
+    39441215071625372,
+    14953172026966154,
+    16730659055938119,
+    146086183434062,
+    27989775656338029,
+    29491270044406475,
+    3419196836384605,
+    7394312227918133,
+    16177254119798055,
+    5543406987252004,
+    216813722752005,
+    22646062343662672,
+    26586900828969151,
+    31599396164019353,
+    315360289699213,
+    4177304621257957,
+    40402218388551,
+    2452498786472063,
+    2954312093737847,
+    5032398734141912,
+    1308600972987101,
+    30466553394402330,
+    2920445825102305,
+    3970400794750889,
+    4739082559071165
+  ],
+  "script_sha256": "eb284f797998d4460fd6c323f6c2492bb2ed5fea7ce49c8e024a85174955c992",
+  "selected_term_keys": [
+    "00cc1dccef75155e73fbb0d7"
+  ],
+  "topic_fingerprint": "be899c4074d36a176d14e1c0"
+}
