@@ -1,0 +1,227 @@
+{
+  "audio_sha256": "32d81efa76b997d2c34fc4b8253cef033745ee205a35b39ff2432d3112234c87",
+  "broadcast_date": "2026-09-19",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_headroom_seconds": 123.528,
+      "duration_seconds": 303.528,
+      "file_size_bytes": 2178765,
+      "issues": [],
+      "long_duration_warning": false,
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -2.0,
+      "mean_volume_db": -17.7,
+      "passed": true,
+      "target_duration_seconds": 240.0,
+      "thresholds": {
+        "hard_max_duration_seconds": 600.0,
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 180.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0,
+        "target_duration_seconds": 240.0
+      },
+      "warnings": []
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 18,
+      "explainer_line_count": 9,
+      "first_speaker": "ケンジ",
+      "navigator_line_count": 9,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "アミ",
+      "navigator": "ケンジ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0469,
+    "format_config_version": "formats-v10",
+    "initial_script_similarity": 0.0469,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Google AI Blog": 4,
+        "Hugging Face Blog": 3,
+        "ITmedia AI+": 4,
+        "TechCrunch AI": 5,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "TechCrunch AI"
+        },
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "fresh_japan_lane",
+          "source": "AI Watch"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "different_source",
+          "source": "Google AI Blog"
+        }
+      ],
+      "selected_sources": [
+        "TechCrunch AI",
+        "AI Watch",
+        "Google AI Blog"
+      ]
+    },
+    "placeholder_check": {
+      "dialogue_line_count": 18,
+      "passed": true,
+      "placeholder_count": 0
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_generation": {
+      "calls": [
+        {
+          "attempts": 1,
+          "fallback_used": false,
+          "input_tokens": 5175,
+          "latency_ms": 24575,
+          "model": "gpt-5.6-terra",
+          "output_tokens": 1709,
+          "provider": "openai",
+          "reasoning_tokens": 284,
+          "succeeded": true,
+          "total_tokens": 6884
+        }
+      ],
+      "fallback_count": 0,
+      "fallback_used": false,
+      "model": "gpt-5.6-terra",
+      "primary_provider": "openai",
+      "provider": "openai"
+    },
+    "script_length": {
+      "character_count": 1859,
+      "hard_max": 4200,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1750,
+      "target_min": 1550
+    },
+    "script_regenerations_used": 0,
+    "script_repetition": {
+      "dialogue_line_count": 18,
+      "max_allowed_repeated_pairs": 1,
+      "passed": true,
+      "repeated_utterance_pairs": 0,
+      "sample_repeated_pairs": []
+    },
+    "template_markers_removed": 0,
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 303,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260919_041808",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-09-18T19:19:26.944035+00:00",
+  "news_urls": [
+    "https://ai.watch.impress.co.jp/docs/news/2142380.html",
+    "https://blog.google/innovation-and-ai/technology/ai/expanding-ai-economy-research-bench/",
+    "https://techcrunch.com/2026/09/18/a-new-kind-of-ai-model-from-a-chatgpt-inventor-is-thrilling-developers/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "KDDIとRLWRLDの共同研究をアトミック保存で考える",
+  "public_topic": "KDDIとRLWRLDの共同研究をアトミック保存で考える",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    1514171398613860,
+    28263765960025731,
+    472025037802840,
+    10956462106292436,
+    2683722803872827,
+    20272031241667375,
+    17014662941669486,
+    2716566947630070,
+    13890262987787547,
+    4440633083177360,
+    3967669317424698,
+    2939136949183024,
+    804792976945972,
+    2437978327975741,
+    12959291453239214,
+    674404600747401,
+    9817420274630691,
+    34915637809210265,
+    13041815758490865,
+    2696765561941579,
+    770571134726460,
+    286554452112524,
+    30561890593054225,
+    25882455678644370,
+    1039624437581141,
+    6647646253769434,
+    28581661095155890,
+    4909707092945230,
+    12258845574374476,
+    2871167390095097,
+    36747594872704230,
+    11694617465468337,
+    13248904135427079,
+    8517402064374891,
+    17944660321465213,
+    4177888712403770,
+    47706728481649535,
+    4873351703931920,
+    7378438370302220,
+    2842053998412516,
+    2217383502831114,
+    1390073159810750,
+    31022489426089473,
+    4810925521655239,
+    91809558490044,
+    2147557348182545,
+    9947723729408813,
+    17946576346203903,
+    5968897469211808,
+    216813722752005,
+    14111083298087600,
+    2863936518914689,
+    18760532555327601,
+    315360289699213,
+    10123015649784485,
+    13460912326199543,
+    8719279888643956,
+    3004285027636158,
+    21878859014663778,
+    43354170647672026,
+    3628120300419758,
+    4095949163175886,
+    11853356903800907,
+    5315503073265062
+  ],
+  "script_sha256": "b2ae461db3dbbd70d1a81773e09fd18c183e8ff2559d719b502f0b567289e195",
+  "selected_term_keys": [
+    "988608fe02126211822995ed"
+  ],
+  "topic_fingerprint": "1e9c120e6a68e3c63643428a"
+}
