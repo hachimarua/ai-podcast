@@ -1,6 +1,6 @@
 # LLM プロバイダ カナリア（Gemini / OpenAI 比較）
 
-最終更新: 2026-09-07
+最終更新: 2026-09-18
 
 `scripts/llm_canary.py` は、**本番と同じプロンプト**を Gemini と OpenAI へ同時に投げて挙動を並べる試験回路。
 配信パイプラインからは完全に独立している（`main.py` からimportされず、エピソード公開・manifest・RSS の書き込みなし、Notion は読むだけ）。
@@ -24,6 +24,12 @@ cd "/Users/sakiya/Documents/Antigravity 2.0/AI news knowledge learning system"
 
 # 3. 本番と同じ入力: 実ニュース -> ラジオ台本（推奨）
 ./venv/bin/python scripts/llm_canary.py --openai-model gpt-5.5
+
+# 複数モデルを同じ入力で並走（Gemini 1本 + OpenAI N本）
+./venv/bin/python scripts/llm_canary.py --openai-model gpt-5.6-terra,gpt-5.6-luna
+
+# 日曜の AI実装ラボ形式
+./venv/bin/python scripts/llm_canary.py --format lab --openai-model gpt-5.6-terra
 
 # 同日中に別題材で回す（先頭N件を捨ててから選ぶ）
 ./venv/bin/python scripts/llm_canary.py --news-offset 3 --openai-model gpt-5.5
@@ -88,8 +94,47 @@ usage の生ペイロードをそのまま見たいのと、依存を増やさ�
 自前 TTS へ移っても解決しない（読み間違いではなく「その語を知らなかった」問題）ため、
 対策は辞書の拡充と、辞書未知のラテン文字を検出する決定論ゲートの追加が筋。
 
+## 2026-09-18 の測定結果（gpt-5.6-terra / luna / Gemini）
+
+formats-v10（Daily 目標 1,550〜1,750字・上限 4,200字、長い分は warning のみ）で測定。
+Daily 3題材＋日曜ラボ1本、各回3モデルに同一プロンプト。
+
+| Daily 3回平均 | Gemini 3.7 Flash | **gpt-5.6-terra** | gpt-5.6-luna |
+|---|---|---|---|
+| 台本文字数 | 1,734字 | **1,699字** | 1,996字 |
+| 総トークン | 8,153 | **6,022** | 6,410 |
+| うち reasoning | 3,520 | **199** | 393 |
+| レイテンシ | 19.3s | 24.5s | 20.5s |
+| 辞書適用後に残る英字 | 7.3箇所 | 6.3箇所 | 10.3箇所 |
+
+| 日曜ラボ（目標 3,000〜3,500字） | Gemini | terra | luna |
+|---|---|---|---|
+| 台本文字数 | 3,021字 | 3,502字 | 4,487字 |
+
+- 全12本が本番ゲートを通過。v10 の非対称ゲートにより、9/7 時点で懸念した「OpenAI は長い」は問題でなくなった
+- **luna は1本で、システム指示の書式見本 `ケンジ：[セリフ]` を全19行に写した。** 本番ゲートはこれを検出できなかった
+  → 書式マーカーの除去と、プレースホルダ検出ゲートを追加した
+- terra は目標文字数に収まり、reasoning が極端に少ない。英字の取りこぼしも Gemini と同程度
+
 ## 現時点の判断
 
-台本生成は OpenAI でも本番投入可能な水準（ゲート全通過）。
-ただし**いま置き換える理由はない**。Gemini で安定稼働しているため、これは試験回路として維持し、
-他のトライアルの結果を見てから改めて検討する。
+**2026-09-18 から、台本生成は `gpt-5.6-terra`、失敗時は Gemini 3.7 Flash へ自動フォールバック、音声監査は Gemini のまま。**
+
+- 書く側（OpenAI）と聞く側（Gemini）が別ベンダーになり、生成と監査の独立性が上がる
+- Gemini の API 枠を料理支援アプリの音声対話へ回せる（ただし枠と課金はプロジェクト単位なので、アプリ側は別プロジェクト・別キーにする）
+- 切り戻しは workflow の `SCRIPT_PROVIDER: "gemini"` だけでよい（コード変更不要）
+- フォールバックの発生は各 manifest の `deterministic_checks.script_generation` に記録される
+  （`provider` / `model` / `fallback_used` / `fallback_count` / `calls[].fallback_reason` / トークン数）
+
+### フォールバック理由の一覧
+
+| `fallback_reason` | 意味 |
+|---|---|
+| `openai_unconfigured` | `OPENAI_API_KEY` が未設定（Secret 未登録など） |
+| `openai_quota` | 残高・枠切れ（429 insufficient_quota）。待っても戻らないので再試行しない |
+| `openai_auth` | 401/403。キー失効など |
+| `openai_bad_request` | 400/404 等。モデル名の誤りなど |
+| `openai_transient_exhausted` | 429/5xx/タイムアウトが4回続いた |
+| `openai_incomplete` | 出力が途中で止まった（台本が切れているので使わない） |
+| `openai_empty_output` | 本文が空 |
+| `openai_error` | 上記以外 |

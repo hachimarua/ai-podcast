@@ -1,8 +1,20 @@
 # AI学習ラジオ 次チャット申し送り
 
-最終確認: 2026-09-08
+最終確認: 2026-09-18
 状態: **現役の運用HANDOFF。Phase 7〜10、Siriフィードバックの受付Worker・D1、3本のショートカットは実装済み。日次配信は継続中。**
 
+
+## 2026-09-18 変更: 台本生成を OpenAI (gpt-5.6-terra) へ移し、Gemini を自動フォールバックにした
+
+- **背景**: Gemini API を料理支援アプリの音声対話に回したい。あわせて、台本と音声監査が同じ Gemini ファミリーだった「生成と監査が同一モデル」問題を解消したい。OpenAI の無料日次枠（Data Sharing ON）で $0 動作は 9/7 に確認済み。
+- **モデル選定**: カナリアで Gemini 3.7 Flash / gpt-5.6-terra / gpt-5.6-luna を Daily 3題材＋日曜ラボ1本で比較（`docs/developer/LLM_PROVIDER_CANARY.md`）。terra が目標文字数に収まり、トークンは Gemini より約26%少なかった。luna は長くなりがちで、1本で書式見本 `[セリフ]` を全行に写した。
+- **構成**: 台本 = OpenAI `gpt-5.6-terra` → 失敗時 Gemini 3.7 Flash へ自動切替。音声監査 = Gemini 3.6 Flash（変更なし）。受信箱処理 = Gemini（変更なし。個人メモが混ざりうるため OpenAI には送らない）。
+- **切り戻し**: `.github/workflows/podcast.yml` の `SCRIPT_PROVIDER: "openai"` を `"gemini"` にするだけ。
+- **フォールバックの記録**: 各 manifest の `deterministic_checks.script_generation` に provider / model / fallback_used / fallback_count / calls[].fallback_reason / トークン数を残す。理由の一覧は LLM_PROVIDER_CANARY.md。**2週間後に作動回数を集計する予定。**
+- **追加したゲート**: 書式マーカー `[セリフ]` を決定論的に除去（`strip_template_markers`）、〇〇・`[ここに…]` 等の未置換プレースホルダは既存の再生成予算で1回だけ作り直す（`validate_no_placeholders`）。
+- **読み方辞書**: AWS / Amazon S3 / GPT / FAA / IT などを追加。カタカナ化した製品名直後の `-6` を空白に（「マイナス」読み防止）。
+- **ついでの修正**: `script_regenerations_used` が公開許可リストに無く manifest から消えていたので追加。
+- **要作業（本人）**: GitHub Secrets に `OPENAI_API_KEY` を登録。未登録の間は毎日 `openai_unconfigured` で Gemini にフォールバックし、配信は止まらない。
 ## 2026-09-08 変更: Daily Briefの文字数目標・音声下限の不整合是正（formats-v9）
 
 - **背景**: 9/8朝の自動生成において、ニュース1本（Hugging Face Blog NeoMME）の構成で初回音声が150.10秒（約2分30秒）となりDuration Gateが発動。再生成指示（目標1,200〜1,400文字、上限寄り）に従いGeminiは1,304文字を出力したが、Edge TTS（+10%話速、約6.7文字/秒）では192.05秒（3分12秒）にしかならず、音声下限210秒（3.5分）に18秒届かず `duration_too_short` で停止した。プロンプトの目標文字数（1,200〜1,400文字）の中央値（1,300文字）では物理的に210秒に届かないという構造的不整合があった。

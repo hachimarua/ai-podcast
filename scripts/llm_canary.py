@@ -225,21 +225,28 @@ def build_topic_prompt(topic: str) -> tuple[str, str]:
     return system, prompt
 
 
-def build_pipeline_prompt(use_notion: bool, news_offset: int = 0) -> tuple[str, str, dict]:
+def build_pipeline_prompt(use_notion: bool, news_offset: int = 0,
+                          episode_format: str = "daily") -> tuple[str, str, dict]:
     """Reuse the real production prompt builders so the A/B is not a toy.
 
     ``news_offset`` drops the first N candidates before selection, so repeated
     runs on the same day can be given genuinely different source material.
     """
     from episode_formats import load_episode_formats
-    from news_collector import collect_latest_news, match_news_with_words, select_news_for_broadcast
+    from news_collector import (
+        LabSourceError,
+        collect_latest_news,
+        match_news_with_words,
+        select_news_for_broadcast,
+        select_news_for_lab,
+    )
     from script_generator import build_prompt_content, build_system_instruction
 
-    spec = load_episode_formats().formats["daily"]
+    spec = load_episode_formats().formats[episode_format]
     role_plan = {"navigator": "ケンジ", "explainer": "アミ"}
 
     print("  ニュースを取得中（RSS・APIキー不要）...", flush=True)
-    news = collect_latest_news()
+    news = collect_latest_news(episode_format=episode_format)
     if news_offset:
         news = news[news_offset:]
     if not news:
@@ -256,25 +263,35 @@ def build_pipeline_prompt(use_notion: bool, news_offset: int = 0) -> tuple[str, 
             print(f"  [注意] Notion読み込みをスキップ: {type(exc).__name__}", flush=True)
 
     matched, unmatched = match_news_with_words(news, terms)
-    broadcast_news, _ = select_news_for_broadcast(
-        matched, unmatched, [], max_items=spec.max_news_items
-    )
+    if episode_format == "lab":
+        try:
+            broadcast_news, _ = select_news_for_lab(
+                matched + unmatched, [], max_items=spec.max_news_items
+            )
+        except LabSourceError as exc:
+            raise CanaryError(f"日曜ラボの題材が揃いませんでした: {exc}") from exc
+    else:
+        broadcast_news, _ = select_news_for_broadcast(
+            matched, unmatched, [], max_items=spec.max_news_items
+        )
     if not broadcast_news:
         raise CanaryError("採用できるニュースがありませんでした")
 
-    selected_matched = [n for n in broadcast_news if n["_matched_for_review"]]
-    selected_general = [n for n in broadcast_news if not n["_matched_for_review"]]
+    selected_matched = [n for n in broadcast_news if n.get("_matched_for_review")]
+    selected_general = [n for n in broadcast_news if not n.get("_matched_for_review")]
 
-    system = build_system_instruction("daily", spec, role_plan)
+    system = build_system_instruction(episode_format, spec, role_plan)
     prompt = build_prompt_content(
         terms, selected_matched, selected_general,
-        episode_format="daily", spec=spec, role_plan=role_plan,
+        episode_format=episode_format, spec=spec, role_plan=role_plan,
     )
     context = {
         "news": [{"source": n["source"], "title": n["title"], "url": n.get("link", "")}
                  for n in broadcast_news],
         "notion_terms": [t.get("name") for t in terms],
+        "episode_format": episode_format,
         "target_characters": [spec.prompt_character_min, spec.prompt_character_max],
+        "hard_characters": [spec.hard_character_min, spec.hard_character_max],
     }
     return system, prompt, context
 
@@ -283,7 +300,7 @@ def build_pipeline_prompt(use_notion: bool, news_offset: int = 0) -> tuple[str, 
 # reporting
 # --------------------------------------------------------------------------
 
-def evaluate_script(text: str) -> dict:
+def evaluate_script(text: str, episode_format: str = "daily") -> dict:
     """Score one generated script with the production gates plus TTS readability.
 
     The Latin-script count is the part the deterministic gates do not cover today:
@@ -300,7 +317,7 @@ def evaluate_script(text: str) -> dict:
         validate_script_repetition,
     )
 
-    spec = load_episode_formats().formats["daily"]
+    spec = load_episode_formats().formats[episode_format]
     role_plan = {"navigator": "ケンジ", "explainer": "アミ"}
     script, public_title = split_generated_script_output(text)
 
@@ -310,6 +327,10 @@ def evaluate_script(text: str) -> dict:
         out["length"] = validate_script_length(script, spec)
     except EpisodeFormatError as exc:
         out["length"] = {"passed": False, "error": str(exc), "character_count": len(script)}
+    # formats-v10: 長い分には通すが、目標上限を超えたら warning として見える化する
+    count = out["length"].get("character_count") or 0
+    out["length"]["over_target"] = count > spec.prompt_character_max
+    out["length"]["under_target"] = count < spec.prompt_character_min
 
     out["style"] = validate_dialogue_style(script, enforce=False)
     out["repetition"] = validate_script_repetition(script, enforce=False)
@@ -337,10 +358,10 @@ def evaluate_script(text: str) -> dict:
 
 def summarise(label: str, result: dict | None, error: str | None) -> str:
     if error:
-        return f"  {label:<8} 失敗: {error.splitlines()[0]}"
+        return f"  {label:<24} 失敗: {error.splitlines()[0]}"
     chars = len(result["text"])
     return (
-        f"  {label:<8} {chars:>5}字  "
+        f"  {label:<24} {chars:>5}字  "
         f"in {str(result['input_tokens'] or '?'):>6} / "
         f"out {str(result['output_tokens'] or '?'):>5} "
         f"(reasoning {result['reasoning_tokens'] if result['reasoning_tokens'] is not None else '-'})  "
@@ -357,11 +378,14 @@ def main() -> int:
                         help="OpenAIキーで見えるモデル一覧を表示して終了する")
     parser.add_argument("--topic", help="単純なカナリア: この学習トピックを両方に解説させる")
     parser.add_argument("--openai-model", default=os.getenv("OPENAI_CANARY_MODEL"),
-                        help="使用するOpenAIモデル（未指定なら OPENAI_CANARY_MODEL）")
+                        help="使用するOpenAIモデル。カンマ区切りで複数指定すると同じ入力で並走する"
+                             "（未指定なら OPENAI_CANARY_MODEL）")
     parser.add_argument("--gemini-model", default=os.getenv("GEMINI_MODEL_NAME", "gemini-3.7-flash"))
-    parser.add_argument("--max-output-tokens", type=int, default=4096)
+    parser.add_argument("--max-output-tokens", type=int, default=16000)
     parser.add_argument("--news-offset", type=int, default=0,
                         help="ニュース候補の先頭N件を捨ててから選ぶ。同日中に別題材で回すため")
+    parser.add_argument("--format", choices=("daily", "lab"), default="daily",
+                        help="番組形式。lab は日曜の AI実装ラボ")
     parser.add_argument("--no-notion", action="store_true",
                         help="Notionの学習メモを使わず、公開ニュースだけで走らせる")
     parser.add_argument("--out-dir", default=str(WORKSPACE / "comparisons"))
@@ -395,10 +419,11 @@ def main() -> int:
         system, prompt = build_topic_prompt(args.topic)
         context = {"topic": args.topic}
     else:
-        mode = f"pipeline:daily+{args.news_offset}"
+        mode = f"pipeline:{args.format}+{args.news_offset}"
         try:
             system, prompt, context = build_pipeline_prompt(
-                use_notion=not args.no_notion, news_offset=args.news_offset
+                use_notion=not args.no_notion, news_offset=args.news_offset,
+                episode_format=args.format,
             )
         except CanaryError as exc:
             print(f"[停止] {exc}", file=sys.stderr)
@@ -416,13 +441,17 @@ def main() -> int:
     results: dict[str, dict] = {}
     errors: dict[str, str] = {}
 
-    print(f"  OpenAI ({args.openai_model}) 実行中...", flush=True)
-    try:
-        results["openai"] = openai_generate(
-            openai_key, args.openai_model, system, prompt, args.max_output_tokens
-        )
-    except Exception as exc:
-        errors["openai"] = redact(f"{type(exc).__name__}: {exc}", openai_key)
+    openai_models = [m.strip() for m in args.openai_model.split(",") if m.strip()]
+    for model in openai_models:
+        label = f"openai:{model}"
+        print(f"  OpenAI ({model}) 実行中...", flush=True)
+        try:
+            results[label] = openai_generate(
+                openai_key, model, system, prompt, args.max_output_tokens
+            )
+            results[label]["model"] = model
+        except Exception as exc:
+            errors[label] = redact(f"{type(exc).__name__}: {exc}", openai_key)
 
     gemini_key = os.getenv("GEMINI_API_KEY", "")
     if not gemini_key or gemini_key.startswith("YOUR_"):
@@ -432,18 +461,20 @@ def main() -> int:
         print(f"  Gemini ({args.gemini_model}) 実行中...", flush=True)
         try:
             results["gemini"] = gemini_generate(gemini_key, args.gemini_model, system, prompt)
+            results["gemini"]["model"] = args.gemini_model
         except Exception as exc:
             errors["gemini"] = redact(f"{type(exc).__name__}: {exc}", gemini_key, openai_key)
 
     if not args.topic:
         for label, result in results.items():
             try:
-                result["evaluation"] = evaluate_script(result["text"])
+                result["evaluation"] = evaluate_script(result["text"], args.format)
             except Exception as exc:
                 result["evaluation"] = {"error": f"{type(exc).__name__}: {exc}"}
 
+    labels = ["gemini", *[f"openai:{m}" for m in openai_models]]
     print("\n--- 結果 ---")
-    for label in ("gemini", "openai"):
+    for label in labels:
         print(summarise(label, results.get(label), errors.get(label)))
         ev = (results.get(label) or {}).get("evaluation") or {}
         tts = ev.get("tts_readability")
@@ -459,8 +490,10 @@ def main() -> int:
         ]
         if any(v is not None for _, v in gates):
             line = "  ".join(f"{n}{'OK' if v else 'NG'}" for n, v in gates)
-            chars = (ev.get("length") or {}).get("character_count")
-            print(f"           ゲート {line}   台本{chars}字")
+            length = ev.get("length") or {}
+            note = "（目標超過・v10では許容）" if length.get("over_target") else (
+                "（目標未満）" if length.get("under_target") else "")
+            print(f"           ゲート {line}   台本{length.get('character_count')}字{note}")
 
     # ---- persist ----------------------------------------------------------
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -470,7 +503,7 @@ def main() -> int:
     (out_dir / "input_system.txt").write_text(system, encoding="utf-8")
     (out_dir / "input_prompt.txt").write_text(prompt, encoding="utf-8")
     for label, result in results.items():
-        (out_dir / f"output_{label}.txt").write_text(result["text"], encoding="utf-8")
+        (out_dir / f"output_{label.replace(':', '_')}.txt").write_text(result["text"], encoding="utf-8")
 
     report = {
         "ran_at": datetime.now(timezone.utc).isoformat(),
@@ -489,9 +522,6 @@ def main() -> int:
     )
 
     print(f"\n保存しました: {out_dir}")
-    for label in ("gemini", "openai"):
-        if label in results:
-            print(f"  出力を読む:  open '{out_dir / f'output_{label}.txt'}'")
     return 0 if results else 1
 
 
