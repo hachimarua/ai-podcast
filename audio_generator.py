@@ -248,6 +248,10 @@ def apply_pronunciation_dict(text):
         r'(?i)(?<![A-Za-z])Vertex[\s　]*AI(?![A-Za-z])': 'バーテックスエーアイ',
         r'(?i)(?<![A-Za-z])GitHub[\s　]*Actions(?![A-Za-z])': 'ギットハブアクションズ',
         r'(?i)(?<![A-Za-z])Hugging[\s　]*Face(?![A-Za-z])': 'ハギングフェイス',
+        # AWS関連の複合語。単体の "Amazon" より先に置かないと「アマゾン S3」のように壊れる。
+        r'(?i)(?<![A-Za-z])Amazon[\s　]*Web[\s　]*Services(?![A-Za-z])': 'アマゾンウェブサービシズ',
+        r'(?i)(?<![A-Za-z])Amazon[\s　]*Bedrock(?![A-Za-z])': 'アマゾンベッドロック',
+        r'(?i)(?<![A-Za-z])Amazon[\s　]*S3(?![A-Za-z0-9])': 'アマゾンエススリー',
 
         # --- 企業・サービス（単体） ---
         r'(?i)Claude': 'クロード',
@@ -260,6 +264,7 @@ def apply_pronunciation_dict(text):
         r'(?i)(?<![A-Za-z])Microsoft(?![A-Za-z])': 'マイクロソフト',
         r'(?i)(?<![A-Za-z])NVIDIA(?![A-Za-z])': 'エヌビディア',
         r'(?i)(?<![A-Za-z])Amazon(?![A-Za-z])': 'アマゾン',
+        r'(?i)(?<![A-Za-z])Bedrock(?![A-Za-z])': 'ベッドロック',
         r'(?i)(?<![A-Za-z])Apple(?![A-Za-z])': 'アップル',
         r'(?i)(?<![A-Za-z])Meta(?![A-Za-z])': 'メタ',
         r'(?i)(?<![A-Za-z])xAI(?![A-Za-z])': 'エックスエーアイ',
@@ -268,6 +273,8 @@ def apply_pronunciation_dict(text):
         r'(?i)(?<![A-Za-z])DeepSeek(?![A-Za-z])': 'ディープシーク',
         r'(?i)(?<![A-Za-z])DeepMind(?![A-Za-z])': 'ディープマインド',
         r'(?i)(?<![A-Za-z])Perplexity(?![A-Za-z])': 'パープレキシティ',
+        r'(?i)(?<![A-Za-z])Astra(?![A-Za-z])': 'アストラ',
+        r'(?i)(?<![A-Za-z])Crusoe(?![A-Za-z])': 'クルーソー',
         r'(?i)(?<![A-Za-z])TechCrunch(?![A-Za-z])': 'テッククランチ',
         r'(?i)(?<![A-Za-z])ITmedia(?![A-Za-z])': 'アイティメディア',
         r'(?i)(?<![A-Za-z])arXiv(?![A-Za-z])': 'アーカイブ',
@@ -302,6 +309,18 @@ def apply_pronunciation_dict(text):
         r'(?i)(?<![A-Za-z])CLI(?![A-Za-z])': 'シーエルアイ',
         r'(?i)(?<![A-Za-z])PWA(?![A-Za-z])': 'ピーダブリューエー',
         r'(?i)(?<![A-Za-z])GPU(?![A-Za-z])': 'ジーピーユー',
+        r'(?i)(?<![A-Za-z])AWS(?![A-Za-z])': 'エーダブリューエス',
+        r'(?i)(?<![A-Za-z])FAA(?![A-Za-z])': 'エフエーエー',
+        # "ChatGPT" のエントリより後段（略語セクション）に置くことで、ChatGPT を壊さない。
+        r'(?i)(?<![A-Za-z])GPT(?![A-Za-z])': 'ジーピーティー',
+        # 文字・数字の両方を境界外に置き、S3X・XS3のような語中一致を防ぐ。
+        r'(?i)(?<![A-Za-z0-9])S3(?![A-Za-z0-9])': 'エススリー',
+        # 小文字の "it" を巻き込まないよう、大文字 IT のみを対象にする（大小文字区別なしにしない）。
+        r'(?<![A-Za-z])IT(?![A-Za-z])': 'アイティー',
+
+        # カタカナ化した製品名の直後の「-6」「-3.7」は「マイナス」と読まれうるので空白にする。
+        # 他の置換がすべて終わった後で効くよう、固有名詞・略語より後ろに置く。
+        r'(?<=[ァ-ヴー])-(?=[0-9])': ' ',
 
         # Edge TTSが「必須」や「案」の読みを崩すことがあるため、
         # TTS直前だけ読みを明示する。保存台本・表示文は変更しない。

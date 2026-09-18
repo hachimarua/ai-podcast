@@ -39,11 +39,18 @@ PUBLIC_CHECK_KEYS = {
     "min_mean_volume_db", "max_mean_volume_db", "max_peak_volume_db", "max_long_silence_ratio",
     "silence_noise_db", "silence_min_seconds", "character_count", "hard_min",
     "hard_max", "target_min", "target_max", "legacy_bootstrap",
+    "script_regenerations_used",
     "degradations", "stage", "action",
     "dialogue_roles", "navigator", "explainer", "dialogue_role_check", "dialogue_line_count",
     "navigator_line_count", "explainer_line_count", "first_speaker",
     "script_repetition", "repeated_utterance_pairs", "max_allowed_repeated_pairs",
     "sample_repeated_pairs", "text_1", "text_2", "speaker_1", "speaker_2", "similarity",
+    # 台本をどのプロバイダが書いたか。フォールバック回数を後から数えるための記録。
+    "script_generation", "primary_provider", "provider", "model", "fallback_used",
+    "fallback_count", "fallback_reason", "calls", "succeeded", "attempts", "http_status",
+    "latency_ms", "input_tokens", "output_tokens", "reasoning_tokens", "total_tokens",
+    # モデルがフォーマット例の "[セリフ]" をそのまま書き写した事故の再発防止ゲート。
+    "template_markers_removed", "placeholder_check", "placeholder_count",
 }
 PUBLIC_CHECK_STRINGS = PUBLIC_NEWS_SOURCES | {
     "daily", "lab", "world", "japan", "research", "official", "reporting",
@@ -61,7 +68,12 @@ PUBLIC_CHECK_STRINGS = PUBLIC_NEWS_SOURCES | {
     "retry_budget_exhausted",
     "published_initial_script", "published_style_retry_script",
     "ケンジ", "アミ", "unknown",
+    "openai", "gemini", "mock",
+    "openai_unconfigured", "openai_quota", "openai_auth", "openai_bad_request",
+    "openai_transient_exhausted", "openai_incomplete", "openai_empty_output", "openai_error",
 }
+# モデル名は列挙しきれないので形だけで許可する（自由文は通さない）。
+PUBLIC_MODEL_NAME = re.compile(r"(?:gpt|gemini)-[0-9a-z.\-]{1,40}")
 
 
 def safe_public_text(value: str, *, fallback: str, max_length: int) -> str:
@@ -182,7 +194,11 @@ def public_deterministic_checks(checks: dict[str, Any] | None) -> dict[str, Any]
         if value is None and key == "format_fallback_reason":
             return None
         if isinstance(value, str):
-            if value in PUBLIC_CHECK_STRINGS or re.fullmatch(r"formats-v[1-9][0-9]*", value):
+            if (
+                value in PUBLIC_CHECK_STRINGS
+                or re.fullmatch(r"formats-v[1-9][0-9]*", value)
+                or (key == "model" and PUBLIC_MODEL_NAME.fullmatch(value))
+            ):
                 return value
         return None
 

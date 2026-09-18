@@ -63,6 +63,23 @@ class OrderingTests(unittest.TestCase):
         self.assertEqual(apply_pronunciation_dict("GitHub"), "ギットハブ")
         self.assertEqual(apply_pronunciation_dict("SQL"), "エスキューエル")
 
+    def test_aws_compound_names_precede_plain_amazon(self):
+        cases = {
+            "Amazon S3": "アマゾンエススリー",
+            "Amazon Web Services": "アマゾンウェブサービシズ",
+            "Amazon Bedrock": "アマゾンベッドロック",
+        }
+        for source, expected in cases.items():
+            with self.subTest(source=source):
+                self.assertEqual(apply_pronunciation_dict(source), expected)
+        self.assertEqual(apply_pronunciation_dict("Amazon"), "アマゾン")
+
+    def test_gpt_is_defined_after_chatgpt(self):
+        self.assertEqual(apply_pronunciation_dict("ChatGPT"), "チャットジーピーティー")
+        self.assertEqual(apply_pronunciation_dict("GPT"), "ジーピーティー")
+        # ハイフン+数字はTTSがそのまま正しく読めるため、残っていてよい。
+        self.assertEqual(apply_pronunciation_dict("GPT-6"), "ジーピーティー 6")
+
 
 class WordBoundaryTests(unittest.TestCase):
     """A short entry must not fire inside a longer English word."""
@@ -71,6 +88,17 @@ class WordBoundaryTests(unittest.TestCase):
         for source in ("Googleplex", "Metadata", "Flashlight", "Sorapunk", "Codexual"):
             with self.subTest(source=source):
                 self.assertEqual(apply_pronunciation_dict(source), source)
+
+    def test_s3_does_not_match_inside_other_tokens(self):
+        for source in ("S3X", "XS3", "S30", "0S3"):
+            with self.subTest(source=source):
+                self.assertEqual(apply_pronunciation_dict(source), source)
+        self.assertEqual(apply_pronunciation_dict("S3"), "エススリー")
+
+    def test_it_only_matches_uppercase_exact(self):
+        self.assertEqual(apply_pronunciation_dict("IT部門"), "アイティー部門")
+        self.assertEqual(apply_pronunciation_dict("Make it work"), "Make it work")
+        self.assertEqual(apply_pronunciation_dict("It works"), "It works")
 
 
 class RegressionTests(unittest.TestCase):
@@ -108,6 +136,24 @@ class SpokenScriptTests(unittest.TestCase):
         )
         self.assertEqual(latin_left(apply_pronunciation_dict(line)), [])
 
+    def test_a_line_with_aws_terms_is_fully_readable(self):
+        line = (
+            "AWS 上で Amazon S3 を使い、FAA は GPT-6 と Astra の検証を進めています。"
+        )
+        self.assertEqual(latin_left(apply_pronunciation_dict(line)), [])
+
+
+
+class HyphenatedVersionTests(unittest.TestCase):
+    """A converted product name followed by -<digit> must not be read as マイナス."""
+
+    def test_hyphen_after_converted_name_becomes_a_space(self):
+        self.assertEqual(apply_pronunciation_dict("GPT-6 Astra"), "ジーピーティー 6 アストラ")
+        self.assertEqual(apply_pronunciation_dict("Gemini-3"), "ジェミニ 3")
+
+    def test_hyphens_elsewhere_are_untouched(self):
+        self.assertEqual(apply_pronunciation_dict("2026-09-18"), "2026-09-18")
+        self.assertEqual(apply_pronunciation_dict("A-1"), "A-1")
 
 if __name__ == "__main__":
     unittest.main()

@@ -16,10 +16,15 @@ from script_generator import (
     choose_public_topic,
     choose_dialogue_role_plan,
     generate_radio_script,
+    reset_script_generation_log,
+    script_generation_summary,
+    script_provider,
     split_generated_script_output,
+    strip_template_markers,
     validate_dialogue_roles,
     validate_dialogue_register,
     validate_dialogue_style,
+    validate_no_placeholders,
     validate_script_repetition,
 )
 from audio_generator import synthesize_podcast
@@ -66,6 +71,22 @@ def should_update_notion_review(existing_today, selected_terms, broadcast_date=N
     if broadcast_date is None:
         return not existing_today and bool(selected_terms)
     return bool(terms_requiring_review_update(selected_terms, broadcast_date))
+
+
+def split_and_clean_script_output(raw_script):
+    """Split raw model output and strip literal ``[セリフ]`` format-example markers.
+
+    Every retry path in the pipeline turns raw model output into a usable
+    script through ``split_generated_script_output``; this wraps that call so
+    the template-marker cleanup (see ``script_generator.strip_template_markers``)
+    always runs before the length/quality gates, regardless of which retry
+    path produced the raw text.
+    """
+    script, public_topic = split_generated_script_output(raw_script)
+    if not script:
+        return script, public_topic, 0
+    cleaned_script, markers_removed = strip_template_markers(script)
+    return cleaned_script, public_topic, markers_removed
 
 
 def split_run_manifests(manifests, broadcast_date, *, history_limit=3):
@@ -242,14 +263,23 @@ async def async_main():
         )
         
     # 4. Gemini APIを用いて日本語対話ラジオ台本を生成
-    print("\n[Step 4] Gemini APIを呼び出し、対話型ラジオ台本を生成しています...")
+    print("\n[Step 4] LLMを呼び出し、対話型ラジオ台本を生成しています...")
     model_name = normalize_gemini_model(os.getenv("GEMINI_MODEL_NAME"))
-    print(f"使用モデル: {model_name}")
+    reset_script_generation_log()
+    if script_provider() == "openai":
+        print(
+            f"台本プロバイダ: OpenAI ({os.getenv('OPENAI_SCRIPT_MODEL') or 'gpt-5.6-terra'})"
+            f" / フォールバック: Gemini ({model_name})"
+        )
+    else:
+        print(f"台本プロバイダ: Gemini ({model_name})")
     # コストを活かした品質修復は、台本・会話・尺をまたいで合計1回に制限する。
     # 2回目も明らかに不合格なら、低品質音声を公開せずCIを停止する。
     script_regeneration_limit = 1
     script_regenerations_used = 0
-    
+    # モデルがフォーマット例の "[セリフ]" を書き写した件数。累積で監査に残す。
+    template_markers_removed = 0
+
     raw_script = generate_radio_script(
         selected_terms,
         selected_matched,
@@ -260,8 +290,9 @@ async def async_main():
         spec=format_spec,
         role_plan=dialogue_role_plan,
     )
-    script, generated_public_topic = split_generated_script_output(raw_script)
-    
+    script, generated_public_topic, markers_removed = split_and_clean_script_output(raw_script)
+    template_markers_removed += markers_removed
+
     if not script:
         print("[Error] 台本の生成に失敗しました。")
         sys.exit(1)
@@ -301,7 +332,8 @@ async def async_main():
             spec=format_spec,
             role_plan=dialogue_role_plan,
         )
-        script, generated_public_topic = split_generated_script_output(raw_script)
+        script, generated_public_topic, markers_removed = split_and_clean_script_output(raw_script)
+        template_markers_removed += markers_removed
         if not script:
             raise RuntimeError("Duplicate fallback script generation failed")
         selected_terms = []
@@ -339,7 +371,8 @@ async def async_main():
             length_retry=True,
             role_plan=dialogue_role_plan,
         )
-        retry_script, retry_public_topic = split_generated_script_output(raw_script)
+        retry_script, retry_public_topic, markers_removed = split_and_clean_script_output(raw_script)
+        template_markers_removed += markers_removed
 
         length_rejection = None
         if not retry_script:
@@ -366,6 +399,7 @@ async def async_main():
         dialogue_style = validate_dialogue_style(script)
         dialogue_register = validate_dialogue_register(script)
         script_repetition = validate_script_repetition(script)
+        placeholder_check = validate_no_placeholders(script)
     except EpisodeFormatError as quality_error:
         if script_regenerations_used >= script_regeneration_limit:
             raise RuntimeError(
@@ -373,7 +407,13 @@ async def async_main():
                 "script-regeneration allowance was used"
             ) from quality_error
         is_repetition_error = "repetitive dialogue or looping content" in str(quality_error)
-        retry_msg = "同じ話題や説明のループ・水増し" if is_repetition_error else "定型的な応答または話者間の敬語レベル"
+        is_placeholder_error = "unresolved template placeholders" in str(quality_error)
+        if is_repetition_error:
+            retry_msg = "同じ話題や説明のループ・水増し"
+        elif is_placeholder_error:
+            retry_msg = "未置換のテンプレートプレースホルダー"
+        else:
+            retry_msg = "定型的な応答または話者間の敬語レベル"
         print(
             f"[Dialogue Quality Gate] {retry_msg}に問題があるため、"
             "同じ出典のまま1回だけ再生成します。"
@@ -391,7 +431,8 @@ async def async_main():
             repetition_retry=is_repetition_error,
             role_plan=dialogue_role_plan,
         )
-        retry_script, retry_public_topic = split_generated_script_output(raw_script)
+        retry_script, retry_public_topic, markers_removed = split_and_clean_script_output(raw_script)
+        template_markers_removed += markers_removed
         if not retry_script:
             raise RuntimeError("Dialogue quality retry script generation failed") from quality_error
         retry_similarity = max_recent_similarity(retry_script, history_manifests)
@@ -403,6 +444,7 @@ async def async_main():
         retry_style = validate_dialogue_style(retry_script)
         retry_register = validate_dialogue_register(retry_script)
         retry_repetition = validate_script_repetition(retry_script)
+        retry_placeholder_check = validate_no_placeholders(retry_script)
         script = retry_script
         generated_public_topic = retry_public_topic
         final_similarity = retry_similarity
@@ -410,6 +452,7 @@ async def async_main():
         dialogue_style = retry_style
         dialogue_register = retry_register
         script_repetition = retry_repetition
+        placeholder_check = retry_placeholder_check
 
     # 台本の保存
     if trial_mode:
@@ -465,7 +508,8 @@ async def async_main():
             duration_retry=True,
             role_plan=dialogue_role_plan,
         )
-        script, generated_public_topic = split_generated_script_output(raw_script)
+        script, generated_public_topic, markers_removed = split_and_clean_script_output(raw_script)
+        template_markers_removed += markers_removed
         if not script:
             raise RuntimeError("Duration retry script generation failed")
         final_similarity = max_recent_similarity(script, history_manifests)
@@ -483,6 +527,8 @@ async def async_main():
             ) from duration_length_error
         dialogue_style = validate_dialogue_style(script)
         dialogue_register = validate_dialogue_register(script)
+        # 再生成予算は使い切っているので、プレースホルダが残っていれば公開せず止める。
+        placeholder_check = validate_no_placeholders(script)
         print(
             f"[Duration Gate] 再生成台本: {script_length['character_count']}文字"
         )
@@ -541,6 +587,8 @@ async def async_main():
                 "dialogue_style": dialogue_style,
                 "dialogue_register": dialogue_register,
                 "script_repetition": script_repetition,
+                "template_markers_removed": template_markers_removed,
+                "placeholder_check": placeholder_check,
                 "dialogue_roles": dialogue_role_plan,
                 "dialogue_role_check": dialogue_role_check,
                 "scheduled_format": scheduled_format,
@@ -588,12 +636,15 @@ async def async_main():
                     "dialogue_style": dialogue_style,
                     "dialogue_register": dialogue_register,
                     "script_repetition": script_repetition,
+                    "template_markers_removed": template_markers_removed,
+                    "placeholder_check": placeholder_check,
                     "dialogue_roles": dialogue_role_plan,
                     "dialogue_role_check": dialogue_role_check,
                     "scheduled_format": scheduled_format,
                     "format_fallback_reason": format_fallback_reason,
                     "format_config_version": formats_config.config_version,
                     "degradations": degradations,
+                    "script_generation": script_generation_summary(),
                 },
                 publish_status="published",
                 gemini_qa_summary=gemini_qa,

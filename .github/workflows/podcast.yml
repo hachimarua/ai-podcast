@@ -115,7 +115,12 @@ jobs:
         BASE_URL: "https://hachimarua.github.io/ai-podcast"
         BGM_VOLUME: "0.30"
         ALLOW_MOCK_DATA: "false"
-        # 台本生成はGemini 3.7 Flash、音声監査は別の低コストFlash(3.6)で実行する。
+        # 台本は OpenAI (gpt-5.6-terra) が書き、失敗した日は Gemini 3.7 Flash へ自動で切り替える。
+        # 音声監査は Gemini 3.6 Flash のままにして、書く側と聞く側を別ベンダーに分ける。
+        # SCRIPT_PROVIDER を "gemini" に戻せば、コード変更なしで従来構成に戻る。
+        SCRIPT_PROVIDER: "openai"
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        OPENAI_SCRIPT_MODEL: "gpt-5.6-terra"
         GEMINI_MODEL_NAME: "gemini-3.7-flash"
         GEMINI_AUDIO_QA_MODEL: "gemini-3.6-flash"
         PHASE10_TRIAL_MODE: ${{ github.event_name == 'workflow_dispatch' && (inputs.phase10_trial == true || inputs.weekly_lab_trial == true) }}

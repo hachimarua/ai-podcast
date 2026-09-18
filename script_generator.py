@@ -11,6 +11,7 @@ from episode_history import safe_public_text
 from episode_formats import EpisodeFormatError, FormatSpec, load_episode_formats
 from gemini_models import DEFAULT_GEMINI_MODEL, normalize_gemini_model
 from news_collector import validate_lab_sources
+from openai_script_client import generate_with_openai
 
 # 環境変数の読み込み
 load_dotenv()
@@ -479,6 +480,70 @@ def validate_script_repetition(
     return result
 
 
+TEMPLATE_MARKER_PATTERN = re.compile(
+    r"^(ケンジ|アミ)(\s*[:：]\s*)(?:\[セリフ\]|［セリフ］)[ 　]*",
+    re.MULTILINE,
+)
+
+# 発話行の中で検知する未置換プレースホルダー。タイトル行(【表示タイトル】)や
+# 「」「（）」などの通常の日本語括弧は対象にせず、テンプレート例やプレースホルダー
+# 記号だけを拾う。
+PLACEHOLDER_PATTERNS = (
+    re.compile(r"\[セリフ\]|［セリフ］"),
+    re.compile(r"\[[^\]\n]{0,60}ここに[^\]\n]{0,60}\]"),
+    re.compile(r"【[^】\n]{0,60}(?:入れる|記入|挿入|ここに)[^】\n]{0,60}】"),
+    re.compile(r"[〇○×]{2,}"),
+)
+
+
+def strip_template_markers(script: str) -> tuple[str, int]:
+    """Remove the literal ``[セリフ]`` format-example marker echoed by a model.
+
+    実際の事故: モデルがSYSTEM_INSTRUCTIONの出力フォーマット例
+    ``ケンジ：[セリフ]`` をそのまま台詞として書き写し、
+    ``ケンジ：[セリフ]おはようございます…`` のような行を19行分生成した。
+    既存ゲートはすべて通過し、音声合成は「セリフ」をそのまま読み上げてしまう。
+
+    これは話者ラベル直後にだけ現れる、意味のない書式ノイズなので、
+    単発の再生成予算を使わずに機械的に取り除く方が安全で安価。
+    話者ラベルの直後にない ``[セリフ]`` は取り除かず、
+    ``validate_no_placeholders`` の検知対象として残す。
+    """
+    text = str(script or "")
+    cleaned, count = TEMPLATE_MARKER_PATTERN.subn(r"\1\2", text)
+    return cleaned, count
+
+
+def validate_no_placeholders(script: str, *, enforce: bool = True) -> dict:
+    """Reject spoken lines that still contain an unresolved template placeholder.
+
+    ``strip_template_markers`` で取り切れなかった ``[セリフ]`` や、
+    ``[ここに具体例]`` ``【会社名を入れる】`` のような指示ブラケット、
+    ``〇〇`` ``○○`` ``××`` のような仮埋め記号を検知する。
+    タイトル行(【表示タイトル】…)は話者ラベル形式ではないため対象外。
+    「」や（）を使った通常の日本語の地の文は対象パターンに一致しないため
+    誤検知しない。
+    """
+    lines = _dialogue_lines(script)
+    placeholder_count = 0
+    for _, text in lines:
+        for pattern in PLACEHOLDER_PATTERNS:
+            placeholder_count += len(pattern.findall(text))
+
+    passed = placeholder_count == 0
+    result = {
+        "passed": passed,
+        "placeholder_count": placeholder_count,
+        "dialogue_line_count": len(lines),
+    }
+    if not passed and enforce:
+        raise EpisodeFormatError(
+            "generated dialogue contains unresolved template placeholders "
+            f"({placeholder_count} found)"
+        )
+    return result
+
+
 def _format_spec(episode_format: str) -> FormatSpec:
     config = load_episode_formats()
     if episode_format not in {"daily", "lab"}:
@@ -661,6 +726,57 @@ def build_prompt_content(
     
     return content
 
+SCRIPT_PROVIDERS = {"gemini", "openai"}
+
+# 1回の実行で generate_radio_script() が呼ばれるたびに1件ずつ積む。
+# main.py がこれを manifest へ写し、フォールバックの回数を後から数えられるようにする。
+SCRIPT_GENERATION_LOG: list[dict] = []
+
+
+def script_provider() -> str:
+    """Primary script provider. Anything but an explicit "openai" keeps Gemini."""
+    value = (os.getenv("SCRIPT_PROVIDER") or "gemini").strip().lower()
+    return value if value in SCRIPT_PROVIDERS else "gemini"
+
+
+def reset_script_generation_log() -> None:
+    SCRIPT_GENERATION_LOG.clear()
+
+
+def script_generation_summary() -> dict:
+    """Closed, public-safe record of which provider wrote the final script."""
+    calls = [dict(entry) for entry in SCRIPT_GENERATION_LOG]
+    final = next((c for c in reversed(calls) if c.get("succeeded")), calls[-1] if calls else {})
+    return {
+        "primary_provider": script_provider(),
+        "provider": final.get("provider", "unknown"),
+        "model": final.get("model", "unknown"),
+        "fallback_used": any(c.get("fallback_used") for c in calls),
+        "fallback_count": sum(1 for c in calls if c.get("fallback_used")),
+        "calls": calls,
+    }
+
+
+def _log_generation(entry: dict) -> None:
+    keep = (
+        "provider", "model", "succeeded", "fallback_used", "fallback_reason",
+        "attempts", "http_status", "latency_ms",
+        "input_tokens", "output_tokens", "reasoning_tokens", "total_tokens",
+    )
+    SCRIPT_GENERATION_LOG.append({k: entry[k] for k in keep if entry.get(k) is not None})
+
+
+def _gemini_usage(response) -> dict:
+    usage = getattr(response, "usage_metadata", None)
+    values = {
+        "input_tokens": getattr(usage, "prompt_token_count", None),
+        "output_tokens": getattr(usage, "candidates_token_count", None),
+        "reasoning_tokens": getattr(usage, "thoughts_token_count", None),
+        "total_tokens": getattr(usage, "total_token_count", None),
+    }
+    return {k: v for k, v in values.items() if isinstance(v, int)}
+
+
 def generate_radio_script(
     selected_terms,
     matched_news,
@@ -675,29 +791,18 @@ def generate_radio_script(
     repetition_retry=False,
     role_plan=None,
 ):
-    """Gemini APIを使用してラジオ台本を生成"""
+    """ラジオ台本を生成する。
+
+    ``SCRIPT_PROVIDER=openai`` のときは OpenAI を先に試し、失敗したら同じプロンプトで
+    Gemini に切り替える。戻り値は従来どおり台本文字列（失敗時は None）。
+    """
     spec = spec or _format_spec(episode_format)
     role_plan = _validated_dialogue_role_plan(role_plan) or dict(DEFAULT_DIALOGUE_ROLE_PLAN)
     if episode_format == "lab":
         validate_lab_sources((matched_news + general_news)[: spec.max_news_items])
     system_instruction = build_system_instruction(episode_format, spec, role_plan)
     model_name = normalize_gemini_model(model_name)
-    client = get_gemini_client()
-    
-    if not client:
-        print("[Mock] Generating preview script...")
-        navigator = role_plan["navigator"]
-        explainer = role_plan["explainer"]
-        preview = f"{PUBLIC_TITLE_PREFIX}AIの最新情報を実務につなげる考え方\n"
-        preview += f"{navigator}：皆さん、おはようございます！今日のナビゲーターです。\n"
-        preview += f"{explainer}：おはようございます。今日は提供された情報をもとに、背景と使いどころを解説します。\n"
-        preview += f"{navigator}：まず、今回の情報で押さえるべき点を教えてください。\n"
-        preview += f"{explainer}：確認できる事実を整理し、適用できる条件と注意点を分けて見ていきます。\n"
-        preview += f"{navigator}：条件を分けて考えると、実際に試す場面を判断しやすくなりますね。\n"
-        preview += f"{explainer}：その視点で、今日も無理なく学びを実務へつなげていきましょう。\n"
-        preview += f"{navigator}：それでは、いってらっしゃい！"
-        return preview
-        
+
     repair_reasons = []
     if length_retry:
         repair_reasons.append("length")
@@ -726,7 +831,42 @@ def generate_radio_script(
         repetition_retry=repetition_retry,
         role_plan=role_plan,
     )
-    
+
+    fallback_reason = None
+    if script_provider() == "openai":
+        print("[Script] OpenAI で台本を生成します。", flush=True)
+        text, info = generate_with_openai(system_instruction, prompt)
+        if text:
+            _log_generation({**info, "succeeded": True, "fallback_used": False})
+            return text
+        fallback_reason = info.get("error_category", "openai_error")
+        _log_generation({**info, "succeeded": False, "fallback_reason": fallback_reason})
+        print(
+            f"[Script Fallback] OpenAI が使えなかったため Gemini に切り替えます "
+            f"(reason={fallback_reason})。",
+            flush=True,
+        )
+
+    client = get_gemini_client()
+
+    if not client:
+        print("[Mock] Generating preview script...")
+        navigator = role_plan["navigator"]
+        explainer = role_plan["explainer"]
+        preview = f"{PUBLIC_TITLE_PREFIX}AIの最新情報を実務につなげる考え方\n"
+        preview += f"{navigator}：皆さん、おはようございます！今日のナビゲーターです。\n"
+        preview += f"{explainer}：おはようございます。今日は提供された情報をもとに、背景と使いどころを解説します。\n"
+        preview += f"{navigator}：まず、今回の情報で押さえるべき点を教えてください。\n"
+        preview += f"{explainer}：確認できる事実を整理し、適用できる条件と注意点を分けて見ていきます。\n"
+        preview += f"{navigator}：条件を分けて考えると、実際に試す場面を判断しやすくなりますね。\n"
+        preview += f"{explainer}：その視点で、今日も無理なく学びを実務へつなげていきましょう。\n"
+        preview += f"{navigator}：それでは、いってらっしゃい！"
+        _log_generation({"provider": "mock", "model": "mock", "succeeded": True,
+                         "fallback_used": fallback_reason is not None,
+                         "fallback_reason": fallback_reason})
+        return preview
+        
+
     # Gemini 429/5xx は一過性のことがあるため、品質ゲートを緩めずに
     # 段階的な待機だけで復旧を試みる。恒久エラーは従来どおり即時停止する。
     # 既存の4回分を終えても高負荷が続く場合だけ、追加待機後に1回だけ再試行する。
@@ -735,6 +875,7 @@ def generate_radio_script(
     max_attempts = len(retry_delays) + 2
     for attempt in range(1, max_attempts + 1):
         try:
+            started = time.monotonic()
             response = client.models.generate_content(
                 model=model_name,
                 contents=prompt,
@@ -743,6 +884,16 @@ def generate_radio_script(
                     thinking_config=types.ThinkingConfig(thinking_level="high"),
                 )
             )
+            _log_generation({
+                "provider": "gemini",
+                "model": model_name,
+                "succeeded": True,
+                "attempts": attempt,
+                "latency_ms": int((time.monotonic() - started) * 1000),
+                "fallback_used": fallback_reason is not None,
+                "fallback_reason": fallback_reason,
+                **_gemini_usage(response),
+            })
             return response.text
         except Exception as exc:
             status = _gemini_error_status(exc)
@@ -769,6 +920,15 @@ def generate_radio_script(
                 f"{type(exc).__name__}"
                 + (f" (HTTP {status})" if status else "")
             )
+            _log_generation({
+                "provider": "gemini",
+                "model": model_name,
+                "succeeded": False,
+                "attempts": attempt,
+                "http_status": status,
+                "fallback_used": fallback_reason is not None,
+                "fallback_reason": fallback_reason,
+            })
             return None
 
 if __name__ == "__main__":
