@@ -221,6 +221,27 @@ def summarize(feed_result: dict) -> dict:
     }
 
 
+def print_detail(results: list[dict]) -> None:
+    """Print every measured entry, so the numbers are readable from the job log alone."""
+    for feed in results:
+        print(f"\n=== {feed['source']} ===")
+        if feed["error"]:
+            print(f"  {feed['error']}")
+            continue
+        for entry in feed["entries"]:
+            article = entry["article_chars"]
+            markers = ",".join(entry["paywall_markers"]) or "-"
+            print(
+                f"  RSS {entry['rss_chars']:>5}字 ({entry['rss_field']:>7})"
+                f"  本文 {str(article) if article is not None else '-':>6}字"
+                f"  HTTP {entry['http_status']}"
+                f"  robots {entry['robots_allowed']}"
+                f"  有料語 {markers}"
+                + (f"  ERROR {entry['error']}" if entry["error"] else "")
+            )
+            print(f"        {entry['title'][:78]}")
+
+
 def print_table(summaries: list[dict]) -> None:
     head = f"{'source':40}{'RSS':>8}{'記事本文':>10}{'倍率':>7}{'HTTP':>12}{'有料':>6}{'robots×':>9}"
     print("\n" + head)
@@ -276,6 +297,7 @@ def main() -> int:
     ]
     summaries = [summarize(result) for result in results]
 
+    print_detail(results)
     print_table(summaries)
     print_budget(summaries)
 
