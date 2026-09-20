@@ -32,10 +32,18 @@ SOURCE_CONFIG = {
         "article_hosts": ("huggingface.co",),
     },
     "arXiv cs.AI (Artificial Intelligence)": {
-        "url": "https://arxiv.org/rss/cs.AI",
+        # RSS は「今回の公表分」しか載せず、公表の谷では 892 バイトの空チャンネルを
+        # 200 で返す。研究レーンが直近14回中6回消えていたのはこれで、曜日とは無関係に
+        # 実行時刻が谷に当たるかどうかで決まっていた（2026-09-20 実測）。
+        # API は公表サイクルに関係なく直近の投稿を返し、要約も 1,200〜1,900字と厚い。
+        "url": "https://export.arxiv.org/api/query"
+               "?search_query=cat:cs.AI&sortBy=submittedDate"
+               "&sortOrder=descending&max_results=15",
         "lane": "research",
         "evidence_role": "research",
         "article_hosts": ("arxiv.org",),
+        # 要約そのものが完全な抄録なので、abs ページを取りに行っても得るものがない。
+        "fetch_body": False,
     },
     "ITmedia AI+": {
         "url": "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml",
@@ -145,6 +153,14 @@ def fetch_feed_entries(feed_name, feed_url, max_entries=5):
             clean_text = sanitize_content(raw_text)
             clean_title = sanitize_content(title)
             
+            # arXiv API は abs ページを http:// で返す。取得も manifest も https しか
+            # 通さないので、そのソース自身のホストに限って昇格させる。
+            link = entry.get("link", "")
+            if link.startswith("http://"):
+                candidate = "https://" + link[len("http://"):]
+                if _article_host_allowed(candidate, feed_name):
+                    link = candidate
+
             # 日付の取得と整形
             published_parsed = entry.get("published_parsed")
             if published_parsed:
@@ -159,7 +175,7 @@ def fetch_feed_entries(feed_name, feed_url, max_entries=5):
                     "evidence_role", "reporting"
                 ),
                 "title": clean_title,
-                "link": entry.get("link", ""),
+                "link": link,
                 "published": published_dt.strftime("%Y-%m-%d %H:%M:%S"),
                 "content": clean_text
             })
@@ -197,6 +213,7 @@ ARTICLE_STRIP_TAGS = (
 # episode_history.PUBLIC_CHECK_STRINGS に同じ値を登録してある。
 ARTICLE_FETCH_STATUSES = (
     "used",
+    "body_not_needed",
     "short_page",
     "untrusted_host",
     "blocked_by_robots",
@@ -372,6 +389,9 @@ def enrich_news_with_article_text(news_list, *, session=None, sleep=time.sleep):
             time.monotonic() - started > ARTICLE_FETCH_TIME_BUDGET_SECONDS
         ):
             status, text = "budget_exhausted", ""
+        elif not SOURCE_CONFIG.get(source, {}).get("fetch_body", True):
+            # 抄録がそのまま完全な本文であるソース。取りに行く必要がない。
+            status, text = "body_not_needed", ""
         elif not _article_host_allowed(link, source):
             status, text = "untrusted_host", ""
         else:

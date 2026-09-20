@@ -296,3 +296,48 @@ class DeliversNewsGateTests(unittest.TestCase):
         self.assertIn("今日何が起きたのか", prompt)
         self.assertIn("記事には書かれていません", prompt)
         self.assertIn("delivers_news", prompt)
+
+
+class ArxivSourceTests(unittest.TestCase):
+    """The research lane went missing on six of fourteen episodes because the RSS
+    feed serves only the current announcement batch and returns an empty channel
+    between batches. The API answers regardless of the cycle."""
+
+    def test_the_research_lane_reads_the_api(self):
+        url = news_collector.SOURCE_CONFIG["arXiv cs.AI (Artificial Intelligence)"]["url"]
+        self.assertIn("export.arxiv.org/api/query", url)
+        self.assertIn("cat:cs.AI", url)
+        self.assertNotIn("/rss/", url)
+
+    def test_an_http_link_is_upgraded_on_its_own_host_only(self):
+        self.assertTrue(news_collector._article_host_allowed(
+            "https://arxiv.org/abs/2609.01234", "arXiv cs.AI (Artificial Intelligence)"))
+        self.assertFalse(news_collector._article_host_allowed(
+            "https://elsewhere.example/abs/1", "arXiv cs.AI (Artificial Intelligence)"))
+
+    def test_the_abstract_is_not_replaced_by_a_page_fetch(self):
+        """The abstract is already the whole text; the abs page adds nothing."""
+        news_collector.reset_article_fetch_log()
+        session = FakeSession({})
+        item = news_item(
+            source="arXiv cs.AI (Artificial Intelligence)",
+            link="https://arxiv.org/abs/2609.01234",
+            content="この論文は" + "あ" * 1500,
+        )
+        enriched = news_collector.enrich_news_with_article_text(
+            [item], session=session, sleep=lambda _: None
+        )
+        self.assertEqual(session.requested, [])
+        self.assertEqual(enriched[0]["content"], item["content"])
+        self.assertEqual(
+            news_collector.article_fetch_summary()["status_counts"], {"body_not_needed": 1}
+        )
+
+    def test_an_arxiv_link_survives_the_public_url_projection(self):
+        from episode_history import safe_public_news_urls
+
+        self.assertEqual(
+            safe_public_news_urls(["https://arxiv.org/abs/2609.01234"]),
+            ["https://arxiv.org/abs/2609.01234"],
+        )
+        self.assertEqual(safe_public_news_urls(["http://arxiv.org/abs/2609.01234"]), [])

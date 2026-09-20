@@ -24,7 +24,7 @@
 - **音声監査**: 全ゲート通過・監査5点満点で今回の事故が素通りしたため、`delivers_news` 判定を追加。「聴き終えて今日何が起きたか言えるか」を問い、false なら改善提案へ回す。
 - **台本の保存**: `episode_scripts/<episode_id>.txt` に残すようにした。従来は gitignore 済みの作業ファイルに書いて捨てていたため、今回の調査で実際のヘッジ回数を数えられなかった。音声は公開済みなので新たな露出はない。
 - **日曜の尺**: 素材が2.9倍になったため、3,000〜3,500字の目標は据え置き（変更していない）。
-- **未決**: `arXiv cs.AI` が直近14回中6回、候補から消えている。平日も日曜も欠落しており規則性がない。`scripts/arxiv_feed_check.py` で4つのエンドポイントを比較中。**フィードの谷か、エンドポイントの陳腐化かを判定してから直す。**
+- **arXiv（解決）**: `arXiv cs.AI` が直近14回中6回、候補から消えていた原因は、RSSが「今回の公表分」しか載せず、公表の谷では **892バイトの空チャンネルを HTTP 200 で返す**ことだった（`scripts/arxiv_feed_check.py` で実測。`arxiv.org/rss` `rss.arxiv.org/rss` `rss.arxiv.org/atom` の3つとも0件、`export.arxiv.org/api/query` だけが5件）。曜日ではなく、実行時刻が谷に当たるかどうかで決まっていた。**ソースを API へ切り替えた**。抄録は1,200〜1,900字あり、他ソースのRSSリード文の10〜20倍。抄録自体が完全な本文なので `fetch_body: False` で本文取得はしない。API が返す `http://arxiv.org/abs/...` は、そのソース自身のホストに限って https へ昇格させる（`safe_public_news_urls` と日曜の出典検証が https しか通さないため）。
 - **調査ツール**: `scripts/source_volume_probe.py`（素材量の実測）、`scripts/article_fetch_dryrun.py`（実フィードに対する収集パスのドライラン）、`scripts/arxiv_feed_check.py`。いずれも `.github/workflows/source-probe.yml` から手動実行でき、シークレットを読まず何も公開しない。
 
 

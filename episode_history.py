@@ -81,7 +81,7 @@ PUBLIC_CHECK_STRINGS = PUBLIC_NEWS_SOURCES | {
     # openai_script_client.REASONING_EFFORTS と、モデルが受け付けなかった場合の記録。
     "minimal", "low", "medium", "high", "unsupported",
     # news_collector.ARTICLE_FETCH_STATUSES と同じ閉じた語彙。
-    "used", "short_page", "untrusted_host", "blocked_by_robots", "fetch_failed",
+    "used", "body_not_needed", "short_page", "untrusted_host", "blocked_by_robots", "fetch_failed",
     "budget_exhausted", "disabled",
 }
 # モデル名は列挙しきれないので形だけで許可する（自由文は通さない）。
