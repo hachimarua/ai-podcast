@@ -15,6 +15,7 @@ on:
     paths:
       - "scripts/source_volume_probe.py"
       - "scripts/article_fetch_dryrun.py"
+      - "scripts/arxiv_feed_check.py"
       - "news_collector.py"
       - ".github/workflows/source-probe.yml"
 
@@ -52,6 +53,9 @@ jobs:
 
       - name: Dry-run the real collection path (lab)
         run: python scripts/article_fetch_dryrun.py --format lab
+
+      - name: Check the arXiv endpoints
+        run: python scripts/arxiv_feed_check.py
 
       - name: Upload probe report
         if: always()
