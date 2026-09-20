@@ -1,0 +1,55 @@
+name: Source Volume Probe
+
+# 台本の素材量を実測するための調査用ワークフロー。配信パイプラインとは無関係で、
+# シークレットを読まず、公開URLへの読み取りGETしか行わない。
+# 手動実行と、調査スクリプト自体を変更したときだけ動く。
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "フィード1本あたりに調べる記事数"
+        required: false
+        default: "5"
+  push:
+    paths:
+      - "scripts/source_volume_probe.py"
+      - ".github/workflows/source-probe.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests feedparser beautifulsoup4
+
+      - name: Measure source volume
+        run: |
+          python scripts/source_volume_probe.py \
+            --limit "${{ github.event.inputs.limit || '5' }}" \
+            --out source_probe
+
+      - name: Upload probe report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-probe-${{ github.run_id }}
+          path: source_probe.json
+          if-no-files-found: warn
+          retention-days: 7
