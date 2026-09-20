@@ -29,7 +29,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import statistics
 import sys
 import time
@@ -39,12 +38,11 @@ from urllib.parse import urljoin, urlparse
 
 import feedparser
 import requests
-from bs4 import BeautifulSoup
 
 WORKSPACE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(WORKSPACE))
 
-from news_collector import SOURCE_CONFIG, clean_html  # noqa: E402
+from news_collector import SOURCE_CONFIG, clean_html, extract_article_text  # noqa: E402
 
 # The pipeline identifies itself as a feed reader.  Keep the same identity here so
 # the measurement reflects what the pipeline would actually be served.
@@ -69,42 +67,9 @@ PAYWALL_MARKERS = (
     "sign in to read",
 )
 
-# Containers that never hold article prose.
-STRIP_TAGS = (
-    "script", "style", "noscript", "nav", "header", "footer", "aside",
-    "form", "iframe", "figure", "figcaption", "svg", "button",
-)
-
-
-def extract_main_text(html: str) -> str:
-    """Pull the article body out of a page with a structure-first heuristic.
-
-    Prefers a semantic container, then falls back to whichever block holds the
-    most paragraph text.  Deliberately simple: the point is to measure order of
-    magnitude, not to build a production extractor.
-    """
-    soup = BeautifulSoup(html, "html.parser")
-    for tag in soup.find_all(STRIP_TAGS):
-        tag.decompose()
-
-    def paragraph_text(node) -> str:
-        paragraphs = [p.get_text(" ", strip=True) for p in node.find_all("p")]
-        joined = "\n".join(text for text in paragraphs if text)
-        return re.sub(r"[ \t]+", " ", joined).strip()
-
-    for selector in ("article", "main", "[itemprop='articleBody']", ".entry-content"):
-        node = soup.select_one(selector)
-        if node:
-            text = paragraph_text(node)
-            if len(text) >= 200:
-                return text
-
-    best = ""
-    for node in soup.find_all(["div", "section"]):
-        text = paragraph_text(node)
-        if len(text) > len(best):
-            best = text
-    return best or re.sub(r"\s+", " ", soup.get_text(" ", strip=True))
+# The extractor lives in news_collector so the probe measures exactly what the
+# pipeline would get, not a second implementation that drifts from it.
+extract_main_text = extract_article_text
 
 
 def find_paywall_markers(html: str) -> list[str]:
