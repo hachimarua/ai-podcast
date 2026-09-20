@@ -166,6 +166,9 @@ class AudioQAAnalysis(BaseModel):
     bgm_balance_score: int = Field(ge=1, le=5)
     pacing_score: int = Field(ge=1, le=5)
     has_internal_repetition: bool
+    # 音質ではなく「ニュース番組として成立していたか」。丁寧なだけで中身のない回を
+    # 通してしまった 2026-09-20 の事故を、耳で聴く側からも拾うための判定。
+    delivers_news: bool
     requires_human_review: bool
     issues: list[AudioIssue]
 
@@ -178,6 +181,13 @@ QA_PROMPT = """
 - 情報量が少ない話題を無理に長尺へ引き伸ばし、1回聞けば分かる話を3回も4回も繰り返す「中身のない水増し」になっていないか。
 - 新しい事実や論点の展開がなく、同じ感想や相づちをループさせて時間を稼いでいる場合は、音質や発音が明瞭であっても必ず repetition カテゴリの問題（severity: warning または critical）として指摘してください。
 - その場合、has_internal_repetition を true にし、requires_human_review を true（黄色信号）にし、overall_score は 3 以下（深刻なら 1〜2）に減点してください。
+
+【最重要監査項目：ニュース番組として成立しているか】
+- 聴き終えたあとに「今日何が起きたのか」を一つでも言えるか。固有名詞、数字、日付、具体的な変更点が語られているか。
+- 一次情報に書かれていない事柄について「記事には書かれていません」「確認できません」「触れられていません」と述べて尺を埋めていないか。これは出典への誠実さではなく、中身の欠落です。
+- 出典の種類や信頼度、取材の限界を番組内で論評していないか。この番組は記事の査読ではありません。
+- 上記に当てはまる場合は delivers_news を false にし、requires_human_review を true、overall_score を 2 以下にしてください。
+- 具体的な事実が語られていれば、話題が地味でも delivers_news は true です。判断するのは中身の有無であって、面白さではありません。
 
 【その他の音声品質評価】
 - ケンジとアミの音声が明瞭で、話者の切り替えが不自然でないか
@@ -279,6 +289,8 @@ def needs_improvement_proposal(qa_result: dict) -> bool:
     if qa_result.get("status") != "completed":
         return False
     if qa_result.get("requires_human_review") or qa_result.get("has_internal_repetition"):
+        return True
+    if qa_result.get("delivers_news") is False:
         return True
     return any(
         issue.get("severity") in {"warning", "critical"}

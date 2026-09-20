@@ -668,6 +668,15 @@ async def async_main():
             )
             manifest_path = write_manifest_atomic(manifest, manifests_dir)
             print(f"Episode manifest saved: {manifest_path}")
+            # 台本を manifest の隣に残す。音声は既に公開済みなので新たな露出はなく、
+            # 品質を後から調べるときに本文が無いと何も分からない
+            # （2026-09-20 の調査では台本が残っておらず、実回数を数えられなかった）。
+            scripts_dir = os.path.join(base_dir, "episode_scripts")
+            os.makedirs(scripts_dir, exist_ok=True)
+            script_archive_path = os.path.join(scripts_dir, f"{episode_id}.txt")
+            with open(script_archive_path, "w", encoding="utf-8") as handle:
+                handle.write(script)
+            print(f"Episode script saved: {script_archive_path}")
             proposal_path = write_improvement_proposal(
                 qa_result=gemini_qa,
                 episode_id=episode_id,

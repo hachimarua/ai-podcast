@@ -250,3 +250,49 @@ class ManifestExposureTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DeliversNewsGateTests(unittest.TestCase):
+    """The audio auditor scored the 2026-09-20 episode 5/5 because it only listened
+    for repetition and sound quality. It now has to answer whether the episode was
+    news at all."""
+
+    def _qa(self, **overrides):
+        base = {
+            "status": "completed",
+            "requires_human_review": False,
+            "has_internal_repetition": False,
+            "delivers_news": True,
+            "issues": [],
+        }
+        base.update(overrides)
+        return base
+
+    def test_an_episode_that_delivered_no_news_is_escalated(self):
+        import gemini_audio_qa
+
+        self.assertFalse(gemini_audio_qa.needs_improvement_proposal(self._qa()))
+        self.assertTrue(
+            gemini_audio_qa.needs_improvement_proposal(self._qa(delivers_news=False))
+        )
+
+    def test_a_missing_verdict_does_not_escalate_on_its_own(self):
+        import gemini_audio_qa
+
+        qa = self._qa()
+        del qa["delivers_news"]
+        self.assertFalse(gemini_audio_qa.needs_improvement_proposal(qa))
+
+    def test_the_verdict_reaches_the_public_summary(self):
+        import episode_history
+
+        summary = episode_history.public_qa_summary(self._qa(delivers_news=False))
+        self.assertIs(summary["delivers_news"], False)
+
+    def test_the_auditor_is_told_what_an_empty_episode_looks_like(self):
+        import gemini_audio_qa
+
+        prompt = gemini_audio_qa.QA_PROMPT
+        self.assertIn("今日何が起きたのか", prompt)
+        self.assertIn("記事には書かれていません", prompt)
+        self.assertIn("delivers_news", prompt)

@@ -159,7 +159,7 @@ jobs:
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
         
         # 変更されたファイルをステージング
-        git add podcast.xml episodes/ episode_manifests/ quality_reports/
+        git add podcast.xml episodes/ episode_manifests/ episode_scripts/ quality_reports/
         
         # 変更がある場合のみコミット＆プッシュ
         if ! git diff --cached --quiet; then

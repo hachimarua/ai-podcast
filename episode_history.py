@@ -49,6 +49,7 @@ PUBLIC_CHECK_KEYS = {
     "script_generation", "primary_provider", "provider", "model", "fallback_used",
     "fallback_count", "fallback_reason", "calls", "succeeded", "attempts", "http_status",
     "latency_ms", "input_tokens", "output_tokens", "reasoning_tokens", "total_tokens",
+    "reasoning_effort",
     # モデルがフォーマット例の "[セリフ]" をそのまま書き写した事故の再発防止ゲート。
     "template_markers_removed", "placeholder_check", "placeholder_count",
     # RSSリード文だけでは素材が足りないため記事本文を取りに行く。その成否の記録。
@@ -77,6 +78,8 @@ PUBLIC_CHECK_STRINGS = PUBLIC_NEWS_SOURCES | {
     "openai", "gemini", "mock",
     "openai_unconfigured", "openai_quota", "openai_auth", "openai_bad_request",
     "openai_transient_exhausted", "openai_incomplete", "openai_empty_output", "openai_error",
+    # openai_script_client.REASONING_EFFORTS と、モデルが受け付けなかった場合の記録。
+    "minimal", "low", "medium", "high", "unsupported",
     # news_collector.ARTICLE_FETCH_STATUSES と同じ閉じた語彙。
     "used", "short_page", "untrusted_host", "blocked_by_robots", "fetch_failed",
     "budget_exhausted", "disabled",
@@ -122,7 +125,7 @@ def public_qa_summary(qa: dict[str, Any] | None) -> dict[str, Any] | None:
         value = qa.get(key)
         if type(value) is int and 1 <= value <= 5:
             result[key] = value
-    for key in ("has_internal_repetition", "requires_human_review"):
+    for key in ("has_internal_repetition", "delivers_news", "requires_human_review"):
         value = qa.get(key)
         if type(value) is bool:
             result[key] = value

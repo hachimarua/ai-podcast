@@ -828,7 +828,7 @@ def script_generation_summary() -> dict:
 def _log_generation(entry: dict) -> None:
     keep = (
         "provider", "model", "succeeded", "fallback_used", "fallback_reason",
-        "attempts", "http_status", "latency_ms",
+        "attempts", "http_status", "latency_ms", "reasoning_effort",
         "input_tokens", "output_tokens", "reasoning_tokens", "total_tokens",
     )
     SCRIPT_GENERATION_LOG.append({k: entry[k] for k in keep if entry.get(k) is not None})

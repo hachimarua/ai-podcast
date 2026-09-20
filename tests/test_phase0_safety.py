@@ -576,6 +576,7 @@ class GeminiAudioQATests(unittest.TestCase):
                 "bgm_balance_score": 5,
                 "pacing_score": 5,
                 "has_internal_repetition": False,
+                "delivers_news": True,
                 "requires_human_review": False,
                 "issues": [],
             })
@@ -709,6 +710,7 @@ class GeminiAudioQATests(unittest.TestCase):
             bgm_balance_score=5,
             pacing_score=5,
             has_internal_repetition=False,
+            delivers_news=True,
             requires_human_review=False,
             issues=[],
         )
@@ -786,6 +788,7 @@ class AntigravityNotifierTests(unittest.TestCase):
                 "bgm_balance_score": 5,
                 "pacing_score": 5,
                 "has_internal_repetition": False,
+                "delivers_news": True,
                 "requires_human_review": requires_human_review,
                 "issues": issues,
             },
@@ -1456,6 +1459,7 @@ class AntigravityNotifierTests(unittest.TestCase):
                     "bgm_balance_score": 5,
                     "pacing_score": 5,
                     "has_internal_repetition": False,
+                "delivers_news": True,
                     "requires_human_review": False,
                     "issues": [],
                 }),

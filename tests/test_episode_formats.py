@@ -1235,6 +1235,7 @@ class PublicEpisodeMetadataTests(unittest.TestCase):
             "status": private,
             "overall_score": private,
             "has_internal_repetition": private,
+            "delivers_news": True,
             "requires_human_review": private,
             "issues": [],
         })
