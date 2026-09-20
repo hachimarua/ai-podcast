@@ -465,7 +465,9 @@ class FormatPromptTests(unittest.TestCase):
             episode_format="lab",
         )
         instruction = script_generator.build_system_instruction("lab")
-        self.assertIn("Evidence role: official", prompt)
+        # 出典の格付けラベルはプロンプトに載せない。番組内で証拠の等級を語り始める
+        # 引き金になり、聴取者には無意味なため（2026-09-20 の査読化事故）。
+        self.assertNotIn("Evidence role", prompt)
         self.assertIn("1テーマ固定にしない", instruction)
         self.assertIn("今週なぜ重要", prompt)
         self.assertIn("実装テーマに限定しない", instruction)

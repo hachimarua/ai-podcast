@@ -55,6 +55,8 @@ PUBLIC_CHECK_KEYS = {
     "article_fetch", "used_count", "status_counts", "rss_chars_total",
     "article_chars_total", "items", "status", "rss_chars", "article_chars",
     "attempted",
+    # 素材の外側について語って尺を埋める失敗の検知ゲート。
+    "source_hedging", "hedge_line_count", "max_allowed_hedge_lines", "sample_hedge_lines",
 }
 PUBLIC_CHECK_STRINGS = PUBLIC_NEWS_SOURCES | {
     "daily", "lab", "world", "japan", "research", "official", "reporting",

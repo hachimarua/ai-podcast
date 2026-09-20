@@ -28,6 +28,7 @@ from script_generator import (
     validate_dialogue_style,
     validate_no_placeholders,
     validate_script_repetition,
+    validate_source_hedging,
 )
 from audio_generator import synthesize_podcast
 from podcast_generator import archive_today_podcast, generate_podcast_rss
@@ -403,6 +404,7 @@ async def async_main():
         dialogue_register = validate_dialogue_register(script)
         script_repetition = validate_script_repetition(script)
         placeholder_check = validate_no_placeholders(script)
+        source_hedging = validate_source_hedging(script)
     except EpisodeFormatError as quality_error:
         if script_regenerations_used >= script_regeneration_limit:
             raise RuntimeError(
@@ -411,7 +413,10 @@ async def async_main():
             ) from quality_error
         is_repetition_error = "repetitive dialogue or looping content" in str(quality_error)
         is_placeholder_error = "unresolved template placeholders" in str(quality_error)
-        if is_repetition_error:
+        is_hedging_error = "narrates missing source information" in str(quality_error)
+        if is_hedging_error:
+            retry_msg = "一次情報に書かれていないことの読み上げ"
+        elif is_repetition_error:
             retry_msg = "同じ話題や説明のループ・水増し"
         elif is_placeholder_error:
             retry_msg = "未置換のテンプレートプレースホルダー"
@@ -430,8 +435,9 @@ async def async_main():
             avoid_topics=recent_topics,
             episode_format=episode_format,
             spec=format_spec,
-            style_retry=not is_repetition_error,
+            style_retry=not (is_repetition_error or is_hedging_error),
             repetition_retry=is_repetition_error,
+            hedging_retry=is_hedging_error,
             role_plan=dialogue_role_plan,
         )
         retry_script, retry_public_topic, markers_removed = split_and_clean_script_output(raw_script)
@@ -448,6 +454,7 @@ async def async_main():
         retry_register = validate_dialogue_register(retry_script)
         retry_repetition = validate_script_repetition(retry_script)
         retry_placeholder_check = validate_no_placeholders(retry_script)
+        retry_source_hedging = validate_source_hedging(retry_script)
         script = retry_script
         generated_public_topic = retry_public_topic
         final_similarity = retry_similarity
@@ -456,6 +463,7 @@ async def async_main():
         dialogue_register = retry_register
         script_repetition = retry_repetition
         placeholder_check = retry_placeholder_check
+        source_hedging = retry_source_hedging
 
     # 台本の保存
     if trial_mode:
@@ -530,8 +538,9 @@ async def async_main():
             ) from duration_length_error
         dialogue_style = validate_dialogue_style(script)
         dialogue_register = validate_dialogue_register(script)
-        # 再生成予算は使い切っているので、プレースホルダが残っていれば公開せず止める。
+        # 再生成予算は使い切っているので、残っていれば公開せず止める。
         placeholder_check = validate_no_placeholders(script)
+        source_hedging = validate_source_hedging(script)
         print(
             f"[Duration Gate] 再生成台本: {script_length['character_count']}文字"
         )
@@ -641,6 +650,7 @@ async def async_main():
                     "script_repetition": script_repetition,
                     "template_markers_removed": template_markers_removed,
                     "placeholder_check": placeholder_check,
+                    "source_hedging": source_hedging,
                     "dialogue_roles": dialogue_role_plan,
                     "dialogue_role_check": dialogue_role_check,
                     "scheduled_format": scheduled_format,
