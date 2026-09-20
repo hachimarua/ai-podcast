@@ -1,0 +1,226 @@
+{
+  "audio_sha256": "0d22b6c0ac5172f951f1156a35a0018bd413525a2c17ac68f21b3bed59f3d8ee",
+  "broadcast_date": "2026-09-21",
+  "deterministic_checks": {
+    "audio_quality": {
+      "duration_headroom_seconds": 76.08,
+      "duration_seconds": 256.08,
+      "file_size_bytes": 1811829,
+      "issues": [],
+      "long_duration_warning": false,
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -2.1,
+      "mean_volume_db": -17.9,
+      "passed": true,
+      "target_duration_seconds": 240.0,
+      "thresholds": {
+        "hard_max_duration_seconds": 600.0,
+        "max_duration_seconds": 360.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 180.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0,
+        "target_duration_seconds": 240.0
+      },
+      "warnings": []
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 15,
+      "explainer_line_count": 7,
+      "first_speaker": "ケンジ",
+      "navigator_line_count": 8,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "アミ",
+      "navigator": "ケンジ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.125,
+    "format_config_version": "formats-v10",
+    "initial_script_similarity": 0.125,
+    "news_selection": {
+      "candidate_counts_by_source": {
+        "AI Watch": 3,
+        "Google AI Blog": 2,
+        "Hugging Face Blog": 4,
+        "ITmedia AI+": 5,
+        "TechCrunch AI": 5
+      },
+      "japan_freshness_days": 14,
+      "selected": [
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "least_recent_source",
+          "source": "Hugging Face Blog"
+        },
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "fresh_japan_lane",
+          "source": "ITmedia AI+"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "different_source",
+          "source": "TechCrunch AI"
+        }
+      ],
+      "selected_sources": [
+        "Hugging Face Blog",
+        "ITmedia AI+",
+        "TechCrunch AI"
+      ]
+    },
+    "placeholder_check": {
+      "dialogue_line_count": 15,
+      "passed": true,
+      "placeholder_count": 0
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "daily",
+    "script_generation": {
+      "calls": [
+        {
+          "attempts": 1,
+          "fallback_used": false,
+          "input_tokens": 5033,
+          "latency_ms": 21764,
+          "model": "gpt-5.6-terra",
+          "output_tokens": 1513,
+          "provider": "openai",
+          "reasoning_tokens": 318,
+          "succeeded": true,
+          "total_tokens": 6546
+        }
+      ],
+      "fallback_count": 0,
+      "fallback_used": false,
+      "model": "gpt-5.6-terra",
+      "primary_provider": "openai",
+      "provider": "openai"
+    },
+    "script_length": {
+      "character_count": 1640,
+      "hard_max": 4200,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 1750,
+      "target_min": 1550
+    },
+    "script_regenerations_used": 0,
+    "script_repetition": {
+      "dialogue_line_count": 15,
+      "max_allowed_repeated_pairs": 1,
+      "passed": true,
+      "repeated_utterance_pairs": 0,
+      "sample_repeated_pairs": []
+    },
+    "template_markers_removed": 0,
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 256,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "daily",
+  "episode_id": "podcast_20260921_041749",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 5,
+    "dialogue_naturalness_score": 5,
+    "has_internal_repetition": false,
+    "issues": [],
+    "overall_score": 5,
+    "pacing_score": 5,
+    "requires_human_review": false,
+    "speech_clarity_score": 5,
+    "status": "completed"
+  },
+  "generated_at": "2026-09-20T19:18:59.100828+00:00",
+  "news_urls": [
+    "https://huggingface.co/blog/ibm-research/altk-evolve-consistency",
+    "https://techcrunch.com/2026/09/20/is-the-ai-industry-really-ready-to-slow-down/",
+    "https://www.itmedia.co.jp/aiplus/article/2609/20/2000001664/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "Jevの注目を、whichコマンドで検証の入口から考える",
+  "public_topic": "Jevの注目を、whichコマンドで検証の入口から考える",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    1514171398613860,
+    17124845348780486,
+    472025037802840,
+    10798281516941954,
+    9175852555577712,
+    8354847829781621,
+    1807746536609061,
+    1074438467204143,
+    13890262987787547,
+    45192168932626513,
+    6914310121182954,
+    16834029450906292,
+    1988799339330026,
+    47907397149112166,
+    1865927250400622,
+    6166634839739160,
+    4776489332439206,
+    647933294822606,
+    2271972305060366,
+    49422474791934400,
+    6262686300149199,
+    9949287469426277,
+    5435326619415103,
+    15992590491736314,
+    50679040001770355,
+    59938192072096495,
+    10730759312354849,
+    7953262400555593,
+    12169595199830463,
+    16416915616408095,
+    12178547030382806,
+    11777866547244943,
+    9157663162781755,
+    4154885349474682,
+    24474506957325413,
+    3956486570476531,
+    27156519047528768,
+    10378104883701481,
+    31737177580121136,
+    11843487849296302,
+    17841658285742952,
+    13646041141353636,
+    10933381224326122,
+    11386330667806976,
+    91809558490044,
+    25245632035517165,
+    71789716591220682,
+    29900671201827637,
+    28428883831555656,
+    216813722752005,
+    17174449164773910,
+    9766182261882139,
+    3852640578570414,
+    315360289699213,
+    5421410012012404,
+    2541968024339442,
+    19824217875503762,
+    980359450641494,
+    26881352860581212,
+    27258719387894534,
+    6934231257520507,
+    4095949163175886,
+    23723238870196094,
+    21116488222100185
+  ],
+  "script_sha256": "5883502e53cbba722a3fe4e85d9c71776bf9c95f474da27bf8bb35d28a0fe1a1",
+  "selected_term_keys": [
+    "c954d76f116f623455213336"
+  ],
+  "topic_fingerprint": "7e8810d6047e8dcc5de28ef1"
+}
