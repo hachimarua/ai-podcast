@@ -10,13 +10,13 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
-      <title>Daily Brief｜whichで実行先を確かめ、AIエージェントの再現性を測る</title>
-      <description>Daily Brief（4〜6分）｜テーマ: whichで実行先を確かめ、AIエージェントの再現性を測る</description>
+      <title>Daily Brief｜AutoRecLabとエージェント再現性をwhichコマンドから考える</title>
+      <description>Daily Brief（4〜6分）｜テーマ: AutoRecLabとエージェント再現性をwhichコマンドから考える</description>
       <pubDate>Mon, 21 Sep 2026 04:17:49 +0900</pubDate>
-      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260921_041749.mp3" length="1793037" type="audio/mpeg"/>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260921_041749.mp3" length="1902525" type="audio/mpeg"/>
       <guid isPermaLink="false">podcast_20260921_041749.mp3</guid>
       <itunes:author>Antigravity Agent</itunes:author>
-      <itunes:duration>04:03</itunes:duration>
+      <itunes:duration>04:27</itunes:duration>
     </item>
     <item>
       <title>Daily Brief｜特別展ポスターのAI利用事例と重複排除による通知設計の基本</title>
