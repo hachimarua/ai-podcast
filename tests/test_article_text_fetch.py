@@ -247,6 +247,14 @@ class ManifestExposureTests(unittest.TestCase):
         self.assertEqual(public["article_fetch"]["items"][0]["status"], "used")
         self.assertEqual(public["article_fetch"]["items"][0]["source"], "AI Watch")
 
+    def test_main_does_not_clear_article_fetch_log_before_manifest_save(self):
+        """Step 4 used to call reset_article_fetch_log(), wiping the Step 2 results
+        before Step 7 could write them to the manifest."""
+        import inspect
+        import main
+        source = inspect.getsource(main)
+        self.assertNotIn("reset_article_fetch_log", source)
+
 
 if __name__ == "__main__":
     unittest.main()

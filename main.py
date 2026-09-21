@@ -8,7 +8,6 @@ from notion_helper import select_terms_for_review, update_term_review_status, is
 from news_collector import (
     LabSourceError,
     article_fetch_summary,
-    reset_article_fetch_log,
     collect_latest_news,
     match_news_with_words,
     select_news_for_broadcast,
@@ -269,7 +268,6 @@ async def async_main():
     print("\n[Step 4] LLMを呼び出し、対話型ラジオ台本を生成しています...")
     model_name = normalize_gemini_model(os.getenv("GEMINI_MODEL_NAME"))
     reset_script_generation_log()
-    reset_article_fetch_log()
     if script_provider() == "openai":
         print(
             f"台本プロバイダ: OpenAI ({os.getenv('OPENAI_SCRIPT_MODEL') or 'gpt-5.6-terra'})"
