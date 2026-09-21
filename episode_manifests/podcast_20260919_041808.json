@@ -143,6 +143,7 @@
     "status": "completed"
   },
   "generated_at": "2026-09-18T19:19:26.944035+00:00",
+  "incident_summary": "RSSのリード文（実測46〜204字）だけを素材に1,550〜1,750字の台本を要求したため、一次情報に書かれていない事柄を『記事には書かれていません』と述べて尺を埋める内容になった。全決定論ゲートと音声監査5点満点を通過したが放送として成立していないため、失敗事例としてリポジトリに保存した上で公開RSSから取り下げ。",
   "news_urls": [
     "https://ai.watch.impress.co.jp/docs/news/2142380.html",
     "https://blog.google/innovation-and-ai/technology/ai/expanding-ai-economy-research-bench/",
@@ -151,7 +152,7 @@
   "pipeline_version": "phase8",
   "primary_topic": "KDDIとRLWRLDの共同研究をアトミック保存で考える",
   "public_topic": "KDDIとRLWRLDの共同研究をアトミック保存で考える",
-  "publish_status": "published",
+  "publish_status": "withdrawn",
   "schema_version": 1,
   "script_minhash": [
     1514171398613860,
@@ -223,5 +224,7 @@
   "selected_term_keys": [
     "988608fe02126211822995ed"
   ],
-  "topic_fingerprint": "1e9c120e6a68e3c63643428a"
+  "topic_fingerprint": "1e9c120e6a68e3c63643428a",
+  "withdrawn_at": "2026-09-21T09:00:00+09:00",
+  "withdrawn_reason": "source_starvation_hedging_instead_of_news"
 }
