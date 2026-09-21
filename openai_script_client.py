@@ -19,6 +19,11 @@ import requests
 OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses"
 DEFAULT_OPENAI_SCRIPT_MODEL = "gpt-5.6-terra"
 DEFAULT_MAX_OUTPUT_TOKENS = 16000
+# Gemini 側は thinking_level="high" を明示していたのに、OpenAI へ移すときに対応する
+# 指定が落ちていた。カナリア実測で reasoning は 3,520 → 199 トークン。構成を考えずに
+# 書き始めたぶんが、薄い素材のときの水増しとして出る。
+DEFAULT_REASONING_EFFORT = "high"
+REASONING_EFFORTS = ("minimal", "low", "medium", "high")
 TIMEOUT = (10, 180)
 RETRY_DELAYS = (5, 15, 30)
 TRANSIENT_STATUS_CODES = {429, 500, 502, 503, 504}
@@ -38,6 +43,12 @@ ERROR_CATEGORIES = (
 
 def openai_script_model() -> str:
     return (os.getenv("OPENAI_SCRIPT_MODEL") or "").strip() or DEFAULT_OPENAI_SCRIPT_MODEL
+
+
+def reasoning_effort() -> str:
+    """Closed vocabulary; anything unrecognised falls back to the default."""
+    value = (os.getenv("OPENAI_SCRIPT_REASONING_EFFORT") or "").strip().lower()
+    return value if value in REASONING_EFFORTS else DEFAULT_REASONING_EFFORT
 
 
 def _max_output_tokens() -> int:
@@ -85,7 +96,8 @@ def generate_with_openai(
 ) -> tuple[str | None, dict]:
     """Return ``(text, info)``. ``text`` is ``None`` when the caller should fall back."""
     model = openai_script_model()
-    info: dict = {"provider": "openai", "model": model, "attempts": 0}
+    effort = reasoning_effort()
+    info: dict = {"provider": "openai", "model": model, "attempts": 0, "reasoning_effort": effort}
 
     api_key = os.getenv("OPENAI_API_KEY", "")
     if not api_key or api_key.startswith("YOUR_"):
@@ -98,6 +110,7 @@ def generate_with_openai(
         "instructions": system_instruction,
         "input": prompt,
         "max_output_tokens": _max_output_tokens(),
+        "reasoning": {"effort": effort},
     }
 
     max_attempts = len(RETRY_DELAYS) + 1
@@ -141,6 +154,15 @@ def generate_with_openai(
                 return None, info
             if status in TRANSIENT_STATUS_CODES:
                 category = "transient"
+            elif status == 400 and "reasoning" in body:
+                # このモデルが reasoning を受け付けない可能性がある。外して同じ回で投げ直す。
+                del body["reasoning"]
+                info["reasoning_effort"] = "unsupported"
+                print(
+                    "[OpenAI] reasoning 指定が拒否されたため、指定なしで1回だけ再送します。",
+                    flush=True,
+                )
+                continue
             else:
                 info["error_category"] = _category_for_status(status)
                 info["http_status"] = status

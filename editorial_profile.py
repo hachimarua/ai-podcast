@@ -59,8 +59,8 @@ INTEREST_DOMAINS = {
 
 EDITORIAL_PREFERENCES = {
     "implementation_first": "一般論より、具体的な実装方法を優先する",
-    "evidence_required": "操作や主張には確認可能な根拠を求める",
-    "constraints_required": "期待結果だけでなく制約と適用しない条件も示す",
+    "evidence_required": "操作や主張は、一次情報で確認できた事実だけを述べる",
+    "constraints_required": "一次情報に書かれている制約や適用しない条件は省かずに伝える",
     "avoid_beginner_tips": "既に習得済みの初歩的Tipsを繰り返さない",
     "no_personal_profile_narration": "プロフィール情報を人物紹介として読み上げない",
 }

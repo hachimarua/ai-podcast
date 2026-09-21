@@ -155,6 +155,7 @@
     "status": "completed"
   },
   "generated_at": "2026-09-19T19:20:31.002845+00:00",
+  "incident_summary": "日曜ラボはNotion復習を外すため素材がニュース4件のみとなる一方、要求字数は平日の約1.8倍。実測で素材合計384字に対し3,500字を要求しており、確認できない事柄への言及が内容の大半を占めた。失敗事例としてリポジトリに保存した上で公開RSSから取り下げ。",
   "news_urls": [
     "https://ai.watch.impress.co.jp/docs/news/2142371.html",
     "https://blog.google/innovation-and-ai/technology/ai/google-flow-fashion-week/",
@@ -164,7 +165,7 @@
   "pipeline_version": "phase8",
   "primary_topic": "Qwen3.8-Omni-Flashと生成AI導入の検証線",
   "public_topic": "Qwen3.8-Omni-Flashと生成AI導入の検証線",
-  "publish_status": "published",
+  "publish_status": "withdrawn",
   "schema_version": 1,
   "script_minhash": [
     1514171398613860,
@@ -234,5 +235,7 @@
   ],
   "script_sha256": "6b944c81a53d82d14b07bd6afc74d73a3a1c2bd6e385d7b6331f51080d9b48d6",
   "selected_term_keys": [],
-  "topic_fingerprint": "86d02153107bf9b72951cd08"
+  "topic_fingerprint": "86d02153107bf9b72951cd08",
+  "withdrawn_at": "2026-09-21T09:00:00+09:00",
+  "withdrawn_reason": "source_starvation_hedging_instead_of_news"
 }

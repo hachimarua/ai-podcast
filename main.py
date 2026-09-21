@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 from notion_helper import select_terms_for_review, update_term_review_status, is_notion_configured
 from news_collector import (
     LabSourceError,
+    article_fetch_summary,
+    reset_article_fetch_log,
     collect_latest_news,
     match_news_with_words,
     select_news_for_broadcast,
@@ -26,6 +28,7 @@ from script_generator import (
     validate_dialogue_style,
     validate_no_placeholders,
     validate_script_repetition,
+    validate_source_hedging,
 )
 from audio_generator import synthesize_podcast
 from podcast_generator import archive_today_podcast, generate_podcast_rss
@@ -266,6 +269,7 @@ async def async_main():
     print("\n[Step 4] LLMを呼び出し、対話型ラジオ台本を生成しています...")
     model_name = normalize_gemini_model(os.getenv("GEMINI_MODEL_NAME"))
     reset_script_generation_log()
+    reset_article_fetch_log()
     if script_provider() == "openai":
         print(
             f"台本プロバイダ: OpenAI ({os.getenv('OPENAI_SCRIPT_MODEL') or 'gpt-5.6-terra'})"
@@ -400,6 +404,7 @@ async def async_main():
         dialogue_register = validate_dialogue_register(script)
         script_repetition = validate_script_repetition(script)
         placeholder_check = validate_no_placeholders(script)
+        source_hedging = validate_source_hedging(script)
     except EpisodeFormatError as quality_error:
         if script_regenerations_used >= script_regeneration_limit:
             raise RuntimeError(
@@ -408,7 +413,10 @@ async def async_main():
             ) from quality_error
         is_repetition_error = "repetitive dialogue or looping content" in str(quality_error)
         is_placeholder_error = "unresolved template placeholders" in str(quality_error)
-        if is_repetition_error:
+        is_hedging_error = "narrates missing source information" in str(quality_error)
+        if is_hedging_error:
+            retry_msg = "一次情報に書かれていないことの読み上げ"
+        elif is_repetition_error:
             retry_msg = "同じ話題や説明のループ・水増し"
         elif is_placeholder_error:
             retry_msg = "未置換のテンプレートプレースホルダー"
@@ -427,8 +435,9 @@ async def async_main():
             avoid_topics=recent_topics,
             episode_format=episode_format,
             spec=format_spec,
-            style_retry=not is_repetition_error,
+            style_retry=not (is_repetition_error or is_hedging_error),
             repetition_retry=is_repetition_error,
+            hedging_retry=is_hedging_error,
             role_plan=dialogue_role_plan,
         )
         retry_script, retry_public_topic, markers_removed = split_and_clean_script_output(raw_script)
@@ -445,6 +454,7 @@ async def async_main():
         retry_register = validate_dialogue_register(retry_script)
         retry_repetition = validate_script_repetition(retry_script)
         retry_placeholder_check = validate_no_placeholders(retry_script)
+        retry_source_hedging = validate_source_hedging(retry_script)
         script = retry_script
         generated_public_topic = retry_public_topic
         final_similarity = retry_similarity
@@ -453,6 +463,7 @@ async def async_main():
         dialogue_register = retry_register
         script_repetition = retry_repetition
         placeholder_check = retry_placeholder_check
+        source_hedging = retry_source_hedging
 
     # 台本の保存
     if trial_mode:
@@ -527,8 +538,9 @@ async def async_main():
             ) from duration_length_error
         dialogue_style = validate_dialogue_style(script)
         dialogue_register = validate_dialogue_register(script)
-        # 再生成予算は使い切っているので、プレースホルダが残っていれば公開せず止める。
+        # 再生成予算は使い切っているので、残っていれば公開せず止める。
         placeholder_check = validate_no_placeholders(script)
+        source_hedging = validate_source_hedging(script)
         print(
             f"[Duration Gate] 再生成台本: {script_length['character_count']}文字"
         )
@@ -638,6 +650,7 @@ async def async_main():
                     "script_repetition": script_repetition,
                     "template_markers_removed": template_markers_removed,
                     "placeholder_check": placeholder_check,
+                    "source_hedging": source_hedging,
                     "dialogue_roles": dialogue_role_plan,
                     "dialogue_role_check": dialogue_role_check,
                     "scheduled_format": scheduled_format,
@@ -645,6 +658,7 @@ async def async_main():
                     "format_config_version": formats_config.config_version,
                     "degradations": degradations,
                     "script_generation": script_generation_summary(),
+                    "article_fetch": article_fetch_summary(),
                 },
                 publish_status="published",
                 gemini_qa_summary=gemini_qa,
@@ -654,6 +668,15 @@ async def async_main():
             )
             manifest_path = write_manifest_atomic(manifest, manifests_dir)
             print(f"Episode manifest saved: {manifest_path}")
+            # 台本を manifest の隣に残す。音声は既に公開済みなので新たな露出はなく、
+            # 品質を後から調べるときに本文が無いと何も分からない
+            # （2026-09-20 の調査では台本が残っておらず、実回数を数えられなかった）。
+            scripts_dir = os.path.join(base_dir, "episode_scripts")
+            os.makedirs(scripts_dir, exist_ok=True)
+            script_archive_path = os.path.join(scripts_dir, f"{episode_id}.txt")
+            with open(script_archive_path, "w", encoding="utf-8") as handle:
+                handle.write(script)
+            print(f"Episode script saved: {script_archive_path}")
             proposal_path = write_improvement_proposal(
                 qa_result=gemini_qa,
                 episode_id=episode_id,

@@ -141,6 +141,7 @@ class WeeklyEditorialV10Tests(unittest.TestCase):
         self.assertIn("実装テーマに限定しない", instruction)
         self.assertIn("1テーマ固定にしない", instruction)
         self.assertIn("officialソースは強い根拠として優先するが必須ではない", instruction)
+        self.assertIn("番組内で出典の種類や信頼度を論評しないこと", instruction)
         self.assertIn("reportingやresearch", instruction)
 
 

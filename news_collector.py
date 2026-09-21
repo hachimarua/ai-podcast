@@ -1,8 +1,11 @@
 import feedparser
 from bs4 import BeautifulSoup
+import os
 import re
 from collections import Counter
 from datetime import datetime, timedelta, timezone
+from urllib import robotparser
+from urllib.parse import urlsplit
 import time
 import requests
 from api_client import request_bytes
@@ -14,31 +17,46 @@ SOURCE_CONFIG = {
         "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
         "lane": "world",
         "evidence_role": "reporting",
+        "article_hosts": ("techcrunch.com",),
     },
     "Google AI Blog": {
         "url": "https://blog.google/technology/ai/rss/",
         "lane": "world",
         "evidence_role": "official",
+        "article_hosts": ("blog.google",),
     },
     "Hugging Face Blog": {
         "url": "https://huggingface.co/blog/feed.xml",
         "lane": "world",
         "evidence_role": "official",
+        "article_hosts": ("huggingface.co",),
     },
     "arXiv cs.AI (Artificial Intelligence)": {
-        "url": "https://arxiv.org/rss/cs.AI",
+        # RSS は「今回の公表分」しか載せず、公表の谷では 892 バイトの空チャンネルを
+        # 200 で返す。研究レーンが直近14回中6回消えていたのはこれで、曜日とは無関係に
+        # 実行時刻が谷に当たるかどうかで決まっていた（2026-09-20 実測）。
+        # API は公表サイクルに関係なく直近の投稿を返し、要約も 1,200〜1,900字と厚い。
+        "url": "https://export.arxiv.org/api/query"
+               "?search_query=cat:cs.AI&sortBy=submittedDate"
+               "&sortOrder=descending&max_results=15",
         "lane": "research",
         "evidence_role": "research",
+        "article_hosts": ("arxiv.org",),
+        # 要約そのものが完全な抄録なので、abs ページを取りに行っても得るものがない。
+        "fetch_body": False,
     },
     "ITmedia AI+": {
         "url": "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml",
         "lane": "japan",
         "evidence_role": "reporting",
+        # 配信は rss.itmedia.co.jp、記事は www.itmedia.co.jp に置かれる。
+        "article_hosts": ("itmedia.co.jp",),
     },
     "AI Watch": {
         "url": "https://ai.watch.impress.co.jp/data/rss/1.0/aiw/feed.rdf",
         "lane": "japan",
         "evidence_role": "reporting",
+        "article_hosts": ("ai.watch.impress.co.jp",),
     },
 }
 
@@ -135,6 +153,14 @@ def fetch_feed_entries(feed_name, feed_url, max_entries=5):
             clean_text = sanitize_content(raw_text)
             clean_title = sanitize_content(title)
             
+            # arXiv API は abs ページを http:// で返す。取得も manifest も https しか
+            # 通さないので、そのソース自身のホストに限って昇格させる。
+            link = entry.get("link", "")
+            if link.startswith("http://"):
+                candidate = "https://" + link[len("http://"):]
+                if _article_host_allowed(candidate, feed_name):
+                    link = candidate
+
             # 日付の取得と整形
             published_parsed = entry.get("published_parsed")
             if published_parsed:
@@ -149,7 +175,7 @@ def fetch_feed_entries(feed_name, feed_url, max_entries=5):
                     "evidence_role", "reporting"
                 ),
                 "title": clean_title,
-                "link": entry.get("link", ""),
+                "link": link,
                 "published": published_dt.strftime("%Y-%m-%d %H:%M:%S"),
                 "content": clean_text
             })
@@ -157,6 +183,249 @@ def fetch_feed_entries(feed_name, feed_url, max_entries=5):
     except Exception as e:
         print(f"[Error] Failed to fetch feed {feed_name}: {e}")
         return []
+
+# ---------------------------------------------------------------------------
+# 記事本文の取得
+#
+# RSS が返すのは見出しと数十字のリード文だけで、実測では1件あたり46〜204字しかない。
+# 一方で台本は平日1,550〜1,750字、日曜3,000〜3,500字を要求する。素材が要求の
+# 10〜20%しかない状態では、モデルは「記事には書かれていませんが」で尺を埋めるしかない。
+# ここで記事ページ本文を取りに行き、素材側の不足を解消する。
+#
+# 取得は必ず失敗してよい。どの経路で落ちてもRSS要約のまま先へ進み、配信は止めない。
+# ---------------------------------------------------------------------------
+
+ARTICLE_FETCH_TIMEOUT = (5, 20)
+ARTICLE_FETCH_MAX_BYTES = 2_000_000
+# 抽出が本文ではなく定型部分を拾ったときにRSS要約へ戻すための下限。
+ARTICLE_MIN_USEFUL_CHARS = 300
+ARTICLE_FETCH_MAX_ATTEMPTS = 40
+ARTICLE_FETCH_TIME_BUDGET_SECONDS = 150
+ARTICLE_FETCH_SPACING_SECONDS = 0.8
+ARTICLE_USER_AGENT = "AI-Learning-Radio/1.0 (+RSS reader)"
+
+# 本文になりえない領域。抽出前に落とす。
+ARTICLE_STRIP_TAGS = (
+    "script", "style", "noscript", "nav", "header", "footer", "aside",
+    "form", "iframe", "figure", "figcaption", "svg", "button",
+)
+
+# episode_history.PUBLIC_CHECK_STRINGS に同じ値を登録してある。
+ARTICLE_FETCH_STATUSES = (
+    "used",
+    "body_not_needed",
+    "short_page",
+    "untrusted_host",
+    "blocked_by_robots",
+    "fetch_failed",
+    "budget_exhausted",
+    "disabled",
+)
+
+# 1回の実行ぶんの取得結果。main.py がこれを manifest へ写す。
+ARTICLE_FETCH_LOG: list[dict] = []
+
+
+def reset_article_fetch_log() -> None:
+    ARTICLE_FETCH_LOG.clear()
+
+
+def article_fetch_enabled() -> bool:
+    """Body fetching is on unless explicitly disabled, so it can be rolled back without code."""
+    return (os.getenv("ARTICLE_TEXT_FETCH") or "on").strip().lower() not in {"off", "false", "0"}
+
+
+def article_fetch_summary() -> dict:
+    """Closed, public-safe record of what the body fetch did this run."""
+    entries = [dict(entry) for entry in ARTICLE_FETCH_LOG]
+    counts = Counter(entry["status"] for entry in entries)
+    used = [entry for entry in entries if entry["status"] == "used"]
+    return {
+        "attempted": len(entries),
+        "used_count": len(used),
+        "status_counts": {status: counts[status] for status in ARTICLE_FETCH_STATUSES if counts[status]},
+        "rss_chars_total": sum(entry["rss_chars"] for entry in entries),
+        "article_chars_total": sum(entry["article_chars"] for entry in used),
+        "items": entries,
+    }
+
+
+def extract_article_text(html: str) -> str:
+    """Pull the article body out of a page, preferring a semantic container.
+
+    Deliberately simple and structure-first: a prose-heavy container is found by
+    looking for the block with the most paragraph text.  Anything that comes back
+    shorter than ``ARTICLE_MIN_USEFUL_CHARS`` is treated as an extraction miss by
+    the caller rather than trusted as the article.
+    """
+    soup = BeautifulSoup(html, "html.parser")
+    for tag in soup.find_all(ARTICLE_STRIP_TAGS):
+        tag.decompose()
+
+    def paragraph_text(node) -> str:
+        paragraphs = [p.get_text(" ", strip=True) for p in node.find_all("p")]
+        return re.sub(r"[ \t]+", " ", "\n".join(text for text in paragraphs if text)).strip()
+
+    for selector in ("article", "main", "[itemprop='articleBody']", ".entry-content"):
+        node = soup.select_one(selector)
+        if node:
+            text = paragraph_text(node)
+            if len(text) >= ARTICLE_MIN_USEFUL_CHARS:
+                return text
+
+    best = ""
+    for node in soup.find_all(["div", "section"]):
+        text = paragraph_text(node)
+        if len(text) > len(best):
+            best = text
+    return best
+
+
+def _article_host_allowed(url: str, source: str) -> bool:
+    """Only follow links that stay on the feed's own site."""
+    allowed = SOURCE_CONFIG.get(source, {}).get("article_hosts") or ()
+    if not allowed:
+        return False
+    try:
+        parsed = urlsplit(str(url))
+    except ValueError:
+        return False
+    if parsed.scheme != "https" or parsed.username or parsed.password:
+        return False
+    host = (parsed.hostname or "").lower()
+    return any(host == item or host.endswith(f".{item}") for item in allowed)
+
+
+def _robots_allows(session, url: str, cache: dict) -> bool:
+    """Honour robots.txt. An unreadable 5xx is treated as a refusal, a 4xx as absent."""
+    parsed = urlsplit(url)
+    root = f"{parsed.scheme}://{parsed.netloc}"
+    if root not in cache:
+        parser = robotparser.RobotFileParser()
+        try:
+            response = session.get(f"{root}/robots.txt", timeout=ARTICLE_FETCH_TIMEOUT)
+            if response.status_code == 200:
+                parser.parse(response.text.splitlines())
+                cache[root] = parser
+            elif 400 <= response.status_code < 500:
+                cache[root] = "allow"
+            else:
+                cache[root] = "deny"
+        except requests.RequestException:
+            cache[root] = "deny"
+    cached = cache[root]
+    if cached == "allow":
+        return True
+    if cached == "deny":
+        return False
+    return cached.can_fetch(ARTICLE_USER_AGENT, url)
+
+
+def _fetch_one_article(session, url: str, robots_cache: dict) -> tuple[str, str]:
+    """Return ``(text, status)``; ``text`` is empty unless the status is ``used``."""
+    if not _robots_allows(session, url, robots_cache):
+        return "", "blocked_by_robots"
+    try:
+        response = session.get(url, timeout=ARTICLE_FETCH_TIMEOUT, allow_redirects=True)
+        if response.status_code != 200:
+            return "", "fetch_failed"
+        if len(response.content) > ARTICLE_FETCH_MAX_BYTES:
+            return "", "fetch_failed"
+        html = response.text
+    except requests.RequestException:
+        return "", "fetch_failed"
+    except Exception:
+        # 本文取得は配信を止めてよい理由にならない。想定外も飲み込んでRSSへ戻す。
+        return "", "fetch_failed"
+
+    try:
+        text = sanitize_content(extract_article_text(html))
+    except Exception:
+        return "", "fetch_failed"
+    if len(text) < ARTICLE_MIN_USEFUL_CHARS:
+        return "", "short_page"
+    return text, "used"
+
+
+def enrich_news_with_article_text(news_list, *, session=None, sleep=time.sleep):
+    """Replace each item's RSS lead with the article body where that is possible.
+
+    Every failure path keeps the RSS text, so the pipeline behaves exactly as it
+    did before this step existed whenever the network, robots.txt, or the page
+    layout does not cooperate.
+    """
+    reset_article_fetch_log()
+    if not news_list:
+        return news_list
+
+    if not article_fetch_enabled():
+        print("[Article] ARTICLE_TEXT_FETCH=off のため記事本文は取得しません。", flush=True)
+        for news in news_list:
+            ARTICLE_FETCH_LOG.append({
+                "source": news.get("source", ""),
+                "status": "disabled",
+                "rss_chars": len(str(news.get("content", ""))),
+                "article_chars": 0,
+            })
+        return news_list
+
+    owns_session = session is None
+    session = session or requests.Session()
+    if owns_session:
+        session.headers.update({"User-Agent": ARTICLE_USER_AGENT})
+
+    robots_cache: dict = {}
+    started = time.monotonic()
+    enriched = []
+    attempts = 0
+
+    for news in news_list:
+        item = dict(news)
+        rss_text = str(item.get("content", ""))
+        link = str(item.get("link", ""))
+        source = item.get("source", "")
+
+        if attempts >= ARTICLE_FETCH_MAX_ATTEMPTS or (
+            time.monotonic() - started > ARTICLE_FETCH_TIME_BUDGET_SECONDS
+        ):
+            status, text = "budget_exhausted", ""
+        elif not SOURCE_CONFIG.get(source, {}).get("fetch_body", True):
+            # 抄録がそのまま完全な本文であるソース。取りに行く必要がない。
+            status, text = "body_not_needed", ""
+        elif not _article_host_allowed(link, source):
+            status, text = "untrusted_host", ""
+        else:
+            if attempts:
+                sleep(ARTICLE_FETCH_SPACING_SECONDS)
+            attempts += 1
+            text, status = _fetch_one_article(session, link, robots_cache)
+
+        if status == "used" and len(text) > len(rss_text):
+            item["content"] = text
+            item["rss_excerpt_chars"] = len(rss_text)
+        elif status == "used":
+            # 本文よりRSS要約の方が長いなら、置き換える意味がない。
+            status = "short_page"
+
+        ARTICLE_FETCH_LOG.append({
+            "source": source,
+            "status": status,
+            "rss_chars": len(rss_text),
+            "article_chars": len(text) if status == "used" else 0,
+        })
+        enriched.append(item)
+
+    if owns_session:
+        session.close()
+
+    summary = article_fetch_summary()
+    print(
+        f"[Article] 本文取得 {summary['used_count']}/{summary['attempted']} 件成功。"
+        f"素材 {summary['rss_chars_total']}字 → {summary['article_chars_total'] + summary['rss_chars_total']}字相当。",
+        flush=True,
+    )
+    return enriched
+
 
 def filter_business_noise(news_list, *, episode_format="daily"):
     """
@@ -226,11 +495,14 @@ def collect_latest_news(max_entries_per_feed=5, *, episode_format="daily"):
         entries = fetch_feed_entries(name, url, max_entries_per_feed)
         all_news.extend(entries)
     
-    # ビジネスノイズを除外
+    # ビジネスノイズの判定は従来どおり見出しとRSSリード文で行う。記事本文まで見ると
+    # 「買収」「資金調達」が本筋と関係なく本文中に現れた記事まで落ちてしまう。
     filtered_news = filter_business_noise(all_news, episode_format=episode_format)
     if not filtered_news:
         raise RuntimeError("No valid news entries were collected; pipeline stopped")
-    return filtered_news
+
+    # ノイズを落としてから本文を取りに行く。取得件数が減り、判定の意味も変わらない。
+    return enrich_news_with_article_text(filtered_news)
 
 def match_news_with_words(news_list, words):
     """収集したニュースとNotionから抽出した単語（words）をマッチング"""
@@ -322,6 +594,9 @@ def select_news_for_broadcast(
             if dedupe_key in seen:
                 continue
             seen.add(dedupe_key)
+            # 本文が空の項目は見出ししか読み上げられない。日曜の選定と同じ基準で外す。
+            if not str(item.get("title", "")).strip() or not str(item.get("content", "")).strip():
+                continue
             candidate = item.copy()
             candidate["lane"] = candidate.get(
                 "lane", SOURCE_CONFIG.get(candidate.get("source"), {}).get("lane", "world")

@@ -40,6 +40,67 @@ def _ok_payload(text="こんにちは、今日のニュースです。", **usage
     }
 
 
+class ReasoningEffortTests(unittest.TestCase):
+    """The Gemini path always asked for high thinking; the OpenAI path must too."""
+
+    def setUp(self):
+        self._env_patch = patch.dict(
+            os.environ, {"OPENAI_API_KEY": "sk-test-secret-value"}, clear=False
+        )
+        self._env_patch.start()
+        self.addCleanup(self._env_patch.stop)
+
+    def test_high_effort_is_sent_by_default_and_recorded(self):
+        post = unittest.mock.Mock(side_effect=[FakeResponse(200, _ok_payload())])
+        _, info = generate_with_openai("system", "prompt", sleep=lambda _: None, post=post)
+        self.assertEqual(post.call_args.kwargs["json"]["reasoning"], {"effort": "high"})
+        self.assertEqual(info["reasoning_effort"], "high")
+
+    def test_env_selects_an_effort_from_the_closed_set(self):
+        with patch.dict(os.environ, {"OPENAI_SCRIPT_REASONING_EFFORT": "medium"}):
+            post = unittest.mock.Mock(side_effect=[FakeResponse(200, _ok_payload())])
+            generate_with_openai("system", "prompt", sleep=lambda _: None, post=post)
+        self.assertEqual(post.call_args.kwargs["json"]["reasoning"], {"effort": "medium"})
+
+    def test_unknown_effort_falls_back_to_the_default(self):
+        with patch.dict(os.environ, {"OPENAI_SCRIPT_REASONING_EFFORT": "ludicrous"}):
+            self.assertEqual(openai_script_client.reasoning_effort(), "high")
+
+    def test_a_model_that_rejects_reasoning_is_retried_without_it(self):
+        """Otherwise an unsupported parameter would silently send every day to Gemini."""
+        posts = [
+            FakeResponse(400, {"error": {"message": "Unknown parameter: 'reasoning'"}}),
+            FakeResponse(200, _ok_payload()),
+        ]
+        post = unittest.mock.Mock(side_effect=posts)
+        text, info = generate_with_openai("system", "prompt", sleep=lambda _: None, post=post)
+
+        self.assertEqual(text, "こんにちは、今日のニュースです。")
+        self.assertNotIn("reasoning", post.call_args.kwargs["json"])
+        self.assertEqual(info["reasoning_effort"], "unsupported")
+
+    def test_a_second_bad_request_is_still_a_bad_request(self):
+        posts = [FakeResponse(400, {"error": {}}), FakeResponse(400, {"error": {}})]
+        post = unittest.mock.Mock(side_effect=posts)
+        text, info = generate_with_openai("system", "prompt", sleep=lambda _: None, post=post)
+
+        self.assertIsNone(text)
+        self.assertEqual(info["error_category"], "openai_bad_request")
+
+    def test_effort_survives_the_public_manifest_projection(self):
+        script_generator.reset_script_generation_log()
+        script_generator._log_generation(
+            {"provider": "openai", "model": "gpt-5.6-terra", "succeeded": True,
+             "reasoning_effort": "high", "attempts": 1}
+        )
+        public = episode_history.public_deterministic_checks(
+            {"script_generation": script_generator.script_generation_summary()}
+        )
+        self.assertEqual(
+            public["script_generation"]["calls"][0]["reasoning_effort"], "high"
+        )
+
+
 class GenerateWithOpenAITests(unittest.TestCase):
     def setUp(self):
         self._env_patch = patch.dict(
@@ -119,7 +180,11 @@ class GenerateWithOpenAITests(unittest.TestCase):
         sleeps.assert_not_called()
 
     def test_400_is_bad_request(self):
-        posts = [FakeResponse(400, {"error": {"message": "bad request"}})]
+        # 1回目の400では reasoning 指定を外して投げ直すので、確定には2回必要になる。
+        posts = [
+            FakeResponse(400, {"error": {"message": "bad request"}}),
+            FakeResponse(400, {"error": {"message": "bad request"}}),
+        ]
         post = unittest.mock.Mock(side_effect=posts)
         sleeps = unittest.mock.Mock()
 

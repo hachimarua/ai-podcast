@@ -119,6 +119,10 @@ jobs:
         # 音声監査は Gemini 3.6 Flash のままにして、書く側と聞く側を別ベンダーに分ける。
         # SCRIPT_PROVIDER を "gemini" に戻せば、コード変更なしで従来構成に戻る。
         SCRIPT_PROVIDER: "openai"
+        # 記事本文を取りに行く。RSSのリード文だけでは素材が台本要求の1〜2割しかなく、
+        # モデルは「記事には書かれていませんが」で尺を埋めるしかなくなる。
+        # 取得に失敗した記事は自動でRSS要約へ戻る。"off" で従来動作へ切り戻せる。
+        ARTICLE_TEXT_FETCH: "on"
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         OPENAI_SCRIPT_MODEL: "gpt-5.6-terra"
         GEMINI_MODEL_NAME: "gemini-3.7-flash"
@@ -155,7 +159,7 @@ jobs:
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
         
         # 変更されたファイルをステージング
-        git add podcast.xml episodes/ episode_manifests/ quality_reports/
+        git add podcast.xml episodes/ episode_manifests/ episode_scripts/ quality_reports/
         
         # 変更がある場合のみコミット＆プッシュ
         if ! git diff --cached --quiet; then
