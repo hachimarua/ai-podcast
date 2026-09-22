@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜GPT-6 SolとLuna、Mermaidで共有するAI業務フロー</title>
+      <description>Daily Brief（4〜6分）｜テーマ: GPT-6 SolとLuna、Mermaidで共有するAI業務フロー</description>
+      <pubDate>Wed, 23 Sep 2026 04:18:25 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260923_041825.mp3" length="1905357" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260923_041825.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:30</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜モジュール分離で読む、継続改善するAIエージェント</title>
       <description>Daily Brief（4〜6分）｜テーマ: モジュール分離で読む、継続改善するAIエージェント</description>
       <pubDate>Tue, 22 Sep 2026 04:18:22 +0900</pubDate>
