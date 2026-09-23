@@ -164,7 +164,7 @@ class WorkflowGuardTests(unittest.TestCase):
         self.assertIn("inputs.phase10_trial != true", workflow)
         self.assertIn("inputs.weekly_lab_trial != true", workflow)
         self.assertEqual(
-            workflow.count('GEMINI_AUDIO_QA_MODEL: "gemini-3.6-flash"'),
+            workflow.count('GEMINI_AUDIO_QA_MODEL: "gemini-3.7-flash"'),
             3,
         )
 
@@ -584,7 +584,7 @@ class GeminiAudioQATests(unittest.TestCase):
     def test_warning_creates_pending_proposal_without_transcript(self):
         qa_result = {
             "status": "completed",
-            "model": "gemini-3.6-flash",
+            "model": "gemini-3.7-flash",
             "summary": "BGMの音量が声に被っています。",
             "overall_score": 3,
             "requires_human_review": True,
@@ -617,7 +617,7 @@ class GeminiAudioQATests(unittest.TestCase):
     def test_pending_proposal_rejects_sensitive_paths_in_evidence(self):
         qa_result = {
             "status": "completed",
-            "model": "gemini-3.6-flash",
+            "model": "gemini-3.7-flash",
             "summary": "error in /Users/sakiya/secret.txt",
             "overall_score": 3,
             "requires_human_review": True,
@@ -688,7 +688,7 @@ class GeminiAudioQATests(unittest.TestCase):
         ):
             result = gemini_audio_qa.run_shadow_audio_qa("unused.mp3")
         self.assertEqual(result["status"], "unavailable")
-        self.assertEqual(result["model"], "gemini-3.6-flash")
+        self.assertEqual(result["model"], "gemini-3.7-flash")
         self.assertEqual(result["issues"], [])
 
     def test_legacy_31_pro_alias_maps_to_current_default_model(self):
@@ -714,7 +714,7 @@ class GeminiAudioQATests(unittest.TestCase):
             requires_human_review=False,
             issues=[],
         )
-        with patch.dict(os.environ, {"GEMINI_API_KEY": "valid_key", "GEMINI_AUDIO_QA_MODEL": "gemini-3.6-flash"}):
+        with patch.dict(os.environ, {"GEMINI_API_KEY": "valid_key", "GEMINI_AUDIO_QA_MODEL": "gemini-3.7-flash"}):
             with patch("gemini_audio_qa.analyze_audio", side_effect=[RuntimeError("503 Overloaded"), sample_analysis]) as mock_analyze:
                 result = gemini_audio_qa.run_shadow_audio_qa(
                     "unused.mp3",
@@ -726,7 +726,7 @@ class GeminiAudioQATests(unittest.TestCase):
         self.assertEqual(mock_analyze.call_count, 2)
 
     def test_shadow_audio_qa_exhausts_retries_and_returns_unavailable(self):
-        with patch.dict(os.environ, {"GEMINI_API_KEY": "valid_key", "GEMINI_AUDIO_QA_MODEL": "gemini-3.6-flash"}):
+        with patch.dict(os.environ, {"GEMINI_API_KEY": "valid_key", "GEMINI_AUDIO_QA_MODEL": "gemini-3.7-flash"}):
             with patch("gemini_audio_qa.analyze_audio", side_effect=RuntimeError("Persistent 503")) as mock_analyze:
                 result = gemini_audio_qa.run_shadow_audio_qa(
                     "unused.mp3",

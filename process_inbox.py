@@ -9,6 +9,7 @@ from google.genai import types
 from dotenv import load_dotenv
 import json
 from notion_helper import is_notion_configured
+from gemini_models import DEFAULT_GEMINI_MODEL, uses_legacy_sampling_parameters
 from api_client import ExternalServiceError, request_json
 
 # 環境変数の読み込み
@@ -337,8 +338,9 @@ def process_inbox():
         )
         
         try:
+            config_kwargs = {"temperature": 0.2} if uses_legacy_sampling_parameters(DEFAULT_GEMINI_MODEL) else {}
             response = client.models.generate_content(
-                model="gemini-2.5-flash",
+                model=DEFAULT_GEMINI_MODEL,
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
@@ -354,7 +356,7 @@ def process_inbox():
                         "is_learning_material で判定してください。門戸は広く取り、"
                         "学べる中身が少しでもあれば true にします。"
                     ),
-                    temperature=0.2
+                    **config_kwargs,
                 )
             )
             
