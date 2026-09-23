@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜ChatGPTモバイルの音声機能をルーティングで読む</title>
+      <description>Daily Brief（4〜6分）｜テーマ: ChatGPTモバイルの音声機能をルーティングで読む</description>
+      <pubDate>Thu, 24 Sep 2026 04:18:38 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260924_041838.mp3" length="1578765" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260924_041838.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>03:50</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜GPT-6 SolとLuna、Mermaidで共有するAI業務フロー</title>
       <description>Daily Brief（4〜6分）｜テーマ: GPT-6 SolとLuna、Mermaidで共有するAI業務フロー</description>
       <pubDate>Wed, 23 Sep 2026 04:18:25 +0900</pubDate>
