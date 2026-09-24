@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜規格パーサで整えるGemini 3.8 Flash TTSの台本設計</title>
+      <description>Daily Brief（4〜6分）｜テーマ: 規格パーサで整えるGemini 3.8 Flash TTSの台本設計</description>
+      <pubDate>Fri, 25 Sep 2026 04:17:47 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260925_041747.mp3" length="2139309" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260925_041747.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:53</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜ChatGPTモバイルの音声機能をルーティングで読む</title>
       <description>Daily Brief（4〜6分）｜テーマ: ChatGPTモバイルの音声機能をルーティングで読む</description>
       <pubDate>Thu, 24 Sep 2026 04:18:38 +0900</pubDate>
