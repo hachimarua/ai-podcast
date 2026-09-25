@@ -147,10 +147,10 @@ SYSTEM_INSTRUCTION = """
 ※話者名と音声は固定です。役割だけをローテーションし、ケンジとアミの人物名・音声を入れ替えないでください。
 
 【台本の構成ルール】
-1. オープニング（挨拶と、今日復習する学習日記の日付やその時のキーワードの紹介）
+1. オープニング（「AI学習カーラジオ」の番組名と短い挨拶から始め、今日復習する学習日記や本日のテーマを紹介する。5〜10秒程度）
 2. ニュース解説と復習（採用形式の指示に従い、過去の学習メモと最新情報を深く対話解説する。ニュースの単なる箇条書きやダイジェストは禁止）
 3. 実践部分（後述の番組用編集プロフィールにある習熟度、利用可能ツール、習得済み項目へ合わせ、採用形式の指示に従う）
-4. エンディング（採用形式に従い、要点を短くまとめる）
+4. エンディング（採用形式に従い要点を短くまとめ、最後は「今回は以上です。それでは、また次回。」などの5〜10秒程度の短い挨拶で番組を締めくくる。長いまとめや定型的な励ましは不要）
 5. 尺と文字量は後述の生成中心を狙ってください。ただし重要情報を削ったり、水増ししたりして中心値へ機械的に合わせないでください。
 
 【コンテンツの掘り下げ・実践フォーカス（極めて重要）】
@@ -604,6 +604,140 @@ def validate_source_hedging(script: str, *, enforce: bool = True) -> dict:
     return result
 
 
+OPENING_GREETING_PATTERNS = (
+    re.compile(r"おはよう(ございます)?"),
+    re.compile(r"こんにちは"),
+    re.compile(r"こんばんは"),
+    re.compile(r"(AI|エーアイ)(学習|ニュース|ポッドキャスト|カーラジオ|ラジオ)"),
+    re.compile(r"へようこそ"),
+    re.compile(r"(皆さん|みなさん)[、,!\s]"),
+    re.compile(r"はじめまして"),
+)
+
+CLOSING_GREETING_PATTERNS = (
+    re.compile(r"(今回|本日)は(以上|ここまで)"),
+    re.compile(r"(それでは|では)[、,\s]*(また|次)"),
+    re.compile(r"また次回"),
+    re.compile(r"次回も(お楽しみに|よろしくお願いします)"),
+    re.compile(r"(いってらっしゃい|良い[一1]日を|よい[一1]日を)"),
+    re.compile(r"(ありがとうございま(した|す)|お聴きいただき|お聞きいただき)"),
+    re.compile(r"お相手は"),
+    re.compile(r"(では|それでは)[、,\s]*失礼します"),
+)
+
+
+def check_script_greetings(script: str) -> dict:
+    """Check for opening and closing greetings in dialogue lines."""
+    dialogue, _ = split_generated_script_output(script)
+    lines = _dialogue_lines(dialogue)
+    if not lines:
+        return {
+            "opening_present": False,
+            "closing_present": False,
+            "dialogue_line_count": 0,
+        }
+
+    # Opening check: first 1-2 dialogue lines
+    opening_lines = [text for _, text in lines[:2]]
+    opening_present = any(
+        any(pattern.search(text) for pattern in OPENING_GREETING_PATTERNS)
+        for text in opening_lines
+    )
+
+    # Closing check: last 1-2 dialogue lines
+    closing_lines = [text for _, text in lines[-2:]]
+    closing_present = any(
+        any(pattern.search(text) for pattern in CLOSING_GREETING_PATTERNS)
+        for text in closing_lines
+    )
+
+    return {
+        "opening_present": opening_present,
+        "closing_present": closing_present,
+        "dialogue_line_count": len(lines),
+    }
+
+
+def ensure_script_greetings(
+    script: str,
+    topic: str = "",
+    role_plan: dict = None,
+) -> tuple[str, dict]:
+    """Ensure that the script has both an opening and a closing greeting.
+
+    If either is missing, lightweight deterministic fallback utterances are
+    added without triggering full regeneration or failing the pipeline.
+    """
+    if not script:
+        return script, {
+            "opening_present": False,
+            "closing_present": False,
+            "opening_fallback_added": False,
+            "closing_fallback_added": False,
+        }
+
+    plan = _validated_dialogue_role_plan(role_plan) or dict(DEFAULT_DIALOGUE_ROLE_PLAN)
+    dialogue, title = split_generated_script_output(script)
+    lines = _dialogue_lines(dialogue)
+    if not lines:
+        return script, {
+            "opening_present": False,
+            "closing_present": False,
+            "opening_fallback_added": False,
+            "closing_fallback_added": False,
+        }
+
+    status = check_script_greetings(dialogue)
+    opening_present = status["opening_present"]
+    closing_present = status["closing_present"]
+    opening_fallback_added = False
+    closing_fallback_added = False
+
+    result_dialogue = dialogue.strip()
+
+    # Opening fallback
+    if not opening_present:
+        navigator = plan["navigator"]
+        safe_topic = safe_public_text(topic, fallback="", max_length=50)
+        if safe_topic and JAPANESE_CHARACTER_PATTERN.search(safe_topic):
+            opening_text = (
+                f"{navigator}：おはようございます。AI学習カーラジオです。"
+                f"今回は「{safe_topic}」について見ていきます。"
+            )
+        else:
+            opening_text = (
+                f"{navigator}：おはようございます。AI学習カーラジオです。"
+                "今回は最新のAI動向について見ていきます。"
+            )
+        result_dialogue = f"{opening_text}\n\n{result_dialogue}"
+        opening_fallback_added = True
+
+    # Closing fallback
+    if not closing_present:
+        current_lines = _dialogue_lines(result_dialogue)
+        last_speaker = current_lines[-1][0] if current_lines else plan["navigator"]
+        closing_speaker = (
+            "ケンジ" if last_speaker == "アミ" else "アミ"
+        )
+        closing_text = f"{closing_speaker}：今回は以上です。それでは、また次回。"
+        result_dialogue = f"{result_dialogue}\n\n{closing_text}"
+        closing_fallback_added = True
+
+    # Restore title line if it was originally present
+    if title:
+        result_script = f"{PUBLIC_TITLE_PREFIX}{title}\n\n{result_dialogue}"
+    else:
+        result_script = result_dialogue
+
+    info = {
+        "opening_present": opening_present,
+        "closing_present": closing_present,
+        "opening_fallback_added": opening_fallback_added,
+        "closing_fallback_added": closing_fallback_added,
+    }
+    return result_script, info
+
+
 def _format_spec(episode_format: str) -> FormatSpec:
     config = load_episode_formats()
     if episode_format not in {"daily", "lab"}:
@@ -617,16 +751,18 @@ def build_format_instruction(episode_format: str, spec: FormatSpec) -> str:
         return f"""
 【番組形式: Daily Brief】
 - 表示上の目安は{spec.duration_label}。生成中心は読み上げ約{target_minutes:g}分。台本文字数は{spec.prompt_character_min}〜{spec.prompt_character_max}文字を狙う。これは中心値であり、文字数を満たすための言い換え・反復・水増しは禁止する。
-- 冒頭は2発話以内で、その日に最も価値の高い論点へ入る。
+- 冒頭は番組名「AI学習カーラジオ」を含む短い挨拶から入り、2発話以内でその日に最も価値の高い論点へ入る。
 - ニュース件数は固定しない。1件で十分なら1件だけ扱い、独立した重要ニュースが複数ある場合は、それぞれを十分説明できる限り複数件を扱ってよい。
 - 各ニュースは「何が起きたか」「なぜ重要か」「利用者・開発への意味または制約」のうち、入力ソースで確認できる要素を十分に説明する。件数を増やすための薄い紹介は禁止する。
 - 重要な情報を削って約{target_minutes:g}分へ押し込まない。情報量が多く聞く価値が続く場合は自然に長くしてよい。
 - Tipsは必須ではない。具体的操作、期待結果、使わない条件を入力ソースから確認できない場合は、注意点または今後の観察ポイントへ置き換える。
+- 会話の最後は要点を短くまとめた上で、短い終了挨拶（例:『今回は以上です。それでは、また次回。』）で締める。
 """.strip()
     if episode_format == "lab":
         return f"""
 【番組形式: Weekly AI Review】
 - 表示上の目安は{spec.duration_label}。生成中心は読み上げ約{target_minutes:g}分。台本文字数は{spec.prompt_character_min}〜{spec.prompt_character_max}文字を狙うが、尺合わせの反復・水増しは禁止する。
+- 冒頭は番組名を含む短い挨拶から始める。
 - 日曜はNotion復習から独立し、今週のAI界隈で「知らずに週を終えるのは惜しい」内容を編集して伝える。
 - バイブコーディングや実装テーマに限定しない。モデル、エージェント、研究、サービス、デバイス、インフラ、重要な業界変化などを対象にできる。
 - 1テーマ固定にしない。1件で十分なら1件、独立した重要ニュースが複数あるなら複数件を扱い、それぞれの背景と意味が薄くならないようにする。
@@ -635,6 +771,7 @@ def build_format_instruction(episode_format: str, spec: FormatSpec) -> str:
 - 情報量が少なければ無理に{target_minutes:g}分まで延ばさず、情報量が豊富なら重要事項を削らず自然に延長する。
 - 同じ説明、同一論点、同じ結論の反復は絶対に禁止。情報量が尽きたら自然に会話を締めくくる。
 - 仕様、対応条件、具体的操作は入力ソースに根拠がある範囲だけにし、不足部分は推測で補わず、触れずに進む。
+- 会話の最後は、短い終了挨拶（例:『今回は以上です。それでは、また次回。』）で自然に締めくくる。
 """.strip()
     raise EpisodeFormatError("episode format must be daily or lab")
 
@@ -718,7 +855,8 @@ def build_prompt_content(
     )
     content += (
         f"上記の学習メモと最新ニュースを自然に融合させ、{spec.display_name}の"
-        "日本語対話台本を作成してください。\n"
+        "日本語対話台本を作成してください。"
+        "番組冒頭には短い開始挨拶（番組名と挨拶、5〜10秒程度）、最後には短い終了挨拶（例:『今回は以上です。それでは、また次回。』）を必ず含めてください。\n"
     )
     if selected_terms:
         content += "過去にユーザーが学んだ内容（学習メモ本文に記載されている内容）をおさらいしながら、最新情報と結びつけて解説してください。\n"

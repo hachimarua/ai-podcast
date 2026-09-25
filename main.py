@@ -14,8 +14,10 @@ from news_collector import (
     select_news_for_lab,
 )
 from script_generator import (
+    check_script_greetings,
     choose_public_topic,
     choose_dialogue_role_plan,
+    ensure_script_greetings,
     generate_radio_script,
     reset_script_generation_log,
     script_generation_summary,
@@ -463,6 +465,27 @@ async def async_main():
         placeholder_check = retry_placeholder_check
         source_hedging = retry_source_hedging
 
+    # 冒頭・終了挨拶の安定化（欠落時のみ軽量fallbackを追加し、ジョブを止めない）
+    script_topic = generated_public_topic or (broadcast_news[0].get("title") if broadcast_news else "")
+    try:
+        script, greetings_info = ensure_script_greetings(
+            script,
+            topic=script_topic,
+            role_plan=dialogue_role_plan,
+        )
+        if greetings_info["opening_fallback_added"]:
+            print("[Warning] Opening greeting was missing; added fallback opening.")
+        if greetings_info["closing_fallback_added"]:
+            print("[Warning] Closing greeting was missing; added fallback closing.")
+    except Exception as exc:
+        print(f"[Warning] Failed to ensure script greetings: {exc}; proceeding with current script.")
+        greetings_info = {
+            "opening_present": True,
+            "closing_present": True,
+            "opening_fallback_added": False,
+            "closing_fallback_added": False,
+        }
+
     # 台本の保存
     if trial_mode:
         trial_artifacts["directory"].mkdir(parents=True, exist_ok=False)
@@ -542,6 +565,19 @@ async def async_main():
         print(
             f"[Duration Gate] 再生成台本: {script_length['character_count']}文字"
         )
+        try:
+            script, retry_greetings = ensure_script_greetings(
+                script,
+                topic=generated_public_topic or script_topic,
+                role_plan=dialogue_role_plan,
+            )
+            greetings_info = retry_greetings
+            if greetings_info["opening_fallback_added"]:
+                print("[Warning] Opening greeting was missing; added fallback opening.")
+            if greetings_info["closing_fallback_added"]:
+                print("[Warning] Closing greeting was missing; added fallback closing.")
+        except Exception as exc:
+            print(f"[Warning] Failed to ensure script greetings: {exc}; proceeding with current script.")
         with open(script_path, "w", encoding="utf-8") as f:
             f.write(script)
         synthesis_success = await synthesize_podcast(
@@ -605,6 +641,7 @@ async def async_main():
                 "format_fallback_reason": format_fallback_reason,
                 "format_config_version": formats_config.config_version,
                 "degradations": degradations,
+                "greetings": greetings_info,
             },
             qa_result=gemini_qa,
         )
@@ -655,6 +692,7 @@ async def async_main():
                     "format_fallback_reason": format_fallback_reason,
                     "format_config_version": formats_config.config_version,
                     "degradations": degradations,
+                    "greetings": greetings_info,
                     "script_generation": script_generation_summary(),
                     "article_fetch": article_fetch_summary(),
                 },
