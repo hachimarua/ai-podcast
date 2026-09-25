@@ -58,6 +58,8 @@ PUBLIC_CHECK_KEYS = {
     "attempted",
     # 素材の外側について語って尺を埋める失敗の検知ゲート。
     "source_hedging", "hedge_line_count", "max_allowed_hedge_lines", "sample_hedge_lines",
+    # 番組冒頭・終了挨拶の安定化記録。
+    "greetings", "opening_present", "closing_present", "opening_fallback_added", "closing_fallback_added",
 }
 PUBLIC_CHECK_STRINGS = PUBLIC_NEWS_SOURCES | {
     "daily", "lab", "world", "japan", "research", "official", "reporting",
