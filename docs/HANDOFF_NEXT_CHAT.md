@@ -1,7 +1,25 @@
 # AI学習ラジオ 次チャット申し送り
 
-最終確認: 2026-09-23
+最終確認: 2026-09-26
 状態: **現役の運用HANDOFF。Phase 7〜10、Siriフィードバックの受付Worker・D1、3本のショートカットは実装済み。日次配信は継続中。**
+
+
+## 2026-09-26 変更: 冒頭・終了挨拶の安定化（PR #41）
+
+- **背景**: 生成台本において、番組冒頭の挨拶（番組名や挨拶）や終了時の挨拶（「今回は以上です。それでは、また次回。」等）が欠落し、いきなり本題に入ったり最後の説明直後に音声が終了する現象が続いていた。
+- **方針**: 挨拶不足を理由にしたjob failや全文再生成（retry loop）は絶対に避け、毎朝の安定配信を最優先。
+  1. **プロンプト指示の強化**:
+     - `SYSTEM_INSTRUCTION`、`build_format_instruction` (Daily / Lab)、`build_prompt_content` にて、冒頭の短い挨拶（番組名「AI学習カーラジオ」を含む5〜10秒程度）と最後の短い終了挨拶（例:『今回は以上です。それでは、また次回。』）を明示。
+  2. **挨拶検知と軽量決定論的フォールバック (`script_generator.py`)**:
+     - `check_script_greetings()`: 先頭1〜2行、末尾1〜2行から正規表現で挨拶の有無を判定。既存の挨拶がある場合は二重追加しない。
+     - `ensure_script_greetings()`: 台本確定後の post-processing として動作。
+       - Opening欠落時: 本日の役割割当のナビゲーターが、番組名「AI学習カーラジオ」とタイトル（トピック）を読み上げる定型挨拶を先頭に追加。
+       - Closing欠落時: 直前の発話者と交代した話者で「今回は以上です。それでは、また次回。」を末尾に追加。
+       - 万一の例外時も元の台本で続行する fail-safe 構造。
+  3. **パイプライン組み込みと記録 (`main.py`, `episode_history.py`)**:
+     - 台本確定・保存前（および `duration_retry` 時）に `ensure_script_greetings()` を実行。
+     - マニフェストの `deterministic_checks.greetings` に opening/closing の有無および fallback 追加フラグを記録。
+     - ユニットテスト `tests/test_script_greetings.py` を追加し全件パス。
 
 
 ## 2026-09-23 変更: 音声監査と受信箱処理を Gemini 3.7 Flash へ統一
