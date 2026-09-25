@@ -96,7 +96,10 @@ class ScriptGreetingsTests(unittest.TestCase):
         self.assertTrue(info["closing_fallback_added"])
 
         lines = [line.strip() for line in result.splitlines() if line.strip()]
-        self.assertEqual(lines[-1], "ケンジ：今回は以上です。それでは、また次回。")
+        self.assertEqual(
+            lines[-1],
+            "ケンジ：今回は以上です。それではまた次回お会いしましょう。安全運転でいってらっしゃい。",
+        )
 
         # 最終話者がケンジの場合、closing はアミになる
         script_kenji_last = """
@@ -109,7 +112,10 @@ class ScriptGreetingsTests(unittest.TestCase):
         )
         self.assertTrue(info2["closing_fallback_added"])
         lines2 = [line.strip() for line in result2.splitlines() if line.strip()]
-        self.assertEqual(lines2[-1], "アミ：今回は以上です。それでは、また次回。")
+        self.assertEqual(
+            lines2[-1],
+            "アミ：今回は以上です。それではまた次回お会いしましょう。安全運転でいってらっしゃい。",
+        )
 
     def test_both_greetings_missing(self):
         script = """
@@ -128,7 +134,10 @@ class ScriptGreetingsTests(unittest.TestCase):
 
         lines = [line.strip() for line in result.splitlines() if line.strip()]
         self.assertTrue(lines[0].startswith("ケンジ：おはようございます。AI学習カーラジオです。"))
-        self.assertEqual(lines[-1], "ケンジ：今回は以上です。それでは、また次回。")
+        self.assertEqual(
+            lines[-1],
+            "ケンジ：今回は以上です。それではまた次回お会いしましょう。安全運転でいってらっしゃい。",
+        )
 
     def test_preserves_public_title_prefix(self):
         script = """【表示タイトル】イテレーションとAI監査
@@ -143,7 +152,10 @@ class ScriptGreetingsTests(unittest.TestCase):
         lines = [line.strip() for line in result.splitlines() if line.strip()]
         self.assertEqual(lines[0], "【表示タイトル】イテレーションとAI監査")
         self.assertTrue(lines[1].startswith("ケンジ：おはようございます。AI学習カーラジオです。"))
-        self.assertEqual(lines[-1], "ケンジ：今回は以上です。それでは、また次回。")
+        self.assertEqual(
+            lines[-1],
+            "ケンジ：今回は以上です。それではまた次回お会いしましょう。安全運転でいってらっしゃい。",
+        )
 
     def test_empty_and_whitespace_safety(self):
         for empty in ("", "   ", "\n\n"):
@@ -172,6 +184,22 @@ class ScriptGreetingsTests(unittest.TestCase):
         self.assertTrue(info["closing_present"])
         self.assertFalse(info["opening_fallback_added"])
         self.assertFalse(info["closing_fallback_added"])
+
+    def test_user_suggested_closing_phrase_recognized(self):
+        script = """
+ケンジ：おはようございます。AI学習カーラジオです。
+アミ：今日のまとめです。
+ケンジ：今回は以上です。それではまた次回お会いしましょう。安全運転でいってらっしゃい。
+"""
+        result, info = ensure_script_greetings(
+            script,
+            topic="テスト",
+            role_plan={"navigator": "ケンジ", "explainer": "アミ"},
+        )
+        self.assertTrue(info["closing_present"])
+        self.assertFalse(info["closing_fallback_added"])
+        lines = [line.strip() for line in result.splitlines() if line.strip()]
+        self.assertEqual(len(lines), 3)
 
 
 if __name__ == "__main__":
