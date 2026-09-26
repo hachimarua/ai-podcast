@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>AI実装ラボ｜Microsoft Copilotの統合とAIコスト、世界モデルの新論点</title>
+      <description>AI実装ラボ（5〜10分）｜テーマ: Microsoft Copilotの統合とAIコスト、世界モデルの新論点</description>
+      <pubDate>Sun, 27 Sep 2026 04:18:42 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260927_041842.mp3" length="4397253" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260927_041842.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>09:48</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜イテレーションで考えるAIエージェントの実行記録とロボットシミュレーション</title>
       <description>Daily Brief（4〜6分）｜テーマ: イテレーションで考えるAIエージェントの実行記録とロボットシミュレーション</description>
       <pubDate>Sat, 26 Sep 2026 04:19:11 +0900</pubDate>
