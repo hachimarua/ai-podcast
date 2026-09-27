@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜DPVR G5のライブ配信と規格パーサで分ける外部連携</title>
+      <description>Daily Brief（4〜6分）｜テーマ: DPVR G5のライブ配信と規格パーサで分ける外部連携</description>
+      <pubDate>Mon, 28 Sep 2026 04:18:09 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260928_041809.mp3" length="1660581" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260928_041809.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>03:52</itunes:duration>
+    </item>
+    <item>
       <title>AI実装ラボ｜Microsoft Copilotの統合とAIコスト、世界モデルの新論点</title>
       <description>AI実装ラボ（5〜10分）｜テーマ: Microsoft Copilotの統合とAIコスト、世界モデルの新論点</description>
       <pubDate>Sun, 27 Sep 2026 04:18:42 +0900</pubDate>
