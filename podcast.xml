@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜Holo4の複数操作とGemini Enterpriseの統制</title>
+      <description>Daily Brief（4〜6分）｜テーマ: Holo4の複数操作とGemini Enterpriseの統制</description>
+      <pubDate>Tue, 29 Sep 2026 04:19:23 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260929_041923.mp3" length="1791765" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260929_041923.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:03</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜DPVR G5のライブ配信と規格パーサで分ける外部連携</title>
       <description>Daily Brief（4〜6分）｜テーマ: DPVR G5のライブ配信と規格パーサで分ける外部連携</description>
       <pubDate>Mon, 28 Sep 2026 04:18:09 +0900</pubDate>
