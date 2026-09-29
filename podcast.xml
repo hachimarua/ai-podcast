@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜NVIDIA Kumo TabularとDecisions API、判断の履歴設計</title>
+      <description>Daily Brief（4〜6分）｜テーマ: NVIDIA Kumo TabularとDecisions API、判断の履歴設計</description>
+      <pubDate>Wed, 30 Sep 2026 04:18:34 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20260930_041834.mp3" length="1647693" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20260930_041834.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>03:51</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜Holo4の複数操作とGemini Enterpriseの統制</title>
       <description>Daily Brief（4〜6分）｜テーマ: Holo4の複数操作とGemini Enterpriseの統制</description>
       <pubDate>Tue, 29 Sep 2026 04:19:23 +0900</pubDate>
