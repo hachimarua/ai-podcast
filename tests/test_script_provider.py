@@ -90,7 +90,7 @@ class ReasoningEffortTests(unittest.TestCase):
     def test_effort_survives_the_public_manifest_projection(self):
         script_generator.reset_script_generation_log()
         script_generator._log_generation(
-            {"provider": "openai", "model": "gpt-5.6-terra", "succeeded": True,
+            {"provider": "openai", "model": "gpt-6-sol", "succeeded": True,
              "reasoning_effort": "high", "attempts": 1}
         )
         public = episode_history.public_deterministic_checks(
@@ -321,7 +321,7 @@ class GenerateRadioScriptProviderSwitchTests(unittest.TestCase):
                 openai_text,
                 {
                     "provider": "openai",
-                    "model": "gpt-5.6-terra",
+                    "model": "gpt-6-sol",
                     "attempts": 1,
                     "input_tokens": 100,
                     "output_tokens": 200,
@@ -355,7 +355,7 @@ class GenerateRadioScriptProviderSwitchTests(unittest.TestCase):
                 None,
                 {
                     "provider": "openai",
-                    "model": "gpt-5.6-terra",
+                    "model": "gpt-6-sol",
                     "attempts": 4,
                     "error_category": "openai_transient_exhausted",
                 },
@@ -439,7 +439,7 @@ class PublicDeterministicChecksScriptGenerationTests(unittest.TestCase):
             "calls": [
                 {
                     "provider": "openai",
-                    "model": "gpt-5.6-terra",
+                    "model": "gpt-6-sol",
                     "succeeded": False,
                     "fallback_reason": "some prose that should never be public",
                     "attempts": 4,
@@ -468,7 +468,7 @@ class PublicDeterministicChecksScriptGenerationTests(unittest.TestCase):
         self.assertEqual(sg["fallback_count"], 1)
         self.assertEqual(len(sg["calls"]), 2)
         self.assertEqual(sg["calls"][0]["provider"], "openai")
-        self.assertEqual(sg["calls"][0]["model"], "gpt-5.6-terra")
+        self.assertEqual(sg["calls"][0]["model"], "gpt-6-sol")
         self.assertNotIn("fallback_reason", sg["calls"][0])
         self.assertEqual(sg["calls"][0]["attempts"], 4)
         self.assertEqual(sg["calls"][0]["input_tokens"], 12)

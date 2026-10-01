@@ -42,6 +42,7 @@ from episode_history import (
 )
 from audio_quality import AudioQualityError, require_audio_quality
 from editorial_profile import get_approved_profile_version
+from openai_script_client import openai_script_model
 from episode_formats import (
     EpisodeFormatError,
     JST,
@@ -272,7 +273,7 @@ async def async_main():
     reset_script_generation_log()
     if script_provider() == "openai":
         print(
-            f"台本プロバイダ: OpenAI ({os.getenv('OPENAI_SCRIPT_MODEL') or 'gpt-5.6-terra'})"
+            f"台本プロバイダ: OpenAI ({openai_script_model()})"
             f" / フォールバック: Gemini ({model_name})"
         )
     else:
