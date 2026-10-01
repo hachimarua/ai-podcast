@@ -269,6 +269,164 @@ async function listRecentReactions(request, env) {
   return json({ ok: true, reactions: result.results || [] });
 }
 
+export function validateVoiceFeedbackPayload(payload, now = new Date()) {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return { ok: false, error: "invalid_json" };
+  }
+  const rawUtterance = typeof payload.raw_utterance === "string"
+    ? payload.raw_utterance.trim()
+    : (typeof payload.rawUtterance === "string" ? payload.rawUtterance.trim() : "");
+  if (!rawUtterance || rawUtterance.length > 4000) {
+    return { ok: false, error: "invalid_raw_utterance" };
+  }
+  const requestId = typeof payload.request_id === "string"
+    ? payload.request_id.trim()
+    : (typeof payload.requestId === "string" ? payload.requestId.trim() : "");
+  if (!requestId || requestId.length > 128) {
+    return { ok: false, error: "invalid_request_id" };
+  }
+  const rawOccurredAt = payload.occurred_at || payload.occurredAt;
+  const occurredAt = rawOccurredAt ? new Date(rawOccurredAt) : now;
+  if (Number.isNaN(occurredAt.getTime())) {
+    return { ok: false, error: "invalid_occurred_at" };
+  }
+  if (Math.abs(now.getTime() - occurredAt.getTime()) > MAX_CLOCK_SKEW_MS) {
+    return { ok: false, error: "occurred_at_out_of_range" };
+  }
+
+  const episodeId = typeof payload.episode_id === "string"
+    ? payload.episode_id.trim()
+    : (typeof payload.episodeId === "string" ? payload.episodeId.trim() : null);
+  const feedbackType = typeof payload.feedback_type === "string"
+    ? payload.feedback_type.trim()
+    : (typeof payload.feedbackType === "string" ? payload.feedbackType.trim() : null);
+  const difficultySignal = typeof payload.difficulty_signal === "string"
+    ? payload.difficulty_signal.trim()
+    : (typeof payload.difficultySignal === "string" ? payload.difficultySignal.trim() : null);
+  const usefulnessSignal = typeof payload.usefulness_signal === "string"
+    ? payload.usefulness_signal.trim()
+    : (typeof payload.usefulnessSignal === "string" ? payload.usefulnessSignal.trim() : null);
+  const comment = typeof payload.comment === "string" ? payload.comment.trim() : null;
+  const source = typeof payload.source === "string" && ["nagi_voice", "api", "manual"].includes(payload.source)
+    ? payload.source
+    : "nagi_voice";
+  const resolveLatest = Boolean(payload.resolve_latest || payload.resolveLatest || episodeId === "latest");
+
+  return {
+    ok: true,
+    requestId,
+    rawUtterance,
+    episodeId: episodeId === "latest" ? null : episodeId,
+    occurredAt: occurredAt.toISOString(),
+    feedbackType,
+    difficultySignal,
+    usefulnessSignal,
+    comment,
+    source,
+    resolveLatest,
+    metadata: payload.metadata ? JSON.stringify(payload.metadata) : null,
+  };
+}
+
+async function createVoiceFeedback(request, env) {
+  let payload;
+  try {
+    payload = await readJsonBody(request);
+  } catch (error) {
+    const code = error instanceof Error ? error.message : "invalid_json";
+    return json(
+      { ok: false, error: code === "body_too_large" ? code : "invalid_json" },
+      code === "body_too_large" ? 413 : 400,
+    );
+  }
+
+  const validated = validateVoiceFeedbackPayload(payload);
+  if (!validated.ok) return json({ ok: false, error: validated.error }, 400);
+
+  const existing = await env.AI_RADIO_FEEDBACK_DB
+    .prepare(
+      "SELECT id, request_id, episode_id, raw_utterance, occurred_at FROM voice_feedbacks WHERE request_id = ? LIMIT 1",
+    )
+    .bind(validated.requestId)
+    .first();
+  if (existing) {
+    if (existing.raw_utterance !== validated.rawUtterance) {
+      return json({ ok: false, error: "request_id_conflict" }, 409);
+    }
+    return json({
+      ok: true,
+      duplicate: true,
+      id: existing.id,
+      request_id: existing.request_id,
+      episode_id: existing.episode_id,
+      raw_utterance: existing.raw_utterance,
+      occurred_at: existing.occurred_at,
+      message: "AI Podcastのfeedbackを記録しました",
+    });
+  }
+
+  let finalEpisodeId = validated.episodeId;
+  const shouldResolveLatest = validated.resolveLatest || (!finalEpisodeId && /(今日|今朝|今|最新|前回|今の回)/.test(validated.rawUtterance));
+  if (!finalEpisodeId && shouldResolveLatest) {
+    try {
+      finalEpisodeId = await fetchLatestEpisodeId(env.PODCAST_FEED_URL);
+    } catch {
+      finalEpisodeId = null;
+    }
+  }
+
+  const id = crypto.randomUUID();
+  const receivedAt = new Date().toISOString();
+  await env.AI_RADIO_FEEDBACK_DB
+    .prepare(
+      "INSERT INTO voice_feedbacks (id, request_id, episode_id, raw_utterance, feedback_type, difficulty_signal, usefulness_signal, comment, metadata, occurred_at, received_at, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    )
+    .bind(
+      id,
+      validated.requestId,
+      finalEpisodeId,
+      validated.rawUtterance,
+      validated.feedbackType,
+      validated.difficultySignal,
+      validated.usefulnessSignal,
+      validated.comment,
+      validated.metadata,
+      validated.occurredAt,
+      receivedAt,
+      validated.source,
+    )
+    .run();
+
+  return json(
+    {
+      ok: true,
+      duplicate: false,
+      id,
+      request_id: validated.requestId,
+      episode_id: finalEpisodeId,
+      raw_utterance: validated.rawUtterance,
+      occurred_at: validated.occurredAt,
+      message: "AI Podcastのfeedbackを記録しました",
+    },
+    201,
+  );
+}
+
+async function listRecentVoiceFeedbacks(request, env) {
+  const url = new URL(request.url);
+  const requestedLimit = Number(url.searchParams.get("limit") || 20);
+  const limit = Number.isInteger(requestedLimit)
+    ? Math.min(Math.max(requestedLimit, 1), 50)
+    : 20;
+  const result = await env.AI_RADIO_FEEDBACK_DB
+    .prepare(
+      "SELECT id, request_id, episode_id, raw_utterance, feedback_type, difficulty_signal, usefulness_signal, comment, occurred_at, received_at, source FROM voice_feedbacks ORDER BY occurred_at DESC, received_at DESC LIMIT ?",
+    )
+    .bind(limit)
+    .all();
+  return json({ ok: true, feedbacks: result.results || [] });
+}
+
 export async function dispatchPodcastWorkflow(env, options = {}) {
   const token = env.GITHUB_DISPATCH_TOKEN;
   if (!token) {
@@ -354,6 +512,12 @@ export default {
       }
       if (request.method === "GET" && url.pathname === "/v1/reactions/recent") {
         return await listRecentReactions(request, env);
+      }
+      if (request.method === "POST" && url.pathname === "/v1/voice-feedback") {
+        return await createVoiceFeedback(request, env);
+      }
+      if (request.method === "GET" && url.pathname === "/v1/voice-feedback/recent") {
+        return await listRecentVoiceFeedbacks(request, env);
       }
       return json({ ok: false, error: "not_found" }, 404);
     } catch {

@@ -10,6 +10,8 @@ Apple WatchのSiriから起動する3本のショートカット向けに、`new
 - `POST /v1/reactions`: Bearer認証と`X-Idempotency-Key`必須
 - `POST /v1/reactions/new|known|tried`: ショートカット専用。Bearer認証必須、本文不要、確認文をplain textで返す
 - `GET /v1/reactions/recent?limit=20`: Bearer認証必須の確認用読み取り
+- `POST /v1/voice-feedback`: Bearer認証必須。凪ネイティブ音声等からの自由発話feedbackを受け付け（`raw_utterance`, `request_id`, 任意で `episode_id`, `difficulty_signal` 等）
+- `GET /v1/voice-feedback/recent?limit=20`: Bearer認証必須のfeedback確認用読み取り
 
 送信例:
 
