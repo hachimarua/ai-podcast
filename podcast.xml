@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜Notionのコンテキストレイヤー構想、エージェント活用の壁</title>
+      <description>Daily Brief（4〜6分）｜テーマ: Notionのコンテキストレイヤー構想、エージェント活用の壁</description>
+      <pubDate>Fri, 02 Oct 2026 04:18:04 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261002_041804.mp3" length="1874301" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261002_041804.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:22</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜OpenAI Decisions APIとCodeSense、選択と暗黙知の整理</title>
       <description>Daily Brief（4〜6分）｜テーマ: OpenAI Decisions APIとCodeSense、選択と暗黙知の整理</description>
       <pubDate>Thu, 01 Oct 2026 04:18:44 +0900</pubDate>
