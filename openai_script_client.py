@@ -17,7 +17,7 @@ import time
 import requests
 
 OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses"
-DEFAULT_OPENAI_SCRIPT_MODEL = "gpt-5.6-terra"
+DEFAULT_OPENAI_SCRIPT_MODEL = "gpt-6-sol"
 DEFAULT_MAX_OUTPUT_TOKENS = 16000
 # Gemini 側は thinking_level="high" を明示していたのに、OpenAI へ移すときに対応する
 # 指定が落ちていた。カナリア実測で reasoning は 3,520 → 199 トークン。構成を考えずに
