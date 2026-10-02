@@ -231,3 +231,91 @@ test("GET /v1/voice-feedback/recent lists saved feedbacks", async () => {
   assert.equal(body.feedbacks.length, 1);
   assert.equal(body.feedbacks[0].request_id, "req-1");
 });
+
+test("POST /v1/voice-feedback does not leak raw_utterance, comment, or metadata to console logs", async () => {
+  const db = createMockDb();
+  const env = {
+    FEEDBACK_TOKEN: "secret-token",
+    AI_RADIO_FEEDBACK_DB: db,
+    PODCAST_FEED_URL: "https://example.test/podcast.xml",
+  };
+
+  const originalLog = console.log;
+  const originalError = console.error;
+  const logged = [];
+  console.log = (...args) => logged.push(args.join(" "));
+  console.error = (...args) => logged.push(args.join(" "));
+
+  try {
+    const payload = {
+      request_id: "req-privacy-check",
+      raw_utterance: "極秘の発話内容が含まれるテスト発話です",
+      comment: "秘密のコメント本文",
+      metadata: { private_note: "個人識別情報" },
+    };
+
+    const req = new Request("https://example.test/v1/voice-feedback", {
+      method: "POST",
+      headers: {
+        authorization: "Bearer secret-token",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const res = await worker.fetch(req, env);
+    assert.equal(res.status, 201);
+
+    for (const line of logged) {
+      assert.doesNotMatch(line, /極秘の発話内容/);
+      assert.doesNotMatch(line, /秘密のコメント本文/);
+      assert.doesNotMatch(line, /個人識別情報/);
+    }
+  } finally {
+    console.log = originalLog;
+    console.error = originalError;
+  }
+});
+
+test("top-level request exception in fetch emits fixed ai_radio_feedback_request_failed without payload data", async () => {
+  const brokenDb = {
+    prepare() {
+      throw new Error("D1 connection lost");
+    },
+  };
+  const env = {
+    FEEDBACK_TOKEN: "secret-token",
+    AI_RADIO_FEEDBACK_DB: brokenDb,
+  };
+
+  const originalError = console.error;
+  const loggedErrors = [];
+  console.error = (...args) => loggedErrors.push(args.join(" "));
+
+  try {
+    const req = new Request("https://example.test/v1/voice-feedback", {
+      method: "POST",
+      headers: {
+        authorization: "Bearer secret-token",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        request_id: "req-err-check",
+        raw_utterance: "例外発生時の秘密発話",
+      }),
+    });
+
+    const res = await worker.fetch(req, env);
+    assert.equal(res.status, 500);
+    const body = await res.json();
+    assert.equal(body.ok, false);
+    assert.equal(body.error, "internal_error");
+
+    assert.equal(loggedErrors.length, 1);
+    assert.equal(loggedErrors[0], "ai_radio_feedback_request_failed");
+    assert.doesNotMatch(loggedErrors[0], /例外発生時の秘密発話/);
+  } finally {
+    console.error = originalError;
+  }
+});
+

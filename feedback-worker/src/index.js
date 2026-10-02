@@ -427,10 +427,22 @@ async function listRecentVoiceFeedbacks(request, env) {
   return json({ ok: true, feedbacks: result.results || [] });
 }
 
+export function formatDispatchErrorLog(result) {
+  const parts = [
+    "ai_radio_dispatch_failed",
+    "event=ai_radio_dispatch_failed",
+    "stage=github_dispatch",
+    `error_code=${result?.error || "unknown"}`,
+  ];
+  if (typeof result?.status === "number") {
+    parts.push(`status=${result.status}`);
+  }
+  return parts.join(" ");
+}
+
 export async function dispatchPodcastWorkflow(env, options = {}) {
   const token = env.GITHUB_DISPATCH_TOKEN;
   if (!token) {
-    console.error("GITHUB_DISPATCH_TOKEN is not configured");
     return { ok: false, error: "token_missing" };
   }
 
@@ -458,19 +470,13 @@ export async function dispatchPodcastWorkflow(env, options = {}) {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        `GitHub workflow dispatch failed (${response.status}): ${errorText}`,
-      );
-      return { ok: false, status: response.status, error: errorText };
+      return { ok: false, status: response.status, error: "github_dispatch_failed" };
     }
 
     console.log(`Successfully dispatched ${workflow} on ${repo} (${ref})`);
     return { ok: true, status: response.status };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "network_error";
-    console.error(`GitHub workflow dispatch network error: ${message}`);
-    return { ok: false, error: message };
+  } catch {
+    return { ok: false, error: "network_error" };
   }
 }
 
@@ -481,7 +487,7 @@ export default {
     );
     const result = await dispatchPodcastWorkflow(env);
     if (!result.ok) {
-      console.error("Cron podcast dispatch failed:", result);
+      console.error(formatDispatchErrorLog(result));
     }
   },
 

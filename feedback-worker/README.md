@@ -24,6 +24,13 @@ Apple WatchのSiriから起動する3本のショートカット向けに、`new
 
 `new` / `known`は公開RSSの最新回へ対応させます。`tried`はD1内で直近の`new`へ対応させ、候補がなければ記録しません。リクエスト再送は同一の`X-Idempotency-Key`で重複登録されません。
 
+## 定期実行（Cron）とテレメトリ
+
+- 毎日 19:17 UTC（04:17 JST）に Cron トリガーが発火し、GitHub Actions の `podcast.yml` を workflow dispatch します。
+- Cloudflare Workers Issues が有効化されており、GitHub dispatch 失敗（トークン欠落・GitHub API 4xx/5xx・ネットワーク障害等）は固定シグナル `ai_radio_dispatch_failed`（1障害 = 1イベント）として集約されます。
+- GitHub の raw response body、認証トークン、リクエスト本文、および voice feedback の発話本文（`raw_utterance`）等はテレメトリログへ出力されません。
+
+
 ## 初回セットアップ（2026-07-15完了）
 
 1. `npm install`
