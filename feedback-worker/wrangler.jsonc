@@ -4,7 +4,10 @@
   "main": "src/index.js",
   "compatibility_date": "2026-06-16",
   "observability": {
-    "enabled": true
+    "enabled": true,
+    "issues": {
+      "enabled": true
+    }
   },
   "vars": {
     "PODCAST_FEED_URL": "https://hachimarua.github.io/ai-podcast/podcast.xml",
