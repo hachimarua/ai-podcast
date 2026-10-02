@@ -168,7 +168,7 @@ SYSTEM_INSTRUCTION = """
    - 料理法: 概念の壁（何が難しかったか）とブレイクスルーの仕組みを対話で解き明かす（2〜3分程度）。日常の具体例や既存技術との対比を用い、車内でも直観的に構造が理解できるようにする。
 4. 【先端研究・基礎理論（Deep Research）】
    - 対象: 世界モデルの潜在空間復元、ロボットの技能探索、強化学習新手法などの学術論文。
-   - 料理法: Daily Briefでは原則扱わないか、直感的なエッセンス（何を可能にしたか）に絞る（1〜2分程度）。数式や学術的用語の羅列は避け、「これが将来エージェントやロボットにどう効くか」の文脈で語る。深く解剖すべきテーマは日曜の「AI実装ラボ」に回す。
+   - 料理法: 実開発への影響がまだ先で難解になりやすいため、Daily Briefでは原則としてメインテーマに選ばないでください。扱う場合も直感的なエッセンス（何を可能にしたか）の短報（60秒以内）にとどめます。深く解剖すべきテーマは日曜の「AI実装ラボ」に回します。
 
 【Notion復習メモの扱いとこじつけ防止（極めて重要）】
 - Notionの学習日記メモを、関連性の薄い最新ニュースに無理やり接着・こじつけないでください。
@@ -186,9 +186,11 @@ SYSTEM_INSTRUCTION = """
 【対話のダイナミクスと相づちの改善（極めて重要）】
 - 放送向けに整理された自然な会話とし、相手の発言を採点するような言い方から返答を始めないでください。「半分は正しい」「その認識で合っている」「そのとおり」といった判定口調を定型文として使わないでください。
 - 「そうですね」「なるほど」「確かに」などの汎用的な相づちは、台本全体で同じ語を繰り返さず、使う場合も直前の具体語を受けた内容を同じ文の中に続けてください。
-- 聞き手は、直前の説明から具体語を一つ拾い、短い言い換え、意外だった点、次に生じる疑問のいずれかで返してください。単なる同意だけの台詞は作らないでください。
+- キャスター（進行役）は十分な予備知識を持ってニュースを伝えます。事実の概要や背景の導入はキャスター自身も担当してください（解説者に「何が起きたか」を尋ねるだけの無知なインタビュアーにならないこと）。
+- 相手の説明を受けた後は、直前の具体語を拾いながら、視聴者目線での咀嚼・言い換え、実務への示唆を返して対話を前に進めてください。単なる同意だけの台詞は作らないでください。
+- 質問は「視聴者（IT知識の濃淡があるリスナー）の理解を助ける論点提起」として1テーマにつき1回程度にとどめ、質問攻めのインタビュー構造（Q→Aの連続）にしないでください。
 - 解説者が誤解を直すときは、正誤の割合を宣告せず、「ここは二つに分けて考えます」「ただ、軽量モデルが入る場合は事情が変わります」のように、論点や条件を直接示してください。同じ訂正の型を繰り返さないでください。
-- 各発話には、質問、言い換え、対比、具体例、話題転換のいずれか一つの役割を持たせ、前の発話を受けずに用意された定型文を差し込まないでください。
+- 各発話には、概要提示、論点提起、言い換え、対比、具体例、話題転換のいずれか一つの役割を持たせ、前の発話を受けずに用意された定型文を差し込まないでください。
 - 新しい技術や機能を手放しで絶賛せず、入力ソースで確認できる制限、コスト、適用しない条件も自然に会話へ含めてください。
 - 1つのセリフが長くなりすぎないように適度な長さ（2〜3文以内）にまとめ、読点（、）の過多や不自然な位置での区切りを避けて、音声合成で自然なテンポと間（ポーズ）が保たれるようにしてください。
 
@@ -398,12 +400,32 @@ def validate_dialogue_register(script: str, *, enforce: bool = True) -> dict:
     return result
 
 
-def validate_dialogue_roles(script: str, role_plan=None, *, enforce: bool = True) -> dict:
-    """Check the mechanical parts of the assigned role rotation.
+QUESTION_PATTERNS = (
+    re.compile(r"[？\?]"),
+    re.compile(
+        r"(でしょうか|ですか|何でしょう|何ですか|ありますか|言えますか|見えますか|なりますか|しますか|ですかね|のかな|のでしょうか|のか)[。！!]?$"
+    ),
+    re.compile(r"^(なぜ|何が|何を|どこが|どうして|どんな|どのように|いつ|誰が|どう)"),
+)
+
+
+def _is_question_utterance(text: str) -> bool:
+    """Check if an utterance is an inquiry rather than commentary/explanation."""
+    cleaned = str(text or "").strip()
+    if re.search(r"(おはよう|こんにちは|いってらっしゃい|また次回|お会いしましょう)", cleaned):
+        return False
+    return any(pattern.search(cleaned) for pattern in QUESTION_PATTERNS)
+
+
+def validate_dialogue_roles(
+    script: str, role_plan=None, *, enforce: bool = True, max_question_ratio: float = 0.60
+) -> dict:
+    """Check the mechanical parts of the assigned role rotation and dialogue dynamics.
 
     The model's semantic distinction between asking and explaining is reviewed
-    by the audio QA step.  This deterministic gate verifies that the requested
-    navigator opens the episode and that both assigned speakers are present.
+    by the audio QA step. This deterministic gate verifies that the requested
+    navigator opens the episode, that both assigned speakers are present,
+    and detects one-sided interview structures where one speaker questions excessively.
     """
     plan = _validated_dialogue_role_plan(role_plan) or dict(DEFAULT_DIALOGUE_ROLE_PLAN)
     lines = []
@@ -413,20 +435,47 @@ def validate_dialogue_roles(script: str, role_plan=None, *, enforce: bool = True
             lines.append((match.group(1), match.group(2).strip()))
 
     counts = {speaker: sum(item[0] == speaker for item in lines) for speaker in ROLE_LABELS}
+    questions = {
+        speaker: sum(item[0] == speaker and _is_question_utterance(item[1]) for item in lines)
+        for speaker in ROLE_LABELS
+    }
     first_speaker = lines[0][0] if lines else "unknown"
-    passed = bool(lines) and first_speaker == plan["navigator"] and all(
+    role_order_passed = bool(lines) and first_speaker == plan["navigator"] and all(
         counts[speaker] > 0 for speaker in ROLE_LABELS
     )
+
+    nav_count = counts[plan["navigator"]]
+    nav_q = questions[plan["navigator"]]
+    nav_ratio = round(nav_q / nav_count, 2) if nav_count else 0.0
+
+    exp_count = counts[plan["explainer"]]
+    exp_q = questions[plan["explainer"]]
+    exp_ratio = round(exp_q / exp_count, 2) if exp_count else 0.0
+
+    # 発話が6行以上あり、質問率が閾値以上かつ質問が4回以上ある場合は一方的インタビューと判定
+    interview_detected = nav_count >= 6 and nav_ratio >= max_question_ratio and nav_q >= 4
+    passed = role_order_passed and not interview_detected
+
     result = {
         "passed": passed,
         "dialogue_line_count": len(lines),
-        "navigator_line_count": counts[plan["navigator"]],
-        "explainer_line_count": counts[plan["explainer"]],
+        "navigator_line_count": nav_count,
+        "explainer_line_count": exp_count,
+        "navigator_question_count": nav_q,
+        "navigator_question_ratio": nav_ratio,
+        "explainer_question_count": exp_q,
+        "explainer_question_ratio": exp_ratio,
+        "interview_structure_detected": interview_detected,
         "first_speaker": first_speaker,
     }
-    if not passed and enforce:
+    if not role_order_passed and enforce:
         raise EpisodeFormatError(
             "generated dialogue does not follow the assigned navigator/explainer roles"
+        )
+    if interview_detected and enforce:
+        raise EpisodeFormatError(
+            f"generated dialogue fell into a one-sided interview structure "
+            f"({plan['navigator']} asked {nav_q}/{nav_count} questions, {nav_ratio*100:.0f}%)"
         )
     return result
 
@@ -771,8 +820,9 @@ def build_format_instruction(episode_format: str, spec: FormatSpec) -> str:
 【番組形式: Daily Brief】
 - 表示上の目安は{spec.duration_label}。生成中心は読み上げ約{target_minutes:g}分。台本文字数は{spec.prompt_character_min}〜{spec.prompt_character_max}文字を狙う。これは中心値であり、文字数を満たすための言い換え・反復・水増しは禁止する。
 - 冒頭は番組名「AI学習カーラジオ」を含む短い挨拶から入り、2発話以内でその日に最も価値の高い論点へ入る。
-- ニュース件数は固定しない。1件で十分なら1件だけ扱い、独立した重要ニュースが複数ある場合は、それぞれを十分説明できる限り複数件を扱ってよい。
-- 複数ニュースを扱う場合も均等に時間を分けず、「メイン1本を深く掘り、サブは短く事実を伝える（主ニュース＋短報）」というメリハリを基本とする。
+- ニュース件数は固定しない。メインニュースは、復習テーマとの関連が強いもの、大きく報道されているもの、実環境・開発運用に関係性が深いものを最優先で1件選び、深く掘り下げる。基礎研究や論文報告は実開発への影響が遠く難解になりやすいため、Daily Briefのメインには据えないこと。
+- メイン1本で十分な深さと文字数が得られる場合は、無理に他のニュースを取り上げず1本集中でじっくり噛み砕く（1本集中を推奨）。
+- サブニュースを扱う場合も最大1件とし、短く事実だけを伝える（複数ニュースの均等配分や3本並列解説は禁止）。サブニュースでは議論を広げず、事実の伝達とひとことの示唆で終える。
 - テーマの性質（速報／実務変更／概念解説／先端研究）に応じた深度調整を行い、軽いニュースを無理に哲学化したり、初歩Tipsを捏造したりしないこと。
 - 各ニュースは「何が起きたか」「なぜ重要か」「利用者・開発への意味または制約」のうち、入力ソースで確認できる要素を十分に説明する。件数を増やすための薄い紹介は禁止する。
 - 重要な情報を削って約{target_minutes:g}分へ押し込まない。情報量が多く聞く価値が続く場合は自然に長くしてよい。
@@ -809,8 +859,11 @@ def build_system_instruction(episode_format="daily", spec=None, role_plan=None):
         "【本日の役割割当】\n"
         f"- ナビゲーター: {role_plan['navigator']}\n"
         f"- 解説者: {role_plan['explainer']}\n"
-        "この割当はテーマに関係なく今回の台本全体で一貫して守ってください。"
-        "ナビゲーターが冒頭の挨拶と問いを置き、解説者が中心説明を担います。"
+        "この割当はテーマに関係なく今回の台本全体で一貫して守ってください。\n"
+        "二人は対等に内容を理解し、協力してリスナーへ伝える共同ホストです。\n"
+        "ナビゲーターは番組進行（挨拶・ニュース概要の提示・話題転換・締め）を担い、"
+        "解説者は技術的な背景や実務への深い洞察を担います。\n"
+        "一方だけが質問を繰り返すインタビュー構造は禁止します。\n"
         "次回の割当は今回の反対になるため、役割を自己判断で戻さないでください。"
     )
     return f"{SYSTEM_INSTRUCTION}\n\n{role_instruction}\n\n{active_instruction}\n\n{format_instruction}"
@@ -889,7 +942,12 @@ def build_prompt_content(
     else:
         content += "復習メモの代わりに、提供された最新ニュースから聞く価値の高いものを選び、採用した各ニュースの性質に応じて十分に説明してください。1件で十分なら1件だけで構いません。\n"
     if episode_format == "daily":
-        content += "ニュース件数は固定しません。複数扱う場合も均等配分せず、メイン1本を深く掘り、サブは短く事実を伝えるメリハリをつけてください。件数を埋めるための追加は禁止です。Tipsは必須ではありません。\n"
+        content += (
+            "ニュース件数は固定しません。復習テーマとの関連が強いもの、大きく報道されているもの、"
+            "実環境・開発運用に関係性が深いものをメインニュースとして1件選び、深く掘り下げてください。"
+            "メイン1本で規定文字数を十分に満たせる場合は、無理に他のニュースを取り上げる必要はありません（1本集中を推奨）。"
+            "サブニュースを扱う場合も最大1件とし、短く事実だけを伝えてください。件数を埋めるための追加は禁止です。基礎研究や論文報告はDailyのメインに据えないでください。Tipsは必須ではありません。\n"
+        )
     else:
         content += (
             "今週知る価値を基準に1〜2件を選び、各ニュースについて、今週なぜ重要か、背景、意味、制約を自然な会話で十分に説明してください。実装テーマに限定せず、1テーマ固定にもせず、重要事項を削って尺へ合わせないでください。手順や期待結果は入力ソースに根拠があり、実際に役立つ場合だけ含めてください。\n"
@@ -920,9 +978,9 @@ def build_prompt_content(
         content += (
             "直前の台本は会話品質ゲートを通過しませんでした。返答冒頭の定型表現だけでなく、"
             "ケンジとアミの敬語レベルが非対称になっていないかも修正してください。"
-            "今回の修復では両者をです・ます調に揃え、相手の発言を採点せず、"
-            "直前の具体語を受けた言い換え、疑問、対比のいずれかで各返答を最初から再構成してください。"
-            "同じ相づちや訂正の型を繰り返さないでください。\n"
+            "今回の修復では両者をです・ます調（丁寧調）に揃え、相手の発言を採点せず、"
+            "直前の具体語を受け止めながら、視聴者目線での咀嚼・言い換え、実務視点での解釈を加えて会話を前に進めてください。"
+            "一方だけが質問を繰り返すインタビュー構造は禁止します。質問は論点提起にとどめてください。\n"
         )
     if repetition_retry:
         content += (
