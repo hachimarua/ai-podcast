@@ -606,8 +606,14 @@ def select_news_for_broadcast(
             candidates.append(candidate)
 
     def sort_key(candidate):
+        is_review_match = candidate.get("_matched_for_review")
+        # 基礎研究（arXiv等）は実開発への影響が遠く難解になりやすいため、Dailyでは後方へ回す
+        is_research = (
+            candidate.get("evidence_role") == "research" or candidate.get("lane") == "research"
+        )
+        tier = 0 if is_review_match else (2 if is_research else 1)
         return (
-            0 if candidate["_matched_for_review"] else 1,
+            tier,
             recent_source_counts[candidate.get("source", "")],
             candidate["_candidate_index"],
         )

@@ -406,12 +406,19 @@ async def async_main():
         script_repetition = validate_script_repetition(script)
         placeholder_check = validate_no_placeholders(script)
         source_hedging = validate_source_hedging(script)
+        dialogue_roles = validate_dialogue_roles(script, dialogue_role_plan, enforce=False)
+        if dialogue_roles.get("interview_structure_detected"):
+            raise EpisodeFormatError(
+                f"one-sided interview structure ({dialogue_role_plan['navigator']} asked "
+                f"{dialogue_roles['navigator_question_count']}/{dialogue_roles['navigator_line_count']} questions)"
+            )
     except EpisodeFormatError as quality_error:
         if script_regenerations_used >= script_regeneration_limit:
             raise RuntimeError(
                 "Generated script failed the dialogue quality gate after the single "
                 "script-regeneration allowance was used"
             ) from quality_error
+        is_interview_error = "one-sided interview structure" in str(quality_error)
         is_repetition_error = "repetitive dialogue or looping content" in str(quality_error)
         is_placeholder_error = "unresolved template placeholders" in str(quality_error)
         is_hedging_error = "narrates missing source information" in str(quality_error)
@@ -421,6 +428,8 @@ async def async_main():
             retry_msg = "同じ話題や説明のループ・水増し"
         elif is_placeholder_error:
             retry_msg = "未置換のテンプレートプレースホルダー"
+        elif is_interview_error:
+            retry_msg = "一方的な質問攻め（インタビュー構造）"
         else:
             retry_msg = "定型的な応答または話者間の敬語レベル"
         print(
@@ -451,6 +460,7 @@ async def async_main():
                 f"Dialogue quality retry script is too similar to a recent episode ({retry_similarity:.2f})"
             ) from quality_error
         retry_length = validate_script_length(retry_script, format_spec)
+        retry_roles = validate_dialogue_roles(retry_script, dialogue_role_plan, enforce=False)
         retry_style = validate_dialogue_style(retry_script)
         retry_register = validate_dialogue_register(retry_script)
         retry_repetition = validate_script_repetition(retry_script)
@@ -460,6 +470,7 @@ async def async_main():
         generated_public_topic = retry_public_topic
         final_similarity = retry_similarity
         script_length = retry_length
+        dialogue_roles = retry_roles
         dialogue_style = retry_style
         dialogue_register = retry_register
         script_repetition = retry_repetition
