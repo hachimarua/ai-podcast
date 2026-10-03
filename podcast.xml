@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>AI実装ラボ｜ELYZAのAI自己改善研究とAutoSynthData、鍵になる評価設計</title>
+      <description>AI実装ラボ（5〜10分）｜テーマ: ELYZAのAI自己改善研究とAutoSynthData、鍵になる評価設計</description>
+      <pubDate>Sun, 04 Oct 2026 04:18:26 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261004_041826.mp3" length="3187677" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261004_041826.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>07:32</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜AstaBrief 8B、引用付き科学レポート向けモデルを公開</title>
       <description>Daily Brief（4〜6分）｜テーマ: AstaBrief 8B、引用付き科学レポート向けモデルを公開</description>
       <pubDate>Sat, 03 Oct 2026 04:18:06 +0900</pubDate>
