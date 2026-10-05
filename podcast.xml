@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜Instinct、未登録の友人も交えたAIグループチャットを発表</title>
+      <description>Daily Brief（4〜6分）｜テーマ: Instinct、未登録の友人も交えたAIグループチャットを発表</description>
+      <pubDate>Tue, 06 Oct 2026 04:29:51 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261006_042951.mp3" length="1796901" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261006_042951.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:03</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜個人向けGemini、無料で選べるモデルはFlash-Liteのみに</title>
       <description>Daily Brief（4〜6分）｜テーマ: 個人向けGemini、無料で選べるモデルはFlash-Liteのみに</description>
       <pubDate>Mon, 05 Oct 2026 04:18:34 +0900</pubDate>
