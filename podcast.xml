@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜サイバー攻撃は増えたのか、攻撃側のAI利用をどう捉えるか</title>
+      <description>Daily Brief（4〜6分）｜テーマ: サイバー攻撃は増えたのか、攻撃側のAI利用をどう捉えるか</description>
+      <pubDate>Fri, 09 Oct 2026 04:18:36 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261009_041836.mp3" length="2033661" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261009_041836.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:33</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜d1-3Bとd1-omni-600M公開、端末向け意思決定モデル</title>
       <description>Daily Brief（4〜6分）｜テーマ: d1-3Bとd1-omni-600M公開、端末向け意思決定モデル</description>
       <pubDate>Thu, 08 Oct 2026 04:20:33 +0900</pubDate>
