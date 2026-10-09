@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜Anthropic Cyber Mission発足、OSS Scannerが脆弱性報告を自動送信</title>
+      <description>Daily Brief（4〜6分）｜テーマ: Anthropic Cyber Mission発足、OSS Scannerが脆弱性報告を自動送信</description>
+      <pubDate>Sat, 10 Oct 2026 04:18:18 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261010_041818.mp3" length="1833333" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261010_041818.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:18</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜サイバー攻撃は増えたのか、攻撃側のAI利用をどう捉えるか</title>
       <description>Daily Brief（4〜6分）｜テーマ: サイバー攻撃は増えたのか、攻撃側のAI利用をどう捉えるか</description>
       <pubDate>Fri, 09 Oct 2026 04:18:36 +0900</pubDate>
