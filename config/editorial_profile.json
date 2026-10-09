@@ -41,8 +41,6 @@
   ],
   "editorial_preferences": [
     "implementation_first",
-    "evidence_required",
-    "constraints_required",
     "avoid_beginner_tips",
     "no_personal_profile_narration"
   ]
