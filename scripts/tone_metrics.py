@@ -15,9 +15,9 @@ from pathlib import Path
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "episode_scripts"
 
 PATTERNS = {
-    "区別": r"切り分け|分けて(考え|見|判断|記録|扱|捉え|整理)|区別|混同|混ぜ(ない|ず)|(は|とは)別(です|の話|物|もの|問題)|同じ[^。]{0,12}扱わない|と見なせない",
-    "否定の注釈": r"とは限りません|わけではありません|ではありません|言えません|断定(は|でき)|示していません|言っていません|分かりません|ではない|とは言えない",
-    "前向き": r"楽しみ|期待|気になり|面白|いいですね|便利になり|広がり|注目|わくわく|ワクワク",
+    # 区別の言い回しと、否定・注釈の言い回しをまとめて数える（2026-10-09 に拾う範囲を広げた）。
+    "区別・否定": r"切り分け|分け(て|る|たい|ず)|区別|混同|混ぜ(ない|ず)|別(です|の話|物|もの|問題|々)|同じ[^。]{0,12}扱わない|と見なせない|とは限りません|わけではありません|言えません|断定",
+    "前向き": r"楽しみ|期待|気になり|面白|いいですね|便利になり|助かり|心強|使えそう|試して|広がり|注目|わくわく|ワクワク",
 }
 
 
@@ -32,10 +32,11 @@ def main() -> int:
     parser.add_argument("--last", type=int, default=14, help="新しい順に何本見るか")
     args = parser.parse_args()
     files = sorted(SCRIPTS_DIR.glob("podcast_*.txt"))[-args.last:]
-    print(f"{'回':<10} {'行':>3} " + " ".join(f"{name:>6}" for name in PATTERNS))
+    print(f"{'回':<10} {'行':>3} " + " ".join(f"{name:>6}" for name in PATTERNS) + "  区別・否定の割合")
     for path in files:
         result = measure(path.read_text(encoding="utf-8"))
-        print(f"{path.stem[8:16]:<10} {result['lines']:>3} " + " ".join(f"{result[name]:>6}" for name in PATTERNS))
+        ratio = result["区別・否定"] / result["lines"] if result["lines"] else 0
+        print(f"{path.stem[8:16]:<10} {result['lines']:>3} " + " ".join(f"{result[name]:>6}" for name in PATTERNS) + f"  {ratio:.0%}")
     return 0
 
 
