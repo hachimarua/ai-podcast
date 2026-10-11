@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜ML-internでCPU動作の小型モデルを作成、評価して公開</title>
+      <description>Daily Brief（4〜6分）｜テーマ: ML-internでCPU動作の小型モデルを作成、評価して公開</description>
+      <pubDate>Mon, 12 Oct 2026 04:18:25 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261012_041825.mp3" length="2138757" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261012_041825.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:45</itunes:duration>
+    </item>
+    <item>
       <title>AI実装ラボ｜Sakana NamazuがEvidence Finderに採用、OpenAI安全性研究者の解雇で見解対立</title>
       <description>AI実装ラボ（5〜10分）｜テーマ: Sakana NamazuがEvidence Finderに採用、OpenAI安全性研究者の解雇で見解対立</description>
       <pubDate>Sun, 11 Oct 2026 04:18:21 +0900</pubDate>
