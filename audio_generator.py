@@ -10,6 +10,32 @@ import time
 import tempfile
 from mutagen.mp3 import MP3
 
+# -----------------------------------------------------------------------------
+# Microsoft Edge TTS 403 対策（上流 edge-tts PR #491 相当の暫定フォールバック）
+# 2026年10月より speech.platform.bing.com への旧 WebSocket が 403 で遮断されるため、
+# Edge の正規エンドポイント (api.msedgeservices.com) へ切り替える。
+# 上流ライブラリが更新された際は本パッチを安全に撤去可能。
+# -----------------------------------------------------------------------------
+def _apply_edge_tts_endpoint_patch():
+    try:
+        import edge_tts.communicate
+        import edge_tts.constants
+
+        legacy_host = "speech.platform.bing.com"
+        current_url = getattr(edge_tts.communicate, "WSS_URL", "")
+        if legacy_host in current_url:
+            trusted_token = getattr(edge_tts.constants, "TRUSTED_CLIENT_TOKEN", "6A5AA1D4EAFF4E9FB37E23D68491D6F4")
+            patched_url = (
+                "wss://api.msedgeservices.com/tts/cognitiveservices/websocket/v1"
+                f"?Ocp-Apim-Subscription-Key={trusted_token}"
+            )
+            edge_tts.communicate.WSS_URL = patched_url
+            edge_tts.constants.WSS_URL = patched_url
+    except Exception as e:
+        print(f"[Warning] Failed to apply edge-tts endpoint patch: {e}")
+
+_apply_edge_tts_endpoint_patch()
+
 # キャラクターと対応するEdgeニューラル音声の割り当て
 VOICE_MAP = {
     "ケンジ": "ja-JP-KeitaNeural",   # 男性ボイス
