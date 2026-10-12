@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜OpenAIがAI侵入事案を受け安全策を見直し、開発ペースの考え方を説明</title>
+      <description>Daily Brief（4〜6分）｜テーマ: OpenAIがAI侵入事案を受け安全策を見直し、開発ペースの考え方を説明</description>
+      <pubDate>Tue, 13 Oct 2026 08:48:10 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261013_084810.mp3" length="2051829" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261013_084810.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:36</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜ML-internでCPU動作の小型モデルを作成、評価して公開</title>
       <description>Daily Brief（4〜6分）｜テーマ: ML-internでCPU動作の小型モデルを作成、評価して公開</description>
       <pubDate>Mon, 12 Oct 2026 04:18:25 +0900</pubDate>
