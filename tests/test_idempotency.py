@@ -74,6 +74,43 @@ class TestIdempotency(unittest.TestCase):
         self.assertIn("skip=false", content)
         self.assertIn("target_date=2026-08-28", content)
 
+    def test_published_but_missing_or_empty_mp3(self):
+        self._create_manifest("podcast_20260828_062042.json", "2026-08-28", "published")
+        episodes_dir = Path(self.temp_dir.name) / "episodes"
+        episodes_dir.mkdir()
+        # MP3 file does not exist yet -> should return False
+        self.assertFalse(idempotency.is_today_episode_published(
+            self.manifests_dir, "2026-08-28", episodes_dir=episodes_dir
+        ))
+        # Empty MP3 file -> should return False
+        empty_mp3 = episodes_dir / "podcast_20260828_062042.mp3"
+        empty_mp3.write_bytes(b"")
+        self.assertFalse(idempotency.is_today_episode_published(
+            self.manifests_dir, "2026-08-28", episodes_dir=episodes_dir
+        ))
+        # Non-empty MP3 file -> should return True
+        empty_mp3.write_bytes(b"dummy mp3 data")
+        self.assertTrue(idempotency.is_today_episode_published(
+            self.manifests_dir, "2026-08-28", episodes_dir=episodes_dir
+        ))
+
+    def test_published_with_rss_feed_check(self):
+        self._create_manifest("podcast_20260828_062042.json", "2026-08-28", "published")
+        episodes_dir = Path(self.temp_dir.name) / "episodes"
+        episodes_dir.mkdir()
+        (episodes_dir / "podcast_20260828_062042.mp3").write_bytes(b"dummy")
+        feed_file = Path(self.temp_dir.name) / "podcast.xml"
+        # Feed file does not contain episode_id -> should return False
+        feed_file.write_text("<channel><item><title>Old</title></item></channel>", encoding="utf-8")
+        self.assertFalse(idempotency.is_today_episode_published(
+            self.manifests_dir, "2026-08-28", episodes_dir=episodes_dir, feed_path=feed_file
+        ))
+        # Feed file contains episode_id -> should return True
+        feed_file.write_text("<channel><item><guid>podcast_20260828_062042.mp3</guid></item></channel>", encoding="utf-8")
+        self.assertTrue(idempotency.is_today_episode_published(
+            self.manifests_dir, "2026-08-28", episodes_dir=episodes_dir, feed_path=feed_file
+        ))
+
 
 if __name__ == "__main__":
     unittest.main()

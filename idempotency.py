@@ -21,14 +21,25 @@ def get_jst_today_date() -> str:
 def is_today_episode_published(
     manifests_dir: Path | str = "episode_manifests",
     target_date: str | None = None,
+    episodes_dir: Path | str = "episodes",
+    feed_path: Path | str = "podcast.xml",
 ) -> bool:
-    """Check if an episode for the target JST date has already been published."""
+    """Check if an episode for the target JST date has already been published.
+
+    Verifies that:
+    1. A manifest exists with publish_status == 'published' for target_date.
+    2. The associated MP3 file exists in episodes_dir and is non-empty (if episodes_dir exists).
+    3. The episode is listed in the RSS feed (if feed_path exists).
+    """
     if target_date is None:
         target_date = get_jst_today_date()
 
     manifest_path = Path(manifests_dir)
     if not manifest_path.exists():
         return False
+
+    episodes_path = Path(episodes_dir)
+    feed_file = Path(feed_path)
 
     for json_file in manifest_path.glob("*.json"):
         try:
@@ -38,6 +49,22 @@ def is_today_episode_published(
                 data.get("broadcast_date") == target_date
                 and data.get("publish_status") == "published"
             ):
+                episode_id = data.get("episode_id") or json_file.stem
+                # Check MP3 existence if episodes directory exists
+                if episodes_path.exists():
+                    mp3_path = episodes_path / f"{episode_id}.mp3"
+                    if not (mp3_path.is_file() and mp3_path.stat().st_size > 0):
+                        continue
+
+                # Check RSS feed inclusion if feed file exists
+                if feed_file.is_file() and feed_file.stat().st_size > 0:
+                    try:
+                        content = feed_file.read_text(encoding="utf-8")
+                        if episode_id not in content:
+                            continue
+                    except OSError:
+                        pass
+
                 return True
         except (OSError, json.JSONDecodeError):
             continue
@@ -53,6 +80,16 @@ def main(argv: list[str] | None = None) -> int:
         help="Path to episode manifests directory",
     )
     parser.add_argument(
+        "--episodes-dir",
+        default="episodes",
+        help="Path to episodes directory",
+    )
+    parser.add_argument(
+        "--feed-path",
+        default="podcast.xml",
+        help="Path to podcast RSS feed XML file",
+    )
+    parser.add_argument(
         "--date",
         default=None,
         help="Target broadcast date in YYYY-MM-DD (defaults to JST today)",
@@ -65,7 +102,12 @@ def main(argv: list[str] | None = None) -> int:
 
     args = parser.parse_args(argv)
     target_date = args.date or get_jst_today_date()
-    already_published = is_today_episode_published(args.manifests_dir, target_date)
+    already_published = is_today_episode_published(
+        manifests_dir=args.manifests_dir,
+        target_date=target_date,
+        episodes_dir=args.episodes_dir,
+        feed_path=args.feed_path,
+    )
 
     skip_value = "true" if already_published else "false"
 
