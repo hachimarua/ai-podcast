@@ -480,14 +480,104 @@ export async function dispatchPodcastWorkflow(env, options = {}) {
   }
 }
 
+export const CRON_LOCK_TIMEOUT_MS = 10 * 60 * 1000;
+
+export function getJstDateString(date = new Date()) {
+  const jstDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+  return jstDate.toISOString().slice(0, 10);
+}
+
+export async function acquireCronDispatchLock(db, dispatchDate, now = new Date()) {
+  if (!db) return { acquired: true, reason: "no_db" };
+  const nowIso = now.toISOString();
+
+  try {
+    const result = await db
+      .prepare(
+        "INSERT INTO cron_dispatches (dispatch_date, status, dispatched_at, workflow_file) VALUES (?, 'in_progress', ?, 'podcast.yml')",
+      )
+      .bind(dispatchDate, nowIso)
+      .run();
+    if ((result.meta?.changes ?? 1) > 0) {
+      return { acquired: true };
+    }
+  } catch {
+    // Unique constraint violation or table lock
+  }
+
+  const existing = await db
+    .prepare("SELECT status, dispatched_at FROM cron_dispatches WHERE dispatch_date = ?")
+    .bind(dispatchDate)
+    .first();
+
+  if (!existing) {
+    return { acquired: false, reason: "unknown" };
+  }
+
+  if (existing.status === "completed") {
+    return { acquired: false, reason: "already_completed" };
+  }
+
+  if (existing.status === "in_progress") {
+    const dispatchedAtMs = new Date(existing.dispatched_at).getTime();
+    const elapsedMs = now.getTime() - dispatchedAtMs;
+    if (elapsedMs < CRON_LOCK_TIMEOUT_MS) {
+      return { acquired: false, reason: "lock_active" };
+    }
+  }
+
+  const updateResult = await db
+    .prepare(
+      "UPDATE cron_dispatches SET status = 'in_progress', dispatched_at = ?, error_message = NULL WHERE dispatch_date = ? AND status != 'completed'",
+    )
+    .bind(nowIso, dispatchDate)
+    .run();
+
+  if ((updateResult.meta?.changes ?? 0) > 0) {
+    return { acquired: true };
+  }
+
+  return { acquired: false, reason: "race_lost" };
+}
+
+export async function completeCronDispatchLock(db, dispatchDate, now = new Date()) {
+  if (!db) return;
+  await db
+    .prepare(
+      "UPDATE cron_dispatches SET status = 'completed', completed_at = ? WHERE dispatch_date = ?",
+    )
+    .bind(now.toISOString(), dispatchDate)
+    .run();
+}
+
+export async function failCronDispatchLock(db, dispatchDate, errorMsg = "") {
+  if (!db) return;
+  await db
+    .prepare(
+      "UPDATE cron_dispatches SET status = 'failed', error_message = ? WHERE dispatch_date = ?",
+    )
+    .bind(String(errorMsg).slice(0, 500), dispatchDate)
+    .run();
+}
+
 export default {
   async scheduled(event, env, ctx) {
     console.log(
       `Cron triggered: ${event.cron || "17 19 * * *"} at ${new Date().toISOString()}`,
     );
+    const dispatchDate = getJstDateString();
+    const lock = await acquireCronDispatchLock(env.AI_RADIO_FEEDBACK_DB, dispatchDate);
+    if (!lock.acquired) {
+      console.log(`Cron dispatch skipped for ${dispatchDate}: reason=${lock.reason}`);
+      return;
+    }
+
     const result = await dispatchPodcastWorkflow(env);
     if (!result.ok) {
+      await failCronDispatchLock(env.AI_RADIO_FEEDBACK_DB, dispatchDate, result.error);
       console.error(formatDispatchErrorLog(result));
+    } else {
+      await completeCronDispatchLock(env.AI_RADIO_FEEDBACK_DB, dispatchDate);
     }
   },
 
