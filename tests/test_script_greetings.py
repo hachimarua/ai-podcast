@@ -13,7 +13,7 @@ from script_generator import (
 class ScriptGreetingsTests(unittest.TestCase):
     def test_check_greetings_both_present(self):
         script = """
-ケンジ：おはようございます。AI学習カーラジオです。今日のテーマを整理します。
+ケンジ：おはようございます、ai podcastsです。今日のテーマを整理します。
 アミ：はい、最新の研究動向を見ていきましょう。
 ケンジ：今回は以上です。それでは、また次回。
 """
@@ -45,7 +45,7 @@ class ScriptGreetingsTests(unittest.TestCase):
 
     def test_no_double_addition_when_greetings_exist(self):
         script = """
-ケンジ：おはようございます。AI学習カーラジオです。今日のテーマを取り上げます。
+ケンジ：おはようございます、ai podcastsです。今日のテーマを取り上げます。
 アミ：よろしくお願いします。
 ケンジ：今回は以上です。それでは、また次回。
 """
@@ -75,13 +75,13 @@ class ScriptGreetingsTests(unittest.TestCase):
         self.assertFalse(info["closing_fallback_added"])
 
         lines = [line.strip() for line in result.splitlines() if line.strip()]
-        self.assertTrue(lines[0].startswith("アミ：おはようございます。AI学習カーラジオです。"))
+        self.assertTrue(lines[0].startswith("アミ：おはようございます、ai podcastsです。"))
         self.assertIn("規格パーサと音声生成", lines[0])
 
     def test_closing_fallback_alternates_speaker(self):
         # 最終話者がアミの場合、closing はケンジになる
         script = """
-ケンジ：おはようございます。AI学習カーラジオです。
+ケンジ：おはようございます、ai podcastsです。
 アミ：今日は新しい機能の使いどころを解説します。
 アミ：日々の業務に合わせて検証してみてください。
 """
@@ -103,7 +103,7 @@ class ScriptGreetingsTests(unittest.TestCase):
 
         # 最終話者がケンジの場合、closing はアミになる
         script_kenji_last = """
-アミ：おはようございます。AI学習カーラジオです。
+アミ：おはようございます、ai podcastsです。
 ケンジ：最後の一歩として、設定を確認しておきましょう。
 """
         result2, info2 = ensure_script_greetings(
@@ -133,7 +133,7 @@ class ScriptGreetingsTests(unittest.TestCase):
         self.assertTrue(info["closing_fallback_added"])
 
         lines = [line.strip() for line in result.splitlines() if line.strip()]
-        self.assertTrue(lines[0].startswith("ケンジ：おはようございます。AI学習カーラジオです。"))
+        self.assertTrue(lines[0].startswith("ケンジ：おはようございます、ai podcastsです。"))
         self.assertEqual(
             lines[-1],
             "ケンジ：今回は以上です。それではまた次回お会いしましょう。安全運転でいってらっしゃい。",
@@ -151,10 +151,47 @@ class ScriptGreetingsTests(unittest.TestCase):
         )
         lines = [line.strip() for line in result.splitlines() if line.strip()]
         self.assertEqual(lines[0], "【表示タイトル】イテレーションとAI監査")
-        self.assertTrue(lines[1].startswith("ケンジ：おはようございます。AI学習カーラジオです。"))
+        self.assertTrue(lines[1].startswith("ケンジ：おはようございます、ai podcastsです。"))
         self.assertEqual(
             lines[-1],
             "ケンジ：今回は以上です。それではまた次回お会いしましょう。安全運転でいってらっしゃい。",
+        )
+
+    def test_legacy_opening_is_corrected_without_changing_topic(self):
+        for speaker in ("ケンジ", "アミ"):
+            for opening in (
+                "AI学習カーラジオ、おはようございます。",
+                "aipodcast、おはようございます。",
+                "AI Podcasts、おはようございます。",
+                "おはようございます。AI学習カーラジオです。",
+            ):
+                with self.subTest(speaker=speaker, opening=opening):
+                    script = (
+                        f"【表示タイトル】AI開発の安全策\n"
+                        f"{speaker}：{opening}今日はAI開発の安全策を見ていきます。\n"
+                        "ケンジ：今回は以上です。それではまた次回。"
+                    )
+                    result, info = ensure_script_greetings(script)
+                    self.assertIn(
+                        f"{speaker}：おはようございます、ai podcastsです。"
+                        "今日はAI開発の安全策を見ていきます。",
+                        result,
+                    )
+                    self.assertTrue(result.startswith("【表示タイトル】AI開発の安全策\n"))
+                    self.assertFalse(info["opening_fallback_added"])
+                    self.assertFalse(info["closing_fallback_added"])
+                    self.assertEqual(ensure_script_greetings(result)[0], result)
+
+    def test_opening_correction_preserves_following_dialogue_line(self):
+        script = (
+            "アミ：aipodcast、おはようございます。\n"
+            "ケンジ：今回は以上です。それではまた次回。"
+        )
+        result, _ = ensure_script_greetings(script)
+        self.assertEqual(
+            result,
+            "アミ：おはようございます、ai podcastsです。\n"
+            "ケンジ：今回は以上です。それではまた次回。",
         )
 
     def test_empty_and_whitespace_safety(self):
@@ -187,7 +224,7 @@ class ScriptGreetingsTests(unittest.TestCase):
 
     def test_user_suggested_closing_phrase_recognized(self):
         script = """
-ケンジ：おはようございます。AI学習カーラジオです。
+ケンジ：おはようございます、ai podcastsです。
 アミ：今日のまとめです。
 ケンジ：今回は以上です。それではまた次回お会いしましょう。安全運転でいってらっしゃい。
 """
