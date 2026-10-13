@@ -137,7 +137,7 @@ def get_gemini_client():
 
 # ラジオ台本生成用システム命令
 SYSTEM_INSTRUCTION = """
-あなたは、毎朝の移動時間に聴く「AI学習カーラジオ」のプロの構成作家です。
+あなたは、毎朝の移動時間に聴く「ai podcasts」のプロの構成作家です。
 提供された「Notionの過去の学習日記」および「関連する最新のAIニュース」のみを情報源として使用し、
 車内で聞き流すのに最適な、日本語の対話型ラジオ台本を作成してください。
 
@@ -147,7 +147,7 @@ SYSTEM_INSTRUCTION = """
 ※話者名と音声は固定です。役割だけをローテーションし、ケンジとアミの人物名・音声を入れ替えないでください。
 
 【台本の構成ルール】
-1. オープニング（「AI学習カーラジオ」の番組名と短い挨拶から始め、本日のテーマや復習メモを紹介する。5〜10秒程度）
+1. オープニング（最初の台詞は必ず「おはようございます、ai podcastsです。」から始め、本日のテーマや復習メモを紹介する。挨拶を先に、番組名を後にする。5〜10秒程度）
 2. ニュース解説と復習（後述の「テーマの性質に応じた深度設計」に従い、軽重をつけて対話解説する。ニュースの単なる箇条書きやダイジェストは禁止）
 3. 実践・活用視点（番組用編集プロフィールの想定聴取者・関心領域に合わせ、実務やワークフローでの使いどころと、今後への期待を話す）
 4. エンディング（「今日何が分かったか」と「この先どうなりそうか」で短く振り返り、最後は「今回は以上です。それではまた次回お会いしましょう。安全運転でいってらっしゃい。」などの5〜10秒程度の短い挨拶で締めくくる。長いまとめや定型的な励ましは不要）
@@ -673,8 +673,11 @@ def validate_source_hedging(script: str, *, enforce: bool = True) -> dict:
     return result
 
 
+OPENING_GREETING = "おはようございます、ai podcastsです。"
+
 OPENING_GREETING_PATTERNS = (
     re.compile(r"おはよう(ございます)?"),
+    re.compile(r"ai\s*podcasts?", re.IGNORECASE),
     re.compile(r"こんにちは"),
     re.compile(r"こんばんは"),
     re.compile(r"(AI|エーアイ)(学習|ニュース|ポッドキャスト|カーラジオ|ラジオ)"),
@@ -738,6 +741,7 @@ def ensure_script_greetings(
 
     If either is missing, lightweight deterministic fallback utterances are
     added without triggering full regeneration or failing the pipeline.
+    Legacy program introductions are normalized to greeting before program name.
     """
     if not script:
         return script, {
@@ -766,18 +770,33 @@ def ensure_script_greetings(
 
     result_dialogue = dialogue.strip()
 
+    # Correct legacy introductions while preserving the speaker and topic.
+    # Limit this to the first utterance; whitespace must not consume newlines.
+    program_name = r"(?:AI学習カーラジオ|ai\s*podcasts?)"
+    separator = r"[、,。.!！ \t]*"
+    result_dialogue = re.sub(
+        rf"^((?:ケンジ|アミ)[ \t]*[:：][ \t]*)"
+        rf"(?:{program_name}(?:です)?{separator}おはようございます"
+        rf"|おはようございます{separator}{program_name}(?:です)?)"
+        rf"{separator}",
+        lambda match: f"{match.group(1)}{OPENING_GREETING}",
+        result_dialogue,
+        count=1,
+        flags=re.IGNORECASE,
+    )
+
     # Opening fallback
     if not opening_present:
         navigator = plan["navigator"]
         safe_topic = safe_public_text(topic, fallback="", max_length=50)
         if safe_topic and JAPANESE_CHARACTER_PATTERN.search(safe_topic):
             opening_text = (
-                f"{navigator}：おはようございます。AI学習カーラジオです。"
+                f"{navigator}：{OPENING_GREETING}"
                 f"今回は「{safe_topic}」について見ていきます。"
             )
         else:
             opening_text = (
-                f"{navigator}：おはようございます。AI学習カーラジオです。"
+                f"{navigator}：{OPENING_GREETING}"
                 "今回は最新のAI動向について見ていきます。"
             )
         result_dialogue = f"{opening_text}\n\n{result_dialogue}"
@@ -824,7 +843,7 @@ def build_format_instruction(episode_format: str, spec: FormatSpec) -> str:
         return f"""
 【番組形式: Daily Brief】
 - 表示上の目安は{spec.duration_label}。生成中心は読み上げ約{target_minutes:g}分。台本文字数は{spec.prompt_character_min}〜{spec.prompt_character_max}文字を狙う。これは中心値であり、文字数を満たすための言い換え・反復・水増しは禁止する。
-- 冒頭は番組名「AI学習カーラジオ」を含む短い挨拶から入り、2発話以内でその日に最も価値の高い論点へ入る。
+- 冒頭は必ず「おはようございます、ai podcastsです。」から入り、2発話以内でその日に最も価値の高い論点へ入る。
 - ニュース件数は固定しない。メインニュースは、復習テーマとの関連が強いもの、大きく報道されているもの、実環境・開発運用に関係性が深いものを最優先で1件選び、深く掘り下げる。基礎研究や論文報告は実開発への影響が遠く難解になりやすいため、Daily Briefのメインには据えないこと。
 - メイン1本で十分な深さと文字数が得られる場合は、無理に他のニュースを取り上げず1本集中でじっくり噛み砕く（1本集中を推奨）。
 - サブニュースを扱う場合も最大1件とし、短く事実だけを伝える（複数ニュースの均等配分や3本並列解説は禁止）。サブニュースでは議論を広げず、事実の伝達とひとことの示唆で終える。
@@ -838,7 +857,7 @@ def build_format_instruction(episode_format: str, spec: FormatSpec) -> str:
         return f"""
 【番組形式: Weekly AI Review】
 - 表示上の目安は{spec.duration_label}。生成中心は読み上げ約{target_minutes:g}分。台本文字数は{spec.prompt_character_min}〜{spec.prompt_character_max}文字を狙うが、尺合わせの反復・水増しは禁止する。
-- 冒頭は番組名を含む短い挨拶から始める。
+- 冒頭は必ず「おはようございます、ai podcastsです。」から始める。
 - 日曜はNotion復習から独立し、今週のAI界隈で「知らずに週を終えるのは惜しい」内容を編集して伝える。
 - 単なる薄いダイジェストの羅列は禁止。1〜2テーマに絞り込み、モデル、エージェント設計、アーキテクチャ統合、モデルルーティングとコスト管理、先端研究など、実践者が腰を据えて考えるべきテーマの構造・仕組み・運用を深く解剖する。
 - バイブコーディングや実装テーマに限定しない。モデル、エージェント、研究、サービス、デバイス、インフラ、重要な業界変化などを対象にできる。
@@ -936,7 +955,7 @@ def build_prompt_content(
     content += (
         f"上記の素材をもとに、テーマの性質に応じた深度調整を行い、{spec.display_name}の"
         "日本語対話台本を作成してください。"
-        "番組冒頭には短い開始挨拶（番組名と挨拶、5〜10秒程度）、最後には短い終了挨拶（例:『今回は以上です。それではまた次回お会いしましょう。安全運転でいってらっしゃい。』）を必ず含めてください。\n"
+        "番組冒頭は必ず『おはようございます、ai podcastsです。』で始め（挨拶を先に、番組名を後に、5〜10秒程度）、最後には短い終了挨拶（例:『今回は以上です。それではまた次回お会いしましょう。安全運転でいってらっしゃい。』）を必ず含めてください。\n"
     )
     if selected_terms:
         content += (
@@ -1153,7 +1172,7 @@ def generate_radio_script(
         navigator = role_plan["navigator"]
         explainer = role_plan["explainer"]
         preview = f"{PUBLIC_TITLE_PREFIX}AIの最新情報を実務につなげる考え方\n"
-        preview += f"{navigator}：皆さん、おはようございます！今日のナビゲーターです。\n"
+        preview += f"{navigator}：{OPENING_GREETING}今日のナビゲーターです。\n"
         preview += f"{explainer}：おはようございます。今日は提供された情報をもとに、背景と使いどころを解説します。\n"
         preview += f"{navigator}：まず、今回の情報で押さえるべき点を教えてください。\n"
         preview += f"{explainer}：確認できる事実を整理し、適用できる条件と注意点を分けて見ていきます。\n"
