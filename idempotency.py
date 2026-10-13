@@ -26,20 +26,32 @@ def is_today_episode_published(
 ) -> bool:
     """Check if an episode for the target JST date has already been published.
 
-    Verifies that:
-    1. A manifest exists with publish_status == 'published' for target_date.
-    2. The associated MP3 file exists in episodes_dir and is non-empty (if episodes_dir exists).
-    3. The episode is listed in the RSS feed (if feed_path exists).
+    Strict verification requirements:
+    1. A valid manifest exists with publish_status == 'published' for target_date.
+    2. The associated MP3 file strictly exists in episodes_dir and is non-empty (>0 bytes).
+    3. The RSS feed XML file strictly exists, is readable, and contains the episode_id.
+
+    All three artifacts must be present and verified. Partial failures (e.g., manifest only,
+    or audio synthesized but not archived/indexed in RSS) will return False so the pipeline
+    can safely heal and finish publishing.
     """
     if target_date is None:
         target_date = get_jst_today_date()
 
     manifest_path = Path(manifests_dir)
-    if not manifest_path.exists():
-        return False
-
     episodes_path = Path(episodes_dir)
     feed_file = Path(feed_path)
+
+    if not manifest_path.is_dir() or not episodes_path.is_dir() or not feed_file.is_file():
+        return False
+
+    if feed_file.stat().st_size == 0:
+        return False
+
+    try:
+        feed_content = feed_file.read_text(encoding="utf-8")
+    except OSError:
+        return False
 
     for json_file in manifest_path.glob("*.json"):
         try:
@@ -50,20 +62,15 @@ def is_today_episode_published(
                 and data.get("publish_status") == "published"
             ):
                 episode_id = data.get("episode_id") or json_file.stem
-                # Check MP3 existence if episodes directory exists
-                if episodes_path.exists():
-                    mp3_path = episodes_path / f"{episode_id}.mp3"
-                    if not (mp3_path.is_file() and mp3_path.stat().st_size > 0):
-                        continue
 
-                # Check RSS feed inclusion if feed file exists
-                if feed_file.is_file() and feed_file.stat().st_size > 0:
-                    try:
-                        content = feed_file.read_text(encoding="utf-8")
-                        if episode_id not in content:
-                            continue
-                    except OSError:
-                        pass
+                # 2. Strict MP3 existence and non-empty check
+                mp3_path = episodes_path / f"{episode_id}.mp3"
+                if not (mp3_path.is_file() and mp3_path.stat().st_size > 0):
+                    continue
+
+                # 3. Strict RSS feed inclusion check
+                if episode_id not in feed_content:
+                    continue
 
                 return True
         except (OSError, json.JSONDecodeError):

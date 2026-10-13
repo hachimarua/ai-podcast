@@ -267,11 +267,14 @@ test("worker.scheduled logs exactly 1 error signal on network error without secr
   }
 });
 
-function createMockD1() {
+function createMockD1(options = {}) {
   const store = new Map();
   return {
     _store: store,
     prepare(query) {
+      if (options.shouldThrowPrepare) {
+        throw new Error(options.throwMessage || "D1 connection failure");
+      }
       let bound = [];
       return {
         bind(...args) {
@@ -279,8 +282,11 @@ function createMockD1() {
           return this;
         },
         async run() {
+          if (options.shouldThrowRun) {
+            throw new Error(options.throwMessage || "D1 run failure");
+          }
           if (query.startsWith("INSERT INTO cron_dispatches")) {
-            const [dispatchDate, dispatchedAt] = bound;
+            const [dispatchDate, dispatchedAt, lockToken] = bound;
             if (store.has(dispatchDate)) {
               throw new Error("UNIQUE constraint failed: cron_dispatches.dispatch_date");
             }
@@ -289,14 +295,20 @@ function createMockD1() {
               status: "in_progress",
               dispatched_at: dispatchedAt,
               workflow_file: "podcast.yml",
+              lock_token: lockToken,
               error_message: null,
             });
             return { meta: { changes: 1 } };
           }
           if (query.startsWith("UPDATE cron_dispatches SET status = 'completed'")) {
-            const [completedAt, dispatchDate] = bound;
+            const completedAt = bound[0];
+            const dispatchDate = bound[1];
+            const lockToken = bound[2];
             const row = store.get(dispatchDate);
             if (row) {
+              if (lockToken && row.lock_token !== lockToken) {
+                return { meta: { changes: 0 } };
+              }
               row.status = "completed";
               row.completed_at = completedAt;
               return { meta: { changes: 1 } };
@@ -304,9 +316,14 @@ function createMockD1() {
             return { meta: { changes: 0 } };
           }
           if (query.startsWith("UPDATE cron_dispatches SET status = 'failed'")) {
-            const [errorMsg, dispatchDate] = bound;
+            const errorMsg = bound[0];
+            const dispatchDate = bound[1];
+            const lockToken = bound[2];
             const row = store.get(dispatchDate);
             if (row) {
+              if (lockToken && row.lock_token !== lockToken) {
+                return { meta: { changes: 0 } };
+              }
               row.status = "failed";
               row.error_message = errorMsg;
               return { meta: { changes: 1 } };
@@ -314,11 +331,17 @@ function createMockD1() {
             return { meta: { changes: 0 } };
           }
           if (query.startsWith("UPDATE cron_dispatches SET status = 'in_progress'")) {
-            const [dispatchedAt, dispatchDate] = bound;
+            // CAS update: bound = [nowIso, lockToken, dispatchDate, existing.status, existing.dispatched_at]
+            const [nowIso, lockToken, dispatchDate, expectedStatus, expectedDispatchedAt] = bound;
             const row = store.get(dispatchDate);
-            if (row && row.status !== "completed") {
+            if (
+              row &&
+              row.status === expectedStatus &&
+              row.dispatched_at === expectedDispatchedAt
+            ) {
               row.status = "in_progress";
-              row.dispatched_at = dispatchedAt;
+              row.dispatched_at = nowIso;
+              row.lock_token = lockToken;
               row.error_message = null;
               return { meta: { changes: 1 } };
             }
@@ -327,7 +350,10 @@ function createMockD1() {
           return { meta: { changes: 0 } };
         },
         async first() {
-          if (query.startsWith("SELECT status, dispatched_at FROM cron_dispatches")) {
+          if (options.shouldThrowFirst) {
+            throw new Error(options.throwMessage || "D1 read failure");
+          }
+          if (query.startsWith("SELECT status, dispatched_at, lock_token FROM cron_dispatches")) {
             const [dispatchDate] = bound;
             return store.get(dispatchDate) || null;
           }
@@ -357,9 +383,10 @@ test("acquireCronDispatchLock acquires lock on first call and blocks duplicate w
   const date = "2026-10-13";
   const now = new Date("2026-10-12T19:17:00.000Z");
 
-  // 1st call -> acquired
+  // 1st call -> acquired with lockToken
   const lock1 = await acquireCronDispatchLock(db, date, now);
   assert.equal(lock1.acquired, true);
+  assert.ok(lock1.lockToken, "must return lockToken");
 
   // 2nd call (3 seconds later) -> blocked (lock_active)
   const now2 = new Date(now.getTime() + 3000);
@@ -367,13 +394,35 @@ test("acquireCronDispatchLock acquires lock on first call and blocks duplicate w
   assert.equal(lock2.acquired, false);
   assert.equal(lock2.reason, "lock_active");
 
-  // Complete lock
-  await completeCronDispatchLock(db, date, now2);
+  // Complete lock using owner token
+  const completeRes = await completeCronDispatchLock(db, date, lock1.lockToken, now2);
+  assert.equal(completeRes.ok, true);
 
   // 3rd call after completion -> blocked (already_completed)
   const lock3 = await acquireCronDispatchLock(db, date, new Date(now.getTime() + 60000));
   assert.equal(lock3.acquired, false);
   assert.equal(lock3.reason, "already_completed");
+});
+
+test("completeCronDispatchLock rejects update when lockToken does not match", async () => {
+  const db = createMockD1();
+  const date = "2026-10-13";
+  const now = new Date("2026-10-12T19:17:00.000Z");
+
+  const lock = await acquireCronDispatchLock(db, date, now);
+  assert.equal(lock.acquired, true);
+
+  // Attempt complete with wrong token -> fails
+  const wrongRes = await completeCronDispatchLock(db, date, "wrong-token-1234", now);
+  assert.equal(wrongRes.ok, false);
+
+  // Attempt fail with wrong token -> fails
+  const wrongFailRes = await failCronDispatchLock(db, date, "wrong-token-1234", "err");
+  assert.equal(wrongFailRes.ok, false);
+
+  // Complete with valid token -> succeeds
+  const rightRes = await completeCronDispatchLock(db, date, lock.lockToken, now);
+  assert.equal(rightRes.ok, true);
 });
 
 test("acquireCronDispatchLock recovers after lock timeout (stale in_progress)", async () => {
@@ -388,6 +437,69 @@ test("acquireCronDispatchLock recovers after lock timeout (stale in_progress)", 
   const nowStale = new Date(now.getTime() + 11 * 60 * 1000);
   const lock2 = await acquireCronDispatchLock(db, date, nowStale);
   assert.equal(lock2.acquired, true);
+  assert.notEqual(lock2.lockToken, lock1.lockToken);
+});
+
+test("acquireCronDispatchLock CAS prevents concurrent duplicate takeovers of stale lock", async () => {
+  const db = createMockD1();
+  const date = "2026-10-13";
+  const now = new Date("2026-10-12T19:17:00.000Z");
+
+  // Initial acquire
+  const lock1 = await acquireCronDispatchLock(db, date, now);
+  assert.equal(lock1.acquired, true);
+
+  // 11 minutes later, two workers race simultaneously to take over the stale lock
+  const nowStale = new Date(now.getTime() + 11 * 60 * 1000);
+  const [race1, race2] = await Promise.all([
+    acquireCronDispatchLock(db, date, nowStale),
+    acquireCronDispatchLock(db, date, nowStale),
+  ]);
+
+  // Exactly one worker must acquire, and the other must be blocked
+  const acquiredCount = (race1.acquired ? 1 : 0) + (race2.acquired ? 1 : 0);
+  assert.equal(acquiredCount, 1, "exactly 1 worker should win the race");
+
+  const loser = race1.acquired ? race2 : race1;
+  assert.equal(loser.acquired, false);
+  assert.ok(
+    loser.reason === "race_lost" || loser.reason === "lock_active",
+    `loser reason must be race_lost or lock_active, got: ${loser.reason}`,
+  );
+});
+
+test("acquireCronDispatchLock returns race_lost when another worker updates row before CAS UPDATE", async () => {
+  const db = createMockD1();
+  const date = "2026-10-13";
+  const now = new Date("2026-10-12T19:17:00.000Z");
+
+  // First lock
+  await acquireCronDispatchLock(db, date, now);
+
+  // Simulate stale lock
+  const nowStale = new Date(now.getTime() + 11 * 60 * 1000);
+
+  // Interleaving simulation: right before UPDATE run, competitor updates the record
+  const originalPrepare = db.prepare.bind(db);
+  db.prepare = function (query) {
+    const stmt = originalPrepare(query);
+    if (query.startsWith("UPDATE cron_dispatches SET status = 'in_progress'")) {
+      const originalRun = stmt.run.bind(stmt);
+      stmt.run = async function () {
+        const row = db._store.get(date);
+        if (row) {
+          row.dispatched_at = new Date(nowStale.getTime() + 1000).toISOString();
+          row.lock_token = "competitor-token";
+        }
+        return originalRun();
+      };
+    }
+    return stmt;
+  };
+
+  const lock = await acquireCronDispatchLock(db, date, nowStale);
+  assert.equal(lock.acquired, false);
+  assert.equal(lock.reason, "race_lost");
 });
 
 test("acquireCronDispatchLock recovers after failed dispatch", async () => {
@@ -399,11 +511,75 @@ test("acquireCronDispatchLock recovers after failed dispatch", async () => {
   assert.equal(lock1.acquired, true);
 
   // Mark as failed
-  await failCronDispatchLock(db, date, "network_error");
+  await failCronDispatchLock(db, date, lock1.lockToken, "network_error");
 
   // Retry immediately -> should acquire
   const lock2 = await acquireCronDispatchLock(db, date, new Date(now.getTime() + 5000));
   assert.equal(lock2.acquired, true);
+});
+
+test("acquireCronDispatchLock handles D1 failure fail-closed with error log", async () => {
+  const originalError = console.error;
+  const loggedErrors = [];
+  console.error = (...args) => {
+    loggedErrors.push(args);
+  };
+
+  try {
+    // DB that throws fatal connection error on run
+    const failingDb = createMockD1({
+      shouldThrowRun: true,
+      throwMessage: "D1 storage service unavailable",
+    });
+
+    const result = await acquireCronDispatchLock(failingDb, "2026-10-13");
+    assert.equal(result.acquired, false);
+    assert.equal(result.reason, "db_error");
+
+    assert.equal(loggedErrors.length, 1);
+    const logStr = loggedErrors[0].join(" ");
+    assert.match(logStr, /^ai_radio_cron_db_error/);
+    assert.match(logStr, /D1 storage service unavailable/);
+  } finally {
+    console.error = originalError;
+  }
+});
+
+test("worker.scheduled fails closed without dispatching when D1 has an outage", async () => {
+  let dispatchCalls = 0;
+  const mockFetch = async () => {
+    dispatchCalls++;
+    return { ok: true, status: 204, text: async () => "" };
+  };
+
+  const originalFetch = globalThis.fetch;
+  const originalError = console.error;
+  const loggedErrors = [];
+  globalThis.fetch = mockFetch;
+  console.error = (...args) => {
+    loggedErrors.push(args);
+  };
+
+  try {
+    const failingDb = createMockD1({
+      shouldThrowRun: true,
+      throwMessage: "D1 completely down",
+    });
+
+    const env = {
+      AI_RADIO_FEEDBACK_DB: failingDb,
+      GITHUB_DISPATCH_TOKEN: "test-token",
+    };
+
+    await worker.scheduled({ cron: "17 19 * * *" }, env, {});
+
+    // Must NOT call dispatch
+    assert.equal(dispatchCalls, 0, "must fail-closed and skip dispatch during D1 outage");
+    assert.ok(loggedErrors.some((log) => log.join(" ").includes("ai_radio_cron_db_error")));
+  } finally {
+    globalThis.fetch = originalFetch;
+    console.error = originalError;
+  }
 });
 
 test("worker.scheduled skips duplicate dispatch when D1 lock is already held", async () => {
@@ -434,5 +610,6 @@ test("worker.scheduled skips duplicate dispatch when D1 lock is already held", a
     globalThis.fetch = originalFetch;
   }
 });
+
 
 
