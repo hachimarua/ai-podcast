@@ -490,74 +490,110 @@ export function getJstDateString(date = new Date()) {
 export async function acquireCronDispatchLock(db, dispatchDate, now = new Date()) {
   if (!db) return { acquired: true, reason: "no_db" };
   const nowIso = now.toISOString();
+  const lockToken = crypto.randomUUID();
 
   try {
-    const result = await db
+    let insertConflict = false;
+    try {
+      const result = await db
+        .prepare(
+          "INSERT INTO cron_dispatches (dispatch_date, status, dispatched_at, workflow_file, lock_token) VALUES (?, 'in_progress', ?, 'podcast.yml', ?)",
+        )
+        .bind(dispatchDate, nowIso, lockToken)
+        .run();
+      if ((result.meta?.changes ?? 1) > 0) {
+        return { acquired: true, lockToken };
+      }
+    } catch (err) {
+      const msg = String(err?.message || "");
+      if (
+        msg.includes("UNIQUE") ||
+        msg.includes("constraint") ||
+        msg.includes("already exists")
+      ) {
+        insertConflict = true;
+      } else {
+        console.error(`ai_radio_cron_db_error stage=acquire_insert error=${msg}`);
+        return { acquired: false, reason: "db_error" };
+      }
+    }
+
+    const existing = await db
       .prepare(
-        "INSERT INTO cron_dispatches (dispatch_date, status, dispatched_at, workflow_file) VALUES (?, 'in_progress', ?, 'podcast.yml')",
+        "SELECT status, dispatched_at, lock_token FROM cron_dispatches WHERE dispatch_date = ?",
       )
-      .bind(dispatchDate, nowIso)
+      .bind(dispatchDate)
+      .first();
+
+    if (!existing) {
+      return { acquired: false, reason: "not_found" };
+    }
+
+    if (existing.status === "completed") {
+      return { acquired: false, reason: "already_completed" };
+    }
+
+    if (existing.status === "in_progress") {
+      const dispatchedAtMs = new Date(existing.dispatched_at).getTime();
+      const elapsedMs = now.getTime() - dispatchedAtMs;
+      if (elapsedMs < CRON_LOCK_TIMEOUT_MS) {
+        return { acquired: false, reason: "lock_active" };
+      }
+    }
+
+    // CAS (Compare-And-Swap) update to prevent concurrent takeovers
+    const updateResult = await db
+      .prepare(
+        "UPDATE cron_dispatches SET status = 'in_progress', dispatched_at = ?, lock_token = ?, error_message = NULL WHERE dispatch_date = ? AND status = ? AND dispatched_at = ?",
+      )
+      .bind(nowIso, lockToken, dispatchDate, existing.status, existing.dispatched_at)
       .run();
-    if ((result.meta?.changes ?? 1) > 0) {
-      return { acquired: true };
+
+    if ((updateResult.meta?.changes ?? 0) > 0) {
+      return { acquired: true, lockToken };
     }
-  } catch {
-    // Unique constraint violation or table lock
+
+    return { acquired: false, reason: "race_lost" };
+  } catch (err) {
+    console.error(`ai_radio_cron_db_error stage=acquire_lock error=${err?.message || "unknown"}`);
+    return { acquired: false, reason: "db_error" };
   }
-
-  const existing = await db
-    .prepare("SELECT status, dispatched_at FROM cron_dispatches WHERE dispatch_date = ?")
-    .bind(dispatchDate)
-    .first();
-
-  if (!existing) {
-    return { acquired: false, reason: "unknown" };
-  }
-
-  if (existing.status === "completed") {
-    return { acquired: false, reason: "already_completed" };
-  }
-
-  if (existing.status === "in_progress") {
-    const dispatchedAtMs = new Date(existing.dispatched_at).getTime();
-    const elapsedMs = now.getTime() - dispatchedAtMs;
-    if (elapsedMs < CRON_LOCK_TIMEOUT_MS) {
-      return { acquired: false, reason: "lock_active" };
-    }
-  }
-
-  const updateResult = await db
-    .prepare(
-      "UPDATE cron_dispatches SET status = 'in_progress', dispatched_at = ?, error_message = NULL WHERE dispatch_date = ? AND status != 'completed'",
-    )
-    .bind(nowIso, dispatchDate)
-    .run();
-
-  if ((updateResult.meta?.changes ?? 0) > 0) {
-    return { acquired: true };
-  }
-
-  return { acquired: false, reason: "race_lost" };
 }
 
-export async function completeCronDispatchLock(db, dispatchDate, now = new Date()) {
-  if (!db) return;
-  await db
-    .prepare(
-      "UPDATE cron_dispatches SET status = 'completed', completed_at = ? WHERE dispatch_date = ?",
-    )
-    .bind(now.toISOString(), dispatchDate)
-    .run();
+export async function completeCronDispatchLock(db, dispatchDate, lockToken, now = new Date()) {
+  if (!db) return { ok: false, reason: "no_db" };
+  try {
+    const query = lockToken
+      ? "UPDATE cron_dispatches SET status = 'completed', completed_at = ? WHERE dispatch_date = ? AND lock_token = ?"
+      : "UPDATE cron_dispatches SET status = 'completed', completed_at = ? WHERE dispatch_date = ?";
+    const stmt = db.prepare(query);
+    const bound = lockToken
+      ? stmt.bind(now.toISOString(), dispatchDate, lockToken)
+      : stmt.bind(now.toISOString(), dispatchDate);
+    const res = await bound.run();
+    return { ok: (res.meta?.changes ?? 0) > 0 };
+  } catch (err) {
+    console.error(`ai_radio_cron_db_error stage=complete_lock error=${err?.message || "unknown"}`);
+    return { ok: false, reason: "db_error" };
+  }
 }
 
-export async function failCronDispatchLock(db, dispatchDate, errorMsg = "") {
-  if (!db) return;
-  await db
-    .prepare(
-      "UPDATE cron_dispatches SET status = 'failed', error_message = ? WHERE dispatch_date = ?",
-    )
-    .bind(String(errorMsg).slice(0, 500), dispatchDate)
-    .run();
+export async function failCronDispatchLock(db, dispatchDate, lockToken, errorMsg = "") {
+  if (!db) return { ok: false, reason: "no_db" };
+  try {
+    const query = lockToken
+      ? "UPDATE cron_dispatches SET status = 'failed', error_message = ? WHERE dispatch_date = ? AND lock_token = ?"
+      : "UPDATE cron_dispatches SET status = 'failed', error_message = ? WHERE dispatch_date = ?";
+    const stmt = db.prepare(query);
+    const bound = lockToken
+      ? stmt.bind(String(errorMsg).slice(0, 500), dispatchDate, lockToken)
+      : stmt.bind(String(errorMsg).slice(0, 500), dispatchDate);
+    const res = await bound.run();
+    return { ok: (res.meta?.changes ?? 0) > 0 };
+  } catch (err) {
+    console.error(`ai_radio_cron_db_error stage=fail_lock error=${err?.message || "unknown"}`);
+    return { ok: false, reason: "db_error" };
+  }
 }
 
 export default {
@@ -574,10 +610,19 @@ export default {
 
     const result = await dispatchPodcastWorkflow(env);
     if (!result.ok) {
-      await failCronDispatchLock(env.AI_RADIO_FEEDBACK_DB, dispatchDate, result.error);
+      await failCronDispatchLock(
+        env.AI_RADIO_FEEDBACK_DB,
+        dispatchDate,
+        lock.lockToken,
+        result.error,
+      );
       console.error(formatDispatchErrorLog(result));
     } else {
-      await completeCronDispatchLock(env.AI_RADIO_FEEDBACK_DB, dispatchDate);
+      await completeCronDispatchLock(
+        env.AI_RADIO_FEEDBACK_DB,
+        dispatchDate,
+        lock.lockToken,
+      );
     }
   },
 
