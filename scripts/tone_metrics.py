@@ -9,10 +9,12 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 from pathlib import Path
 
 SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "episode_scripts"
+MANIFESTS_DIR = Path(__file__).resolve().parent.parent / "episode_manifests"
 
 PATTERNS = {
     # 区別の言い回しと、否定・注釈の言い回しをまとめて数える（2026-10-09 に拾う範囲を広げた）。
@@ -27,16 +29,28 @@ def measure(text: str) -> dict:
     return {"lines": len(lines), **counts}
 
 
+def writer(stem: str) -> str:
+    """その回の台本を最終的に書いた台本AI。作り直しなら末尾に「(作り直し)」を付ける。"""
+    try:
+        manifest = json.loads((MANIFESTS_DIR / f"{stem}.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return "-"
+    generation = (manifest.get("deterministic_checks") or {}).get("script_generation") or {}
+    final = next((c for c in reversed(generation.get("calls") or []) if c.get("succeeded")), {})
+    provider = final.get("provider") or generation.get("provider") or "-"
+    return provider + ("(作り直し)" if final.get("purpose") == "repair" else "")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--last", type=int, default=14, help="新しい順に何本見るか")
     args = parser.parse_args()
     files = sorted(SCRIPTS_DIR.glob("podcast_*.txt"))[-args.last:]
-    print(f"{'回':<10} {'行':>3} " + " ".join(f"{name:>6}" for name in PATTERNS) + "  区別・否定の割合")
+    print(f"{'回':<10} {'行':>3} " + " ".join(f"{name:>6}" for name in PATTERNS) + "  区別・否定の割合  書いたAI")
     for path in files:
         result = measure(path.read_text(encoding="utf-8"))
         ratio = result["区別・否定"] / result["lines"] if result["lines"] else 0
-        print(f"{path.stem[8:16]:<10} {result['lines']:>3} " + " ".join(f"{result[name]:>6}" for name in PATTERNS) + f"  {ratio:.0%}")
+        print(f"{path.stem[8:16]:<10} {result['lines']:>3} " + " ".join(f"{result[name]:>6}" for name in PATTERNS) + f"  {ratio:>6.0%}  {writer(path.stem)}")
     return 0
 
 

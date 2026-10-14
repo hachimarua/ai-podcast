@@ -121,10 +121,13 @@ jobs:
         BASE_URL: "https://hachimarua.github.io/ai-podcast"
         BGM_VOLUME: "0.30"
         ALLOW_MOCK_DATA: "false"
-        # 台本は OpenAI (gpt-6-sol) が書き、失敗した日は Gemini 3.7 Flash へ自動で切り替える。
-        # 音声監査は Gemini 3.6 Flash のままにして、書く側と聞く側を別ベンダーに分ける。
-        # SCRIPT_PROVIDER を "gemini" に戻せば、コード変更なしで従来構成に戻る。
-        SCRIPT_PROVIDER: "openai"
+        # 台本は Sarashina (sarashina3-mini・無償β) が書く。失敗した日と、品質ゲートに落ちた
+        # 後の作り直しは OpenAI (gpt-6-sol)、それも失敗したら Gemini 3.7 Flash へ自動で切り替える。
+        # 音声監査は Gemini のままにして、書く側と聞く側を別ベンダーに分ける。
+        # SCRIPT_PROVIDER を "openai" に戻せば、コード変更なしで 2026-10-14 までの構成に戻る。
+        SCRIPT_PROVIDER: "sarashina"
+        SARASHINA_API_KEY: ${{ secrets.SARASHINA_API_KEY }}
+        SARASHINA_SCRIPT_MODEL: "sarashina3-mini"
         # 記事本文を取りに行く。RSSのリード文だけでは素材が台本要求の1〜2割しかなく、
         # モデルは「記事には書かれていませんが」で尺を埋めるしかなくなる。
         # 取得に失敗した記事は自動でRSS要約へ戻る。"off" で従来動作へ切り戻せる。

@@ -47,7 +47,7 @@ PUBLIC_CHECK_KEYS = {
     "sample_repeated_pairs", "text_1", "text_2", "speaker_1", "speaker_2", "similarity",
     # 台本をどのプロバイダが書いたか。フォールバック回数を後から数えるための記録。
     "script_generation", "primary_provider", "provider", "model", "fallback_used",
-    "fallback_count", "fallback_reason", "calls", "succeeded", "attempts", "http_status",
+    "fallback_count", "fallback_reason", "calls", "purpose", "succeeded", "attempts", "http_status",
     "latency_ms", "input_tokens", "output_tokens", "reasoning_tokens", "total_tokens",
     "reasoning_effort",
     # モデルがフォーマット例の "[セリフ]" をそのまま書き写した事故の再発防止ゲート。
@@ -77,9 +77,14 @@ PUBLIC_CHECK_STRINGS = PUBLIC_NEWS_SOURCES | {
     "retry_budget_exhausted",
     "published_initial_script", "published_style_retry_script",
     "ケンジ", "アミ", "unknown",
-    "openai", "gemini", "mock",
+    "openai", "gemini", "sarashina", "mock",
+    # 台本の生成目的（初回か、品質ゲート後の作り直しか）。
+    "initial", "repair",
     "openai_unconfigured", "openai_quota", "openai_auth", "openai_bad_request",
     "openai_transient_exhausted", "openai_incomplete", "openai_empty_output", "openai_error",
+    # sarashina_script_client.ERROR_CATEGORIES と同じ閉じた語彙。
+    "sarashina_unconfigured", "sarashina_auth", "sarashina_unavailable", "sarashina_bad_request",
+    "sarashina_transient_exhausted", "sarashina_incomplete", "sarashina_empty_output", "sarashina_error",
     # openai_script_client.REASONING_EFFORTS と、モデルが受け付けなかった場合の記録。
     "minimal", "low", "medium", "high", "unsupported",
     # news_collector.ARTICLE_FETCH_STATUSES と同じ閉じた語彙。
@@ -87,7 +92,7 @@ PUBLIC_CHECK_STRINGS = PUBLIC_NEWS_SOURCES | {
     "budget_exhausted", "disabled",
 }
 # モデル名は列挙しきれないので形だけで許可する（自由文は通さない）。
-PUBLIC_MODEL_NAME = re.compile(r"(?:gpt|gemini)-[0-9a-z.\-]{1,40}")
+PUBLIC_MODEL_NAME = re.compile(r"(?:gpt|gemini|sarashina[0-9.]*)-[0-9a-z.\-]{1,40}")
 
 
 def safe_public_text(value: str, *, fallback: str, max_length: int) -> str:

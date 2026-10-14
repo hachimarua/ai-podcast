@@ -43,6 +43,7 @@ from episode_history import (
 from audio_quality import AudioQualityError, require_audio_quality
 from editorial_profile import get_approved_profile_version
 from openai_script_client import openai_script_model
+from sarashina_script_client import sarashina_script_model
 from episode_formats import (
     EpisodeFormatError,
     JST,
@@ -271,7 +272,12 @@ async def async_main():
     print("\n[Step 4] LLMを呼び出し、対話型ラジオ台本を生成しています...")
     model_name = normalize_gemini_model(os.getenv("GEMINI_MODEL_NAME"))
     reset_script_generation_log()
-    if script_provider() == "openai":
+    if script_provider() == "sarashina":
+        print(
+            f"台本プロバイダ: Sarashina ({sarashina_script_model()})"
+            f" / 予備・作り直し: OpenAI ({openai_script_model()}) → Gemini ({model_name})"
+        )
+    elif script_provider() == "openai":
         print(
             f"台本プロバイダ: OpenAI ({openai_script_model()})"
             f" / フォールバック: Gemini ({model_name})"
@@ -336,6 +342,8 @@ async def async_main():
             episode_format=episode_format,
             spec=format_spec,
             role_plan=dialogue_role_plan,
+            # 作り直しは他のゲートと同じく予備の台本AIへ回す（Sarashina を飛ばす）。
+            prefer_backup=True,
         )
         script, generated_public_topic, markers_removed = split_and_clean_script_output(raw_script)
         template_markers_removed += markers_removed

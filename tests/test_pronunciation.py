@@ -63,6 +63,14 @@ class OrderingTests(unittest.TestCase):
         self.assertEqual(apply_pronunciation_dict("GitHub"), "ギットハブ")
         self.assertEqual(apply_pronunciation_dict("SQL"), "エスキューエル")
 
+    def test_program_name_is_read_as_podcast(self):
+        # 英字のままだと「えーあい ぽどきゃすと」と読まれていた（2026-10-14）。
+        self.assertEqual(
+            apply_pronunciation_dict("おはようございます、ai podcastsです。"),
+            "おはようございます、エーアイ ポッドキャストです。",
+        )
+        self.assertEqual(apply_pronunciation_dict("AI Podcast"), "エーアイ ポッドキャスト")
+
     def test_aws_compound_names_precede_plain_amazon(self):
         cases = {
             "Amazon S3": "アマゾンエススリー",

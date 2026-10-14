@@ -238,6 +238,17 @@ class ScriptGreetingsTests(unittest.TestCase):
         lines = [line.strip() for line in result.splitlines() if line.strip()]
         self.assertEqual(len(lines), 3)
 
+    def test_unlabeled_opening_line_becomes_navigator_line(self):
+        # Sarashina は冒頭の挨拶を話者名なしで書くことがある（2026-10-14）。
+        script = "【表示タイトル】見出し\n\nおはようございます、ai podcastsです。  \n\nアミ：今日の本題です。\n\nケンジ：今回は以上です。それではまた次回お会いしましょう。"
+        result, info = ensure_script_greetings(
+            script, topic="見出し", role_plan={"navigator": "アミ", "explainer": "ケンジ"}
+        )
+        self.assertTrue(info["opening_present"])
+        self.assertFalse(info["opening_fallback_added"])
+        self.assertIn("アミ：おはようございます、ai podcastsです。\n", result)
+        self.assertEqual(result.count("おはようございます"), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
