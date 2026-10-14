@@ -4,6 +4,19 @@
 状態: **現役の運用HANDOFF。Phase 7〜10、Siriフィードバックの受付Worker・D1、3本のショートカットは実装済み。日次配信は継続中。対話設計を共同ホスト化へ改修し、メインニュース1本集中深掘りを重視（PR #47）。**
 
 
+## 2026-10-14 変更: 台本の主を Sarashina（無償β）にし、GPT-6 Sol を予備と作り直し役にした
+
+- **背景**: 同じ入力の比較試験と本人の聴取で、Sarashina3 mini の日本語が良いと判断（本人「けっこうよかった」）。無償βで費用がかからない。予定にない次回予告を作ることはあるが、内容の誤りではないので許容（本人判断）
+- **流れ**: 1回目は Sarashina → 失敗（混雑・鍵切れ・ベータ終了・空や途中切れの出力）なら GPT-6 Sol → それも失敗なら Gemini 3.7 Flash。品質ゲートに落ちたあとの作り直し（字数・会話の型・尺・繰り返し・素材外の注釈・過去回との重複）は Sarashina を飛ばして Sol から（本人決定。試験では Sarashina 3本中1本が定型相づちの3回使用で会話品質ゲートに落ちたため）
+- **Sarashina API の前提**（docs.sarashina.ai、2026-10-14 確認）: `max_completion_tokens` 最大8,000、未定義のフィールドは400、sarashina3-mini は毎分6回の固定窓で 429 に Retry-After なし（20秒・40秒待って計3回）、思考の設定なし。401/403/404 は待たずに Sol へ
+- **ファイル**: `sarashina_script_client.py`（新規）、`script_generator.py` の `SCRIPT_PROVIDER_CHAINS`、`main.py` の重複時の作り直しに `prefer_backup=True`。manifest の `script_generation.calls[]` に `purpose`（initial / repair）を記録。`scripts/tone_metrics.py` に「書いたAI」の列
+- **冒頭の挨拶**: Sarashina は挨拶を話者名なしの行で書くことがあり、音声化で捨てられていた。`ensure_script_greetings` が進行役の台詞に直す
+- **読み上げ**: 「ai podcasts」を Edge TTS が「えーあい ぽどきゃすと」と読むので、辞書で「エーアイ ポッドキャスト」に置き換える（本人指摘）
+- **鍵**: GitHub Secrets `SARASHINA_API_KEY`。手元は Keychain service `sarashina-api` / account `ai-podcast-canary`
+- **入力データ**: βでは入力が改善に使われる場合がある。送るのは公開記事と Notion の学習メモ（OpenAI もデータ共有ONで同条件）
+- **切り戻し**: `podcast.yml` の `SCRIPT_PROVIDER: "sarashina"` を `"openai"` にするだけ
+- **次の観察（〜10/21）**: Sarashina で出せた割合、Sol で作り直した回数、`tone_metrics.py --last 14` の口癖、聴取の感想
+
 ## 2026-10-14 変更: 台本AIへ渡す記事を長くし、背景知識の補足を許可した
 
 - **背景**: 10/14の回は主ニュース（ITmedia、Sarashina無償β）の本文が1,564字で、台本（約1,600字）とほぼ同じ長さだった。記事の事実を言い終えると話すことが残らず、「工程を分けて評価する」型の一般論で尺が埋まった（本人評価「具体性がない」）。Dailyでは記事を1本1,500字で切っていたため、候補にあった6,248字のTechCrunch記事も後半が渡っていなかった

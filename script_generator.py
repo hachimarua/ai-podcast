@@ -12,6 +12,7 @@ from episode_formats import EpisodeFormatError, FormatSpec, load_episode_formats
 from gemini_models import DEFAULT_GEMINI_MODEL, normalize_gemini_model
 from news_collector import validate_lab_sources
 from openai_script_client import generate_with_openai
+from sarashina_script_client import generate_with_sarashina
 
 # 環境変数の読み込み
 load_dotenv()
@@ -762,6 +763,14 @@ def ensure_script_greetings(
 
     plan = _validated_dialogue_role_plan(role_plan) or dict(DEFAULT_DIALOGUE_ROLE_PLAN)
     dialogue, title = split_generated_script_output(script)
+    # Sarashina は冒頭の挨拶を話者名なしの行で書くことがある。音声化では話者名のない行が
+    # 捨てられるので、その行を進行役の台詞にする（2026-10-14 実測）。
+    dialogue = re.sub(
+        r"\A(\s*)(?!(?:ケンジ|アミ)\s*[:：])([^\n]*おはようございます[^\n]*)",
+        lambda match: f"{match.group(1)}{plan['navigator']}：{match.group(2).strip()}",
+        dialogue,
+        count=1,
+    )
     lines = _dialogue_lines(dialogue)
     if not lines:
         return script, {
@@ -1048,7 +1057,14 @@ def build_prompt_content(
     
     return content
 
-SCRIPT_PROVIDERS = {"gemini", "openai"}
+SCRIPT_PROVIDERS = {"gemini", "openai", "sarashina"}
+# 主の台本AIごとに、Gemini の手前で試す順番。Gemini は常に最後の予備。
+SCRIPT_PROVIDER_CHAINS = {
+    "sarashina": ("sarashina", "openai"),
+    "openai": ("openai",),
+    "gemini": (),
+}
+PROVIDER_LABELS = {"sarashina": "Sarashina", "openai": "OpenAI", "gemini": "Gemini"}
 
 # 1回の実行で generate_radio_script() が呼ばれるたびに1件ずつ積む。
 # main.py がこれを manifest へ写し、フォールバックの回数を後から数えられるようにする。
@@ -1056,7 +1072,7 @@ SCRIPT_GENERATION_LOG: list[dict] = []
 
 
 def script_provider() -> str:
-    """Primary script provider. Anything but an explicit "openai" keeps Gemini."""
+    """Primary script provider. Anything unrecognised keeps Gemini."""
     value = (os.getenv("SCRIPT_PROVIDER") or "gemini").strip().lower()
     return value if value in SCRIPT_PROVIDERS else "gemini"
 
@@ -1081,7 +1097,7 @@ def script_generation_summary() -> dict:
 
 def _log_generation(entry: dict) -> None:
     keep = (
-        "provider", "model", "succeeded", "fallback_used", "fallback_reason",
+        "provider", "model", "purpose", "succeeded", "fallback_used", "fallback_reason",
         "attempts", "http_status", "latency_ms", "reasoning_effort",
         "input_tokens", "output_tokens", "reasoning_tokens", "total_tokens",
     )
@@ -1113,11 +1129,14 @@ def generate_radio_script(
     repetition_retry=False,
     hedging_retry=False,
     role_plan=None,
+    prefer_backup=False,
 ):
     """ラジオ台本を生成する。
 
-    ``SCRIPT_PROVIDER=openai`` のときは OpenAI を先に試し、失敗したら同じプロンプトで
-    Gemini に切り替える。戻り値は従来どおり台本文字列（失敗時は None）。
+    ``SCRIPT_PROVIDER`` の主から順に試し、失敗したら同じプロンプトで次へ切り替える
+    （sarashina → OpenAI → Gemini、openai → Gemini）。品質ゲート後の作り直し
+    （修復フラグ付き、または ``prefer_backup=True``）は Sarashina を飛ばす。
+    戻り値は従来どおり台本文字列（失敗時は None）。
     """
     spec = spec or _format_spec(episode_format)
     role_plan = _validated_dialogue_role_plan(role_plan) or dict(DEFAULT_DIALOGUE_ROLE_PLAN)
@@ -1158,17 +1177,28 @@ def generate_radio_script(
         role_plan=role_plan,
     )
 
+    purpose = "repair" if (repair_reasons or prefer_backup) else "initial"
+    chain = list(SCRIPT_PROVIDER_CHAINS[script_provider()])
+    if purpose == "repair" and chain[:1] == ["sarashina"]:
+        # Sarashina の台本が品質ゲートに落ちたあとの作り直しは、指示への追従が強い
+        # GPT-6 Sol に任せる（2026-10-14 本人決定）。同じモデルで2回落ちると配信が止まるため。
+        chain = chain[1:]
+
     fallback_reason = None
-    if script_provider() == "openai":
-        print("[Script] OpenAI で台本を生成します。", flush=True)
-        text, info = generate_with_openai(system_instruction, prompt)
+    for provider in chain:
+        label = PROVIDER_LABELS[provider]
+        print(f"[Script] {label} で台本を生成します（{purpose}）。", flush=True)
+        generate = generate_with_sarashina if provider == "sarashina" else generate_with_openai
+        text, info = generate(system_instruction, prompt)
         if text:
-            _log_generation({**info, "succeeded": True, "fallback_used": False})
+            _log_generation({**info, "succeeded": True, "purpose": purpose,
+                             "fallback_used": fallback_reason is not None,
+                             "fallback_reason": fallback_reason})
             return text
-        fallback_reason = info.get("error_category", "openai_error")
-        _log_generation({**info, "succeeded": False, "fallback_reason": fallback_reason})
+        fallback_reason = info.get("error_category", f"{provider}_error")
+        _log_generation({**info, "succeeded": False, "purpose": purpose, "fallback_reason": fallback_reason})
         print(
-            f"[Script Fallback] OpenAI が使えなかったため Gemini に切り替えます "
+            f"[Script Fallback] {label} が使えなかったため次の台本AIに切り替えます "
             f"(reason={fallback_reason})。",
             flush=True,
         )
@@ -1188,7 +1218,7 @@ def generate_radio_script(
         preview += f"{explainer}：その視点で、今日も無理なく学びを実務へつなげていきましょう。\n"
         preview += f"{navigator}：それでは、いってらっしゃい！"
         _log_generation({"provider": "mock", "model": "mock", "succeeded": True,
-                         "fallback_used": fallback_reason is not None,
+                         "fallback_used": fallback_reason is not None, "purpose": purpose,
                          "fallback_reason": fallback_reason})
         return preview
         
@@ -1217,6 +1247,7 @@ def generate_radio_script(
                 "attempts": attempt,
                 "latency_ms": int((time.monotonic() - started) * 1000),
                 "fallback_used": fallback_reason is not None,
+                "purpose": purpose,
                 "fallback_reason": fallback_reason,
                 **_gemini_usage(response),
             })
@@ -1253,6 +1284,7 @@ def generate_radio_script(
                 "attempts": attempt,
                 "http_status": status,
                 "fallback_used": fallback_reason is not None,
+                "purpose": purpose,
                 "fallback_reason": fallback_reason,
             })
             return None
