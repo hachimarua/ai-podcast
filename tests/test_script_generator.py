@@ -116,6 +116,25 @@ def test_normal_generation_does_not_add_repair_only_instruction():
     assert "単発の品質修復" not in prompt
 
 
+def test_daily_prompt_passes_article_body_up_to_source_limit():
+    # 2026-10-14: Daily で記事を1,500字に切っていたため、長い記事の後半が台本AIへ渡らなかった。
+    body = "あ" * 5000 + "末尾の事実" + "い" * 3000
+    news = {"source": "TechCrunch AI", "title": "t", "link": "https://techcrunch.com/x", "content": body}
+    prompt = script_generator.build_prompt_content([], [], [news])
+
+    assert "末尾の事実" in prompt
+    assert "い" * (script_generator.SOURCE_CHAR_LIMIT - 5005) in prompt
+    assert "い" * 3000 not in prompt
+
+
+def test_system_instruction_allows_background_knowledge_and_asks_for_specifics():
+    system = script_generator.build_system_instruction("daily")
+
+    assert "あなた自身の知識で補ってください" in system
+    assert "【番組の価値】" in system
+    assert "素材にある話題だけで番組を組み立てます" not in system
+
+
 def test_polite_register_is_consistent():
     script = """
 ケンジ：今日は新しい機能について確認します。
@@ -202,6 +221,8 @@ if __name__ == "__main__":
     test_style_retry_covers_register_length_and_repetition_guardrails()
     test_length_retry_also_covers_dialogue_quality_guardrails()
     test_normal_generation_does_not_add_repair_only_instruction()
+    test_daily_prompt_passes_article_body_up_to_source_limit()
+    test_system_instruction_allows_background_knowledge_and_asks_for_specifics()
     test_polite_register_is_consistent()
     test_casual_register_is_allowed_when_both_speakers_use_it()
     test_asymmetric_register_is_rejected()
