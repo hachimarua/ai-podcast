@@ -1,181 +1,57 @@
-name: Generate Daily AI Podcast
+name: Sarashina connection diagnosis
 
 on:
-  schedule:
-    # バックアップ定期実行: 毎朝 日本時間 4:27 (UTC 19:27)
-    # Primary は Cloudflare Worker Cron (04:17 JST)
-    - cron: '27 19 * * *'
-  workflow_dispatch: # 手動実行用
-    inputs:
-      force:
-        description: "今日分が生成・公開済みでも強制的に再生成する"
-        required: false
-        type: boolean
-        default: false
-      bootstrap_only:
-        description: "直近3放送のmanifest初期化だけを実行する"
-        required: false
-        type: boolean
-        default: false
-      qa_existing_only:
-        description: "最新の既存MP3にGemini音声監査だけを実行する"
-        required: false
-        type: boolean
-        default: false
-      phase10_trial:
-        description: "AI agentsテーマのLabをRSS非公開Artifactとして生成する"
-        required: false
-        type: boolean
-        default: false
-      weekly_lab_trial:
-        description: "最新の公式実装テーマを選ぶWeekly LabをRSS非公開Artifactとして生成する"
-        required: false
-        type: boolean
-        default: false
-
-concurrency:
-  group: daily-ai-podcast-${{ github.ref }}
-  cancel-in-progress: false
+  workflow_dispatch:
 
 permissions:
-  contents: write # リポジトリへのコミット＆プッシュ権限
+  contents: read
 
 jobs:
-  build-and-publish:
+  probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-
+    timeout-minutes: 3
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        ref: main
-        fetch-depth: 0
-
-    - name: Ensure latest main ref
-      run: |
-        git fetch origin main
-        git checkout -B main origin/main
-
-    - name: Install system dependencies (ffmpeg)
-      run: |
-        if ! command -v ffmpeg &> /dev/null; then
-          sudo sed -i 's/azure\.archive\.ubuntu\.com/archive\.ubuntu\.com/g' /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null || true
-          sudo apt-get update -o Acquire::Retries=3
-          sudo apt-get install -y --no-install-recommends ffmpeg
-        else
-          echo "ffmpeg is already installed; skipping apt-get."
-        fi
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-        cache: 'pip'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Check daily episode idempotency
-      id: check_idempotency
-      if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.force != true && inputs.bootstrap_only != true && inputs.qa_existing_only != true && inputs.phase10_trial != true && inputs.weekly_lab_trial != true) }}
-      run: |
-        python idempotency.py --github-output "$GITHUB_OUTPUT"
-
-    - name: Bootstrap recent episode history once
-      if: steps.check_idempotency.outputs.skip != 'true'
-      env:
-        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        # 音声監査は台本生成と分離したGemini 3.6 Flashで実行する。
-        GEMINI_AUDIO_QA_MODEL: "gemini-3.7-flash"
-      run: |
-        manifest_count=$(find episode_manifests -maxdepth 1 -name '*.json' | wc -l | tr -d ' ')
-        if [ "$manifest_count" -eq 0 ]; then
-          python bootstrap_episode_history.py --limit 3 --model "$GEMINI_AUDIO_QA_MODEL"
-        else
-          echo "Episode history already initialized; skipping bootstrap."
-        fi
-
-    - name: Process Notion Inbox
-      if: ${{ (steps.check_idempotency.outputs.skip != 'true') && (github.event_name != 'workflow_dispatch' || (inputs.bootstrap_only != true && inputs.qa_existing_only != true && inputs.phase10_trial != true && inputs.weekly_lab_trial != true)) }}
-      env:
-        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
-        NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
-        NOTION_INBOX_DATABASE_ID: ${{ secrets.NOTION_INBOX_DATABASE_ID }}
-        BASE_URL: "https://hachimarua.github.io/ai-podcast"
-        BGM_VOLUME: "0.30"
-        ALLOW_MOCK_DATA: "false"
-      run: |
-        python process_inbox.py
-
-    - name: Run Podcast Pipeline
-      if: ${{ (steps.check_idempotency.outputs.skip != 'true') && (github.event_name != 'workflow_dispatch' || (inputs.bootstrap_only != true && inputs.qa_existing_only != true)) }}
-      env:
-        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
-        NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
-        NOTION_INBOX_DATABASE_ID: ${{ secrets.NOTION_INBOX_DATABASE_ID }}
-        BASE_URL: "https://hachimarua.github.io/ai-podcast"
-        BGM_VOLUME: "0.30"
-        ALLOW_MOCK_DATA: "false"
-        # 台本は Sarashina (sarashina3-mini・無償β) が書く。失敗した日と、品質ゲートに落ちた
-        # 後の作り直しは OpenAI (gpt-6-sol)、それも失敗したら Gemini 3.7 Flash へ自動で切り替える。
-        # 音声監査は Gemini のままにして、書く側と聞く側を別ベンダーに分ける。
-        # SCRIPT_PROVIDER を "openai" に戻せば、コード変更なしで 2026-10-14 までの構成に戻る。
-        SCRIPT_PROVIDER: "sarashina"
-        SARASHINA_API_KEY: ${{ secrets.SARASHINA_API_KEY }}
-        SARASHINA_SCRIPT_MODEL: "sarashina3-mini"
-        # 記事本文を取りに行く。RSSのリード文だけでは素材が台本要求の1〜2割しかなく、
-        # モデルは「記事には書かれていませんが」で尺を埋めるしかなくなる。
-        # 取得に失敗した記事は自動でRSS要約へ戻る。"off" で従来動作へ切り戻せる。
-        ARTICLE_TEXT_FETCH: "on"
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        OPENAI_SCRIPT_MODEL: "gpt-6-sol"
-        GEMINI_MODEL_NAME: "gemini-3.7-flash"
-        GEMINI_AUDIO_QA_MODEL: "gemini-3.7-flash"
-        PHASE10_TRIAL_MODE: ${{ github.event_name == 'workflow_dispatch' && (inputs.phase10_trial == true || inputs.weekly_lab_trial == true) }}
-        PHASE10_TRIAL_ANCHOR: ${{ inputs.phase10_trial == true && 'ai_agents' || '' }}
-      run: |
-        python main.py
-
-    - name: Upload non-public Lab trial
-      if: ${{ (steps.check_idempotency.outputs.skip != 'true') && (github.event_name == 'workflow_dispatch' && (inputs.phase10_trial == true || inputs.weekly_lab_trial == true)) }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: non-public-lab-${{ github.run_id }}-${{ github.run_attempt }}
-        path: phase10_trials/
-        if-no-files-found: error
-        retention-days: 3
-
-    - name: Run Gemini QA against latest existing episode only
-      if: ${{ (steps.check_idempotency.outputs.skip != 'true') && (github.event_name == 'workflow_dispatch' && inputs.qa_existing_only == true) }}
-      env:
-        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        GEMINI_AUDIO_QA_MODEL: "gemini-3.7-flash"
-      run: |
-        latest_audio=$(find episodes -maxdepth 1 -name 'podcast_*.mp3' | sort | tail -1)
-        episode_id=$(basename "$latest_audio" .mp3)
-        broadcast_date=$(echo "$episode_id" | sed -E 's/podcast_([0-9]{4})([0-9]{2})([0-9]{2})_.*/\1-\2-\3/')
-        python gemini_audio_qa.py "$latest_audio" --episode-id "$episode_id" --broadcast-date "$broadcast_date"
-
-    - name: Commit and Push changes
-      if: ${{ (steps.check_idempotency.outputs.skip != 'true') && (github.event_name != 'workflow_dispatch' || (inputs.phase10_trial != true && inputs.weekly_lab_trial != true)) }}
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        
-        # 変更されたファイルをステージング
-        git add podcast.xml episodes/ episode_manifests/ episode_scripts/ quality_reports/
-        
-        # 変更がある場合のみコミット＆プッシュ
-        if ! git diff --cached --quiet; then
-          git commit -m "chore: Update daily podcast episode [skip ci]"
-          git fetch origin main
-          git rebase origin/main || { git rebase --abort; echo "Rebase conflict detected; aborting push safely."; exit 1; }
-          git push
-        else
-          echo "No new podcast generated or files modified."
-        fi
+      - name: Compare authenticated and unauthenticated responses
+        env:
+          SARASHINA_API_KEY: ${{ secrets.SARASHINA_API_KEY }}
+        shell: python
+        run: |
+          import json, os, urllib.request, urllib.error
+          from datetime import datetime, timezone
+          key = os.environ.get('SARASHINA_API_KEY', '')
+          print(json.dumps({'utc': datetime.now(timezone.utc).isoformat(),
+              'key_present': bool(key), 'key_has_surrounding_whitespace': key != key.strip()}))
+          body = json.dumps({'model': 'sarashina3-mini', 'max_completion_tokens': 16,
+              'messages': [{'role': 'system', 'content': '短く返答してください。'},
+              {'role': 'user', 'content': '接続確認です。「確認」とだけ答えてください。'}]}).encode()
+          for authenticated in (False, True):
+              if authenticated and not key:
+                  continue
+              headers = {'Content-Type': 'application/json'}
+              if authenticated:
+                  headers['Authorization'] = 'Bearer ' + key
+              request = urllib.request.Request('https://api.sarashina.ai/v1/chat/completions',
+                  data=body, headers=headers)
+              try:
+                  response = urllib.request.urlopen(request, timeout=25)
+              except urllib.error.HTTPError as error:
+                  response = error
+              except Exception as error:
+                  print(json.dumps({'authenticated': authenticated, 'transport_error': type(error).__name__}))
+                  continue
+              raw = response.read(32768).decode('utf-8', errors='replace')
+              result = {'authenticated': authenticated, 'status': response.status,
+                  'content_type': response.headers.get('Content-Type', '').split(';')[0],
+                  'cloudfront': 'cloudfront' in response.headers.get('Server', '').lower(),
+                  'cloudfront_country_block': 'configured to block access from your country' in raw.lower(),
+                  'cloudfront_request_blocked': 'request blocked' in raw.lower(),
+                  'json_response': False}
+              try:
+                  payload = json.loads(raw)
+                  result['json_response'] = True
+                  result['choices_present'] = bool(payload.get('choices'))
+                  result['unauthorized_message'] = payload.get('message') == 'Unauthorized'
+                  result['forbidden_message'] = payload.get('message') == 'Forbidden'
+              except (ValueError, AttributeError):
+                  pass
+              print(json.dumps(result))
