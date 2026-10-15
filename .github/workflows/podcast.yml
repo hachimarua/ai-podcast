@@ -121,20 +121,14 @@ jobs:
         BASE_URL: "https://hachimarua.github.io/ai-podcast"
         BGM_VOLUME: "0.30"
         ALLOW_MOCK_DATA: "false"
-        # 台本は Sarashina (sarashina3-mini・無償β) が書く。失敗した日と、品質ゲートに落ちた
-        # 後の作り直しは OpenAI (gpt-6-sol)、それも失敗したら Gemini 3.7 Flash へ自動で切り替える。
-        # 音声監査は Gemini のままにして、書く側と聞く側を別ベンダーに分ける。
-        # SCRIPT_PROVIDER を "openai" に戻せば、コード変更なしで 2026-10-14 までの構成に戻る。
-        SCRIPT_PROVIDER: "sarashina"
-        SARASHINA_API_KEY: ${{ secrets.SARASHINA_API_KEY }}
-        SARASHINA_SCRIPT_MODEL: "sarashina3-mini"
+        # 台本の初回生成と品質ゲート後の作り直しは Gemini 3.8 Flash を使う。
+        # Sarashina はクラウド接続が403になるため、Macでの文言検討用として保留する。
+        SCRIPT_PROVIDER: "gemini"
         # 記事本文を取りに行く。RSSのリード文だけでは素材が台本要求の1〜2割しかなく、
         # モデルは「記事には書かれていませんが」で尺を埋めるしかなくなる。
         # 取得に失敗した記事は自動でRSS要約へ戻る。"off" で従来動作へ切り戻せる。
         ARTICLE_TEXT_FETCH: "on"
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        OPENAI_SCRIPT_MODEL: "gpt-6-sol"
-        GEMINI_MODEL_NAME: "gemini-3.7-flash"
+        GEMINI_MODEL_NAME: "gemini-3.8-flash"
         GEMINI_AUDIO_QA_MODEL: "gemini-3.7-flash"
         PHASE10_TRIAL_MODE: ${{ github.event_name == 'workflow_dispatch' && (inputs.phase10_trial == true || inputs.weekly_lab_trial == true) }}
         PHASE10_TRIAL_ANCHOR: ${{ inputs.phase10_trial == true && 'ai_agents' || '' }}

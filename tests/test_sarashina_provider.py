@@ -196,6 +196,27 @@ class SarashinaProviderChainTests(unittest.TestCase):
         self.assertIn("openai", result)
         self.assertEqual(summary["primary_provider"], "openai")
 
+    def test_gemini38_handles_initial_and_repairs_without_other_providers(self):
+        for flags in ({}, {"style_retry": True}, {"prefer_backup": True}):
+            with self.subTest(flags=flags):
+                script_generator.reset_script_generation_log()
+                client = Mock()
+                client.models.generate_content.return_value = Mock(text="アミ：Geminiの台本", usage_metadata=None)
+                with (
+                    patch.dict(os.environ, {"SCRIPT_PROVIDER": "gemini"}, clear=False),
+                    patch.object(script_generator, "generate_with_sarashina") as sarashina,
+                    patch.object(script_generator, "generate_with_openai") as openai,
+                    patch.object(script_generator, "get_gemini_client", return_value=client),
+                ):
+                    text = script_generator.generate_radio_script([], _news(), [], **flags)
+                    summary = script_generator.script_generation_summary()
+                sarashina.assert_not_called()
+                openai.assert_not_called()
+                self.assertEqual(text, "アミ：Geminiの台本")
+                self.assertEqual(client.models.generate_content.call_args.kwargs["model"], "gemini-3.8-flash")
+                self.assertEqual(summary["provider"], "gemini")
+                self.assertEqual(summary["calls"][0]["purpose"], "initial" if not flags else "repair")
+
 
 class SarashinaManifestTests(unittest.TestCase):
     def test_error_categories_and_model_survive_public_projection(self):
@@ -215,8 +236,8 @@ class SarashinaManifestTests(unittest.TestCase):
         self.assertEqual(cleaned["calls"][1]["purpose"], "repair")
 
 
-class WorkflowSarashinaGuardTests(unittest.TestCase):
-    def test_pipeline_step_uses_sarashina_with_openai_backup(self):
+class WorkflowScriptSelectionTests(unittest.TestCase):
+    def test_pipeline_uses_gemini38_without_cloud_blocked_providers(self):
         path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                             ".github", "workflows", "podcast.yml")
         with open(path, encoding="utf-8") as handle:
@@ -225,9 +246,10 @@ class WorkflowSarashinaGuardTests(unittest.TestCase):
         end = content.find("\n    - name:", start)
         step = content[start: end if end != -1 else None]
 
-        self.assertIn('SCRIPT_PROVIDER: "sarashina"', step)
-        self.assertIn("SARASHINA_API_KEY: ${{ secrets.SARASHINA_API_KEY }}", step)
-        self.assertIn("OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}", step)
+        self.assertIn('SCRIPT_PROVIDER: "gemini"', step)
+        self.assertIn('GEMINI_MODEL_NAME: "gemini-3.8-flash"', step)
+        self.assertNotIn("SARASHINA_API_KEY:", step)
+        self.assertNotIn("OPENAI_API_KEY:", step)
 
 
 if __name__ == "__main__":
