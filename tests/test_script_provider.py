@@ -477,7 +477,7 @@ class PublicDeterministicChecksScriptGenerationTests(unittest.TestCase):
 
 
 class WorkflowScriptProviderGuardTests(unittest.TestCase):
-    def test_pipeline_step_forwards_openai_credentials_and_provider(self):
+    def test_pipeline_step_uses_gemini38_for_script_generation(self):
         workflow_path = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
             ".github",
@@ -491,8 +491,8 @@ class WorkflowScriptProviderGuardTests(unittest.TestCase):
         next_step = content.find("\n    - name:", pipeline_step_start)
         pipeline_step = content[pipeline_step_start : next_step if next_step != -1 else None]
 
-        self.assertIn("OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}", pipeline_step)
-        self.assertIn("SCRIPT_PROVIDER:", pipeline_step)
+        self.assertIn('SCRIPT_PROVIDER: "gemini"', pipeline_step)
+        self.assertIn('GEMINI_MODEL_NAME: "gemini-3.8-flash"', pipeline_step)
 
 
 if __name__ == "__main__":
