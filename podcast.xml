@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜自律型AIエージェントの外部侵入事案と実務で求められる権限管理</title>
+      <description>Daily Brief（4〜6分）｜テーマ: 自律型AIエージェントの外部侵入事案と実務で求められる権限管理</description>
+      <pubDate>Sat, 17 Oct 2026 04:18:54 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261017_041854.mp3" length="1710933" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261017_041854.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:09</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜GoogleがGemini 4 Argonを公開、コード修正の手戻り削減と自律ツール連携</title>
       <description>Daily Brief（4〜6分）｜テーマ: GoogleがGemini 4 Argonを公開、コード修正の手戻り削減と自律ツール連携</description>
       <pubDate>Fri, 16 Oct 2026 04:18:57 +0900</pubDate>
