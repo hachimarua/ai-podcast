@@ -1,0 +1,461 @@
+{
+  "audio_sha256": "aaac7762c0193be9cbf6e72eec9b6b343e1d7cadfb845f716ec808638ae3a9b1",
+  "broadcast_date": "2026-10-18",
+  "deterministic_checks": {
+    "article_fetch": {
+      "article_chars_total": 123190,
+      "attempted": 29,
+      "items": [
+        {
+          "article_chars": 1429,
+          "rss_chars": 108,
+          "source": "TechCrunch AI",
+          "status": "used"
+        },
+        {
+          "article_chars": 3800,
+          "rss_chars": 119,
+          "source": "TechCrunch AI",
+          "status": "used"
+        },
+        {
+          "article_chars": 5228,
+          "rss_chars": 161,
+          "source": "TechCrunch AI",
+          "status": "used"
+        },
+        {
+          "article_chars": 3282,
+          "rss_chars": 158,
+          "source": "TechCrunch AI",
+          "status": "used"
+        },
+        {
+          "article_chars": 8271,
+          "rss_chars": 116,
+          "source": "Google AI Blog",
+          "status": "used"
+        },
+        {
+          "article_chars": 4316,
+          "rss_chars": 100,
+          "source": "Google AI Blog",
+          "status": "used"
+        },
+        {
+          "article_chars": 10850,
+          "rss_chars": 55,
+          "source": "Google AI Blog",
+          "status": "used"
+        },
+        {
+          "article_chars": 932,
+          "rss_chars": 0,
+          "source": "Google AI Blog",
+          "status": "used"
+        },
+        {
+          "article_chars": 4627,
+          "rss_chars": 107,
+          "source": "Google AI Blog",
+          "status": "used"
+        },
+        {
+          "article_chars": 14757,
+          "rss_chars": 0,
+          "source": "Hugging Face Blog",
+          "status": "used"
+        },
+        {
+          "article_chars": 17551,
+          "rss_chars": 0,
+          "source": "Hugging Face Blog",
+          "status": "used"
+        },
+        {
+          "article_chars": 4091,
+          "rss_chars": 0,
+          "source": "Hugging Face Blog",
+          "status": "used"
+        },
+        {
+          "article_chars": 17822,
+          "rss_chars": 0,
+          "source": "Hugging Face Blog",
+          "status": "used"
+        },
+        {
+          "article_chars": 9778,
+          "rss_chars": 0,
+          "source": "Hugging Face Blog",
+          "status": "used"
+        },
+        {
+          "article_chars": 0,
+          "rss_chars": 1835,
+          "source": "arXiv cs.AI (Artificial Intelligence)",
+          "status": "body_not_needed"
+        },
+        {
+          "article_chars": 0,
+          "rss_chars": 1382,
+          "source": "arXiv cs.AI (Artificial Intelligence)",
+          "status": "body_not_needed"
+        },
+        {
+          "article_chars": 0,
+          "rss_chars": 1604,
+          "source": "arXiv cs.AI (Artificial Intelligence)",
+          "status": "body_not_needed"
+        },
+        {
+          "article_chars": 0,
+          "rss_chars": 1361,
+          "source": "arXiv cs.AI (Artificial Intelligence)",
+          "status": "body_not_needed"
+        },
+        {
+          "article_chars": 0,
+          "rss_chars": 1031,
+          "source": "arXiv cs.AI (Artificial Intelligence)",
+          "status": "body_not_needed"
+        },
+        {
+          "article_chars": 3083,
+          "rss_chars": 127,
+          "source": "ITmedia AI+",
+          "status": "used"
+        },
+        {
+          "article_chars": 3102,
+          "rss_chars": 124,
+          "source": "ITmedia AI+",
+          "status": "used"
+        },
+        {
+          "article_chars": 1567,
+          "rss_chars": 112,
+          "source": "ITmedia AI+",
+          "status": "used"
+        },
+        {
+          "article_chars": 2710,
+          "rss_chars": 287,
+          "source": "ITmedia AI+",
+          "status": "used"
+        },
+        {
+          "article_chars": 2068,
+          "rss_chars": 51,
+          "source": "ITmedia AI+",
+          "status": "used"
+        },
+        {
+          "article_chars": 632,
+          "rss_chars": 146,
+          "source": "AI Watch",
+          "status": "used"
+        },
+        {
+          "article_chars": 601,
+          "rss_chars": 88,
+          "source": "AI Watch",
+          "status": "used"
+        },
+        {
+          "article_chars": 927,
+          "rss_chars": 82,
+          "source": "AI Watch",
+          "status": "used"
+        },
+        {
+          "article_chars": 483,
+          "rss_chars": 124,
+          "source": "AI Watch",
+          "status": "used"
+        },
+        {
+          "article_chars": 1283,
+          "rss_chars": 152,
+          "source": "AI Watch",
+          "status": "used"
+        }
+      ],
+      "rss_chars_total": 9430,
+      "status_counts": {},
+      "used_count": 24
+    },
+    "audio_quality": {
+      "duration_headroom_seconds": 318.144,
+      "duration_seconds": 528.144,
+      "file_size_bytes": 3880461,
+      "issues": [],
+      "long_duration_warning": false,
+      "long_silence_ratio": 0.0,
+      "long_silence_seconds": 0,
+      "max_volume_db": -1.5,
+      "mean_volume_db": -17.9,
+      "passed": true,
+      "target_duration_seconds": 480.0,
+      "thresholds": {
+        "hard_max_duration_seconds": 1200.0,
+        "max_duration_seconds": 600.0,
+        "max_long_silence_ratio": 0.15,
+        "max_mean_volume_db": -10.0,
+        "max_peak_volume_db": -0.1,
+        "min_duration_seconds": 210.0,
+        "min_mean_volume_db": -28.0,
+        "silence_min_seconds": 2.0,
+        "silence_noise_db": -45.0,
+        "target_duration_seconds": 480.0
+      },
+      "warnings": []
+    },
+    "degradations": [],
+    "dialogue_role_check": {
+      "dialogue_line_count": 21,
+      "explainer_line_count": 10,
+      "first_speaker": "アミ",
+      "navigator_line_count": 11,
+      "passed": true
+    },
+    "dialogue_roles": {
+      "explainer": "ケンジ",
+      "navigator": "アミ"
+    },
+    "duplicate_threshold": 0.82,
+    "final_script_similarity": 0.0781,
+    "format_config_version": "formats-v10",
+    "greetings": {
+      "closing_fallback_added": false,
+      "closing_present": true,
+      "opening_fallback_added": false,
+      "opening_present": true
+    },
+    "initial_script_similarity": 0.0469,
+    "news_selection": {
+      "anchor_present": false,
+      "candidate_counts_by_source": {
+        "AI Watch": 5,
+        "Hugging Face Blog": 5,
+        "ITmedia AI+": 4,
+        "TechCrunch AI": 3,
+        "arXiv cs.AI (Artificial Intelligence)": 5
+      },
+      "evidence_roles": [
+        "reporting",
+        "reporting",
+        "reporting",
+        "official"
+      ],
+      "official_basis_present": true,
+      "selected": [
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "weekly_primary_candidate",
+          "source": "AI Watch"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "weekly_diverse_candidate",
+          "source": "TechCrunch AI"
+        },
+        {
+          "lane": "japan",
+          "matched_notion_terms": false,
+          "reason": "weekly_diverse_candidate",
+          "source": "ITmedia AI+"
+        },
+        {
+          "lane": "world",
+          "matched_notion_terms": false,
+          "reason": "weekly_diverse_candidate",
+          "source": "Hugging Face Blog"
+        }
+      ],
+      "selected_sources": [
+        "AI Watch",
+        "TechCrunch AI",
+        "ITmedia AI+",
+        "Hugging Face Blog"
+      ]
+    },
+    "placeholder_check": {
+      "dialogue_line_count": 21,
+      "passed": true,
+      "placeholder_count": 0
+    },
+    "recent_episode_count": 3,
+    "scheduled_format": "lab",
+    "script_generation": {
+      "calls": [
+        {
+          "attempts": 1,
+          "fallback_used": false,
+          "input_tokens": 10176,
+          "latency_ms": 56845,
+          "model": "gemini-3.8-flash",
+          "output_tokens": 1987,
+          "provider": "gemini",
+          "purpose": "initial",
+          "reasoning_tokens": 5434,
+          "succeeded": true,
+          "total_tokens": 17597
+        },
+        {
+          "attempts": 1,
+          "fallback_used": false,
+          "input_tokens": 10474,
+          "latency_ms": 45429,
+          "model": "gemini-3.8-flash",
+          "output_tokens": 1938,
+          "provider": "gemini",
+          "purpose": "repair",
+          "reasoning_tokens": 3234,
+          "succeeded": true,
+          "total_tokens": 15646
+        }
+      ],
+      "fallback_count": 0,
+      "fallback_used": false,
+      "model": "gemini-3.8-flash",
+      "primary_provider": "gemini",
+      "provider": "gemini"
+    },
+    "script_length": {
+      "character_count": 3557,
+      "hard_max": 8200,
+      "hard_min": 900,
+      "passed": true,
+      "target_max": 3500,
+      "target_min": 3000
+    },
+    "script_regenerations_used": 1,
+    "script_repetition": {
+      "dialogue_line_count": 21,
+      "max_allowed_repeated_pairs": 1,
+      "passed": true,
+      "repeated_utterance_pairs": 0,
+      "sample_repeated_pairs": []
+    },
+    "source_hedging": {
+      "dialogue_line_count": 21,
+      "hedge_line_count": 0,
+      "max_allowed_hedge_lines": 1,
+      "passed": true,
+      "sample_hedge_lines": []
+    },
+    "template_markers_removed": 0,
+    "used_news_only_fallback": false
+  },
+  "duration_seconds": 528,
+  "editorial_profile_version": "editorial-v1",
+  "episode_format": "lab",
+  "episode_id": "podcast_20261018_072551",
+  "gemini_qa_summary": {
+    "bgm_balance_score": 4,
+    "delivers_news": true,
+    "dialogue_naturalness_score": 3,
+    "has_internal_repetition": false,
+    "issues": [
+      {
+        "category": "pronunciation",
+        "severity": "info",
+        "timestamp": "02:42"
+      },
+      {
+        "category": "pronunciation",
+        "severity": "info",
+        "timestamp": "05:48"
+      }
+    ],
+    "overall_score": 4,
+    "pacing_score": 3,
+    "requires_human_review": false,
+    "speech_clarity_score": 4,
+    "status": "completed"
+  },
+  "generated_at": "2026-10-17T22:29:23.408609+00:00",
+  "news_urls": [
+    "https://ai.watch.impress.co.jp/docs/news/2148854.html",
+    "https://atmarkit.itmedia.co.jp/ait/articles/2610/17/news007.html",
+    "https://huggingface.co/blog/nvidia/scaling-indic-pretraining",
+    "https://techcrunch.com/2026/10/17/meta-removes-language-that-raised-scraping-and-ai-training-concerns/"
+  ],
+  "pipeline_version": "phase8",
+  "primary_topic": "2.8兆トークンの多言語データ生成手法と生命科学特化AIの統制",
+  "public_topic": "2.8兆トークンの多言語データ生成手法と生命科学特化AIの統制",
+  "publish_status": "published",
+  "schema_version": 1,
+  "script_minhash": [
+    529312987899883,
+    4283548154392171,
+    9361674907210845,
+    3056130039834925,
+    1605880008711477,
+    5082630134943987,
+    12142949138697531,
+    8496439761566292,
+    3278547786668599,
+    20210881622800455,
+    3967669317424698,
+    35272176965420446,
+    2276552427361438,
+    4902602048145097,
+    1429089445849674,
+    1162272532466894,
+    1434996821004021,
+    2551525862496864,
+    12031858055975416,
+    9929236796384081,
+    6337243376880093,
+    35620914968114089,
+    1112893032400007,
+    384932926923785,
+    5770578318078839,
+    27485931684745896,
+    1084299123908161,
+    9066271949933105,
+    15968524873149820,
+    4736123207973396,
+    2143570154572285,
+    1217971261182280,
+    4681462556842399,
+    1902593299406286,
+    5277447546549988,
+    27263378417375774,
+    1153805832457558,
+    10378104883701481,
+    10697947398112756,
+    11003260505574548,
+    5602281775951419,
+    2057477685576936,
+    12021433863564086,
+    9623940022784723,
+    91809558490044,
+    4207206142365392,
+    168258570875275,
+    16664826292403369,
+    13284205471570268,
+    216813722752005,
+    7337122223403345,
+    12685354396825049,
+    16452700231904871,
+    315360289699213,
+    12231218233700623,
+    2755451295049638,
+    8254414437293945,
+    7049113503306904,
+    413466616010721,
+    12604594993198370,
+    3628120300419758,
+    4229018177187934,
+    15556274441934983,
+    3726755170162151
+  ],
+  "script_sha256": "cd57fd61fdc9b0f0e4274b81728801e08f9e1fba79e8665615ecc3b73ed50e3f",
+  "selected_term_keys": [],
+  "topic_fingerprint": "ea5ef392f1b84a3829c1dd69"
+}

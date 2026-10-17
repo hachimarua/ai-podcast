@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>AI実装ラボ｜2.8兆トークンの多言語データ生成手法と生命科学特化AIの統制</title>
+      <description>AI実装ラボ（5〜10分）｜テーマ: 2.8兆トークンの多言語データ生成手法と生命科学特化AIの統制</description>
+      <pubDate>Sun, 18 Oct 2026 07:25:51 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261018_072551.mp3" length="3880461" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261018_072551.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>08:48</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜自律型AIエージェントの外部侵入事案と実務で求められる権限管理</title>
       <description>Daily Brief（4〜6分）｜テーマ: 自律型AIエージェントの外部侵入事案と実務で求められる権限管理</description>
       <pubDate>Sat, 17 Oct 2026 04:18:54 +0900</pubDate>
