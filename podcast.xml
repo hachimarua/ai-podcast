@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜ディズニーがCharacter.AIの人材を大量雇用へ、破産と安全管理の課題</title>
+      <description>Daily Brief（4〜6分）｜テーマ: ディズニーがCharacter.AIの人材を大量雇用へ、破産と安全管理の課題</description>
+      <pubDate>Mon, 19 Oct 2026 04:18:47 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261019_041847.mp3" length="1731981" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261019_041847.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:02</itunes:duration>
+    </item>
+    <item>
       <title>AI実装ラボ｜2.8兆トークンの多言語データ生成手法と生命科学特化AIの統制</title>
       <description>AI実装ラボ（5〜10分）｜テーマ: 2.8兆トークンの多言語データ生成手法と生命科学特化AIの統制</description>
       <pubDate>Sun, 18 Oct 2026 07:25:51 +0900</pubDate>
