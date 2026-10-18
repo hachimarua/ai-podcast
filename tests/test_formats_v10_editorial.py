@@ -143,6 +143,23 @@ class WeeklyEditorialV10Tests(unittest.TestCase):
         self.assertIn("officialソースは強い根拠として優先するが必須ではない", instruction)
         self.assertIn("番組内で出典の種類や信頼度を論評しないこと", instruction)
         self.assertIn("reportingやresearch", instruction)
+    def test_weekly_instruction_opening_and_skipping_memo_rule(self):
+        spec = episode_formats.load_episode_formats().formats["lab"]
+        instruction = script_generator.build_format_instruction("lab", spec)
+        self.assertIn("日曜日は約10分でじっくり解説", instruction)
+        self.assertIn("復習はお休み", instruction)
+        self.assertIn("台詞に含めないこと", instruction)
+
+        prompt_content = script_generator.build_prompt_content(
+            selected_terms=[],
+            matched_news=[],
+            general_news=[item("Google AI Blog", "Weekly story")],
+            episode_format="lab",
+            spec=spec,
+        )
+        self.assertIn("日曜日は約10分の特集解説のためNotion復習メモは扱いません", prompt_content)
+        self.assertIn("『復習メモはお休み』等と言及しないでください", prompt_content)
+        self.assertIn("『日曜日は約10分でじっくり解説』といった前置き", prompt_content)
 
 
 if __name__ == "__main__":
