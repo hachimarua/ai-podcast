@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜GoogleがTorchTPUを公開、PyTorchアプリのTPU移行を容易に</title>
+      <description>Daily Brief（4〜6分）｜テーマ: GoogleがTorchTPUを公開、PyTorchアプリのTPU移行を容易に</description>
+      <pubDate>Wed, 21 Oct 2026 04:19:01 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261021_041901.mp3" length="1762701" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261021_041901.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:14</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜AWS Trainiumをネイティブ対応させるTorchNeuronとGemini 4 Argon</title>
       <description>Daily Brief（4〜6分）｜テーマ: AWS Trainiumをネイティブ対応させるTorchNeuronとGemini 4 Argon</description>
       <pubDate>Tue, 20 Oct 2026 04:18:57 +0900</pubDate>
