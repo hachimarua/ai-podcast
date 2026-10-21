@@ -42,13 +42,15 @@ VOICE_MAP = {
     "アミ": "ja-JP-NanamiNeural"     # 女性ボイス
 }
 
-TTS_RETRY_DELAYS_SECONDS = (2,)
+TTS_RETRY_DELAYS_SECONDS = (3, 7, 15)
 
 
 def _is_transient_tts_error(exc):
     if isinstance(exc, TimeoutError):
         return True
     message = str(exc).lower()
+    if re.search(r"\b(429|500|502|503|504)\b", message):
+        return True
     return any(
         marker in message
         for marker in (
@@ -58,11 +60,8 @@ def _is_transient_tts_error(exc):
             "timed out",
             "timeout",
             "temporarily unavailable",
-            " 429",
-            " 500",
-            " 502",
-            " 503",
-            " 504",
+            "too many requests",
+            "invalid response status",
         )
     )
 
@@ -390,7 +389,7 @@ async def generate_line_audio(text, voice, output_path, speech_rate="+10%"):
             delay_seconds = TTS_RETRY_DELAYS_SECONDS[attempt - 1]
             print(
                 f"[TTS Retry] 一時的な音声合成エラーのため、"
-                f"{delay_seconds}秒後に再試行します ({attempt}/2): {exc}"
+                f"{delay_seconds}秒後に再試行します ({attempt}/{len(TTS_RETRY_DELAYS_SECONDS)}): {exc}"
             )
             await asyncio.sleep(delay_seconds)
     return False
@@ -470,6 +469,8 @@ async def synthesize_podcast(script_path, output_mp3_path, speech_rate="+10%"):
                 )
                 if success:
                     temp_files.append(temp_line_path)
+                    # 連続リクエストによるレートリミットを予防するため、ごく短い間隔を置く
+                    await asyncio.sleep(0.2)
 
             print("\n音声ファイルの結合処理を行っています...")
             temp_combined_path = os.path.join(temp_dir, "speech-combined.mp3")
