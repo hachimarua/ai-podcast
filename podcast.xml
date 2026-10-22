@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜1Password、AIにパスワードを渡さず代理ログインする新基盤を発表</title>
+      <description>Daily Brief（4〜6分）｜テーマ: 1Password、AIにパスワードを渡さず代理ログインする新基盤を発表</description>
+      <pubDate>Fri, 23 Oct 2026 04:18:54 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261023_041854.mp3" length="1900461" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261023_041854.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:16</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜NVIDIAがKumo Relational発表、DB予測をクエリ化する新モデル</title>
       <description>Daily Brief（4〜6分）｜テーマ: NVIDIAがKumo Relational発表、DB予測をクエリ化する新モデル</description>
       <pubDate>Thu, 22 Oct 2026 06:36:22 +0900</pubDate>
