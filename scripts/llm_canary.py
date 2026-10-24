@@ -380,7 +380,7 @@ def main() -> int:
     parser.add_argument("--openai-model", default=os.getenv("OPENAI_CANARY_MODEL"),
                         help="使用するOpenAIモデル。カンマ区切りで複数指定すると同じ入力で並走する"
                              "（未指定なら OPENAI_CANARY_MODEL）")
-    parser.add_argument("--gemini-model", default=os.getenv("GEMINI_MODEL_NAME", "gemini-3.7-flash"))
+    parser.add_argument("--gemini-model", default=os.getenv("GEMINI_MODEL_NAME", "gemini-3.8-flash"))
     parser.add_argument("--max-output-tokens", type=int, default=16000)
     parser.add_argument("--news-offset", type=int, default=0,
                         help="ニュース候補の先頭N件を捨ててから選ぶ。同日中に別題材で回すため")

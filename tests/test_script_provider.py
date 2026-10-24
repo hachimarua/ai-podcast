@@ -447,7 +447,7 @@ class PublicDeterministicChecksScriptGenerationTests(unittest.TestCase):
                 },
                 {
                     "provider": "gemini",
-                    "model": "gemini-3.7-flash",
+                    "model": "gemini-3.8-flash",
                     "succeeded": True,
                     "fallback_used": True,
                     "attempts": 1,
@@ -472,7 +472,7 @@ class PublicDeterministicChecksScriptGenerationTests(unittest.TestCase):
         self.assertNotIn("fallback_reason", sg["calls"][0])
         self.assertEqual(sg["calls"][0]["attempts"], 4)
         self.assertEqual(sg["calls"][0]["input_tokens"], 12)
-        self.assertEqual(sg["calls"][1]["model"], "gemini-3.7-flash")
+        self.assertEqual(sg["calls"][1]["model"], "gemini-3.8-flash")
         self.assertEqual(sg["calls"][1]["output_tokens"], 34)
 
 
