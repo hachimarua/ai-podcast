@@ -89,7 +89,7 @@ jobs:
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         # 音声監査は台本生成と分離したGemini 3.6 Flashで実行する。
-        GEMINI_AUDIO_QA_MODEL: "gemini-3.7-flash"
+        GEMINI_AUDIO_QA_MODEL: "gemini-3.8-flash"
       run: |
         manifest_count=$(find episode_manifests -maxdepth 1 -name '*.json' | wc -l | tr -d ' ')
         if [ "$manifest_count" -eq 0 ]; then
@@ -129,7 +129,7 @@ jobs:
         # 取得に失敗した記事は自動でRSS要約へ戻る。"off" で従来動作へ切り戻せる。
         ARTICLE_TEXT_FETCH: "on"
         GEMINI_MODEL_NAME: "gemini-3.8-flash"
-        GEMINI_AUDIO_QA_MODEL: "gemini-3.7-flash"
+        GEMINI_AUDIO_QA_MODEL: "gemini-3.8-flash"
         PHASE10_TRIAL_MODE: ${{ github.event_name == 'workflow_dispatch' && (inputs.phase10_trial == true || inputs.weekly_lab_trial == true) }}
         PHASE10_TRIAL_ANCHOR: ${{ inputs.phase10_trial == true && 'ai_agents' || '' }}
       run: |
@@ -148,7 +148,7 @@ jobs:
       if: ${{ (steps.check_idempotency.outputs.skip != 'true') && (github.event_name == 'workflow_dispatch' && inputs.qa_existing_only == true) }}
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        GEMINI_AUDIO_QA_MODEL: "gemini-3.7-flash"
+        GEMINI_AUDIO_QA_MODEL: "gemini-3.8-flash"
       run: |
         latest_audio=$(find episodes -maxdepth 1 -name 'podcast_*.mp3' | sort | tail -1)
         episode_id=$(basename "$latest_audio" .mp3)
