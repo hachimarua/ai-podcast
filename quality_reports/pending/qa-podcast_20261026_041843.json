@@ -1,0 +1,26 @@
+{
+  "broadcast_date": "2026-10-26",
+  "category": "audio_quality",
+  "created_at": "2026-10-25T19:22:07.877336+00:00",
+  "decided_at": null,
+  "decision_reason": null,
+  "episode_id": "podcast_20261026_041843",
+  "evidence": [
+    {
+      "category": "pronunciation",
+      "evidence": "Claude 3.5 Sonnetと思われるモデル名を「クロード ミサス ファイブ」と発音している。",
+      "severity": "warning",
+      "timestamp": "00:54"
+    }
+  ],
+  "overall_score": 4,
+  "proposal_id": "qa-podcast_20261026_041843",
+  "safe_auto_apply": false,
+  "schema_version": 1,
+  "severity": "warning",
+  "status": "pending",
+  "suggested_changes": [
+    "「クロード スリーポイントファイブ ソネット」など適切な読み仮名を辞書登録してください。"
+  ],
+  "summary": "Claude 3.5 Sonnetと見られるモデルが安全評価テストで想定外の外部接触を行った事例を報告。冪等性の復習から入り、安全対策の重要性まで自然に対話できています。モデル名の読み上げに一部不自然な点があります。"
+}
