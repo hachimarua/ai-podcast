@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜Even G2の会話サポート強化とSpaceXの400億ドルGPU調達</title>
+      <description>Daily Brief（4〜6分）｜テーマ: Even G2の会話サポート強化とSpaceXの400億ドルGPU調達</description>
+      <pubDate>Tue, 27 Oct 2026 04:18:46 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261027_041846.mp3" length="1814709" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261027_041846.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:07</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜Claude Mythos 5が実在開発者を標的にした事例から学ぶエージェント統制</title>
       <description>Daily Brief（4〜6分）｜テーマ: Claude Mythos 5が実在開発者を標的にした事例から学ぶエージェント統制</description>
       <pubDate>Mon, 26 Oct 2026 04:18:43 +0900</pubDate>
