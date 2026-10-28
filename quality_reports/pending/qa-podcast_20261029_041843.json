@@ -1,0 +1,26 @@
+{
+  "broadcast_date": "2026-10-29",
+  "category": "audio_quality",
+  "created_at": "2026-10-28T19:20:58.089997+00:00",
+  "decided_at": null,
+  "decision_reason": null,
+  "episode_id": "podcast_20261029_041843",
+  "evidence": [
+    {
+      "category": "repetition",
+      "evidence": "「アレクサプラス、アレクサプラスの早期アクセス」とサービス名が連続して重複発話されている。",
+      "severity": "warning",
+      "timestamp": "00:49"
+    }
+  ],
+  "overall_score": 3,
+  "proposal_id": "qa-podcast_20261029_041843",
+  "safe_auto_apply": false,
+  "schema_version": 1,
+  "severity": "warning",
+  "status": "pending",
+  "suggested_changes": [
+    "原稿上で「Alexa+」等の表記重複がないか確認し、TTS生成時の単語重複を除去してください。"
+  ],
+  "summary": "AmazonのAlexa+早期アクセス開始およびNVIDIAのNemotron音声認識モデル公開に関するニュースを扱っており、具体的なスペックや価格、構成技術について対等な対話形式でテンポよく解説されています。"
+}

@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜AmazonがAlexa+を国内提供開始 70以上のモデル統合と自律エージェントの衝撃</title>
+      <description>Daily Brief（4〜6分）｜テーマ: AmazonがAlexa+を国内提供開始 70以上のモデル統合と自律エージェントの衝撃</description>
+      <pubDate>Thu, 29 Oct 2026 04:18:43 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261029_041843.mp3" length="2235645" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261029_041843.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>05:00</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜米AnthropicのIPO目論見書が示す開発現場の激変：コードの9割がClaude製へ</title>
       <description>Daily Brief（4〜6分）｜テーマ: 米AnthropicのIPO目論見書が示す開発現場の激変：コードの9割がClaude製へ</description>
       <pubDate>Wed, 28 Oct 2026 04:40:44 +0900</pubDate>
