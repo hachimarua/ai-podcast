@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜AI学習拒否をrobots.txtで一括指定へ、主要各社が共通規格に対応</title>
+      <description>Daily Brief（4〜6分）｜テーマ: AI学習拒否をrobots.txtで一括指定へ、主要各社が共通規格に対応</description>
+      <pubDate>Mon, 02 Nov 2026 04:19:02 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261102_041902.mp3" length="2004692" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261102_041902.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:40</itunes:duration>
+    </item>
+    <item>
       <title>AI実装ラボ｜NVIDIAの巨額債務保証とClaude Enterpriseに見るAIの費用対効果</title>
       <description>AI実装ラボ（5〜10分）｜テーマ: NVIDIAの巨額債務保証とClaude Enterpriseに見るAIの費用対効果</description>
       <pubDate>Sun, 01 Nov 2026 04:18:38 +0900</pubDate>
