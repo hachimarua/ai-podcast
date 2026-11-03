@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜NetflixのAI Discoverタブに見る探索体験と推薦設計の転換</title>
+      <description>Daily Brief（4〜6分）｜テーマ: NetflixのAI Discoverタブに見る探索体験と推薦設計の転換</description>
+      <pubDate>Wed, 04 Nov 2026 04:19:54 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261104_041954.mp3" length="1848380" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261104_041954.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:29</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜42AIが人間の行動を予測する世界モデルを発表、6250万ドルを調達</title>
       <description>Daily Brief（4〜6分）｜テーマ: 42AIが人間の行動を予測する世界モデルを発表、6250万ドルを調達</description>
       <pubDate>Tue, 03 Nov 2026 04:18:46 +0900</pubDate>
