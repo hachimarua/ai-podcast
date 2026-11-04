@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜帳票から即座にJSONを抽出する2B特化モデル「Dharma Field Extractor」の衝撃</title>
+      <description>Daily Brief（4〜6分）｜テーマ: 帳票から即座にJSONを抽出する2B特化モデル「Dharma Field Extractor」の衝撃</description>
+      <pubDate>Thu, 05 Nov 2026 04:32:57 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261105_043257.mp3" length="1926164" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261105_043257.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:27</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜NetflixのAI Discoverタブに見る探索体験と推薦設計の転換</title>
       <description>Daily Brief（4〜6分）｜テーマ: NetflixのAI Discoverタブに見る探索体験と推薦設計の転換</description>
       <pubDate>Wed, 04 Nov 2026 04:19:54 +0900</pubDate>
