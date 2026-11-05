@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜OpenAIが示すCodex運用の鉄則、モデルの使い分けと自律開発の設計手法</title>
+      <description>Daily Brief（4〜6分）｜テーマ: OpenAIが示すCodex運用の鉄則、モデルの使い分けと自律開発の設計手法</description>
+      <pubDate>Fri, 06 Nov 2026 04:18:47 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261106_041847.mp3" length="1747292" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261106_041847.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>03:53</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜帳票から即座にJSONを抽出する2B特化モデル「Dharma Field Extractor」の衝撃</title>
       <description>Daily Brief（4〜6分）｜テーマ: 帳票から即座にJSONを抽出する2B特化モデル「Dharma Field Extractor」の衝撃</description>
       <pubDate>Thu, 05 Nov 2026 04:32:57 +0900</pubDate>
