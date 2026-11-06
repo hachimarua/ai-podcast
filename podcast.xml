@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜WOGOのHacadly AIに見る2D図面の3D化とCAD履歴再構築</title>
+      <description>Daily Brief（4〜6分）｜テーマ: WOGOのHacadly AIに見る2D図面の3D化とCAD履歴再構築</description>
+      <pubDate>Sat, 07 Nov 2026 04:18:52 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261107_041852.mp3" length="1997252" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261107_041852.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:37</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜OpenAIが示すCodex運用の鉄則、モデルの使い分けと自律開発の設計手法</title>
       <description>Daily Brief（4〜6分）｜テーマ: OpenAIが示すCodex運用の鉄則、モデルの使い分けと自律開発の設計手法</description>
       <pubDate>Fri, 06 Nov 2026 04:18:47 +0900</pubDate>
