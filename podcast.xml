@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>AI実装ラボ｜Google、動画生成AI「Gemini Omni 1.2 Flash」を一般提供 前モデルから30%値下げ、最大15秒に長尺化</title>
+      <description>AI実装ラボ（5〜10分）｜テーマ: Google、動画生成AI「Gemini Omni 1.2 Flash」を一般提供 前モデルから30%値下げ、最大15秒に長尺化</description>
+      <pubDate>Sun, 08 Nov 2026 04:18:49 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261108_041849.mp3" length="3875180" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261108_041849.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>08:58</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜WOGOのHacadly AIに見る2D図面の3D化とCAD履歴再構築</title>
       <description>Daily Brief（4〜6分）｜テーマ: WOGOのHacadly AIに見る2D図面の3D化とCAD履歴再構築</description>
       <pubDate>Sat, 07 Nov 2026 04:18:52 +0900</pubDate>
