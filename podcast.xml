@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜NTT-ATとオープン、AIとRPAを統合するハイブリッド自動化で連携</title>
+      <description>Daily Brief（4〜6分）｜テーマ: NTT-ATとオープン、AIとRPAを統合するハイブリッド自動化で連携</description>
+      <pubDate>Mon, 09 Nov 2026 04:18:45 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261109_041845.mp3" length="1805780" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261109_041845.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:08</itunes:duration>
+    </item>
+    <item>
       <title>AI実装ラボ｜Google、動画生成AI「Gemini Omni 1.2 Flash」を一般提供 前モデルから30%値下げ、最大15秒に長尺化</title>
       <description>AI実装ラボ（5〜10分）｜テーマ: Google、動画生成AI「Gemini Omni 1.2 Flash」を一般提供 前モデルから30%値下げ、最大15秒に長尺化</description>
       <pubDate>Sun, 08 Nov 2026 04:18:49 +0900</pubDate>
