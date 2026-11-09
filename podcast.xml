@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜エヌビディアとElith、日本の金融特化ペルソナ合成データを公開</title>
+      <description>Daily Brief（4〜6分）｜テーマ: エヌビディアとElith、日本の金融特化ペルソナ合成データを公開</description>
+      <pubDate>Tue, 10 Nov 2026 04:18:44 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261110_041844.mp3" length="1730156" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261110_041844.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:02</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜NTT-ATとオープン、AIとRPAを統合するハイブリッド自動化で連携</title>
       <description>Daily Brief（4〜6分）｜テーマ: NTT-ATとオープン、AIとRPAを統合するハイブリッド自動化で連携</description>
       <pubDate>Mon, 09 Nov 2026 04:18:45 +0900</pubDate>
