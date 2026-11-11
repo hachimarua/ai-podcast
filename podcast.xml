@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜0.8Bの超小型エージェントBotPsy、端末内ツール実行の学習法</title>
+      <description>Daily Brief（4〜6分）｜テーマ: 0.8Bの超小型エージェントBotPsy、端末内ツール実行の学習法</description>
+      <pubDate>Thu, 12 Nov 2026 04:18:56 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261112_041856.mp3" length="1905764" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261112_041856.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:24</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜OpenAIが旅行AIのOdessiaを買収、エージェント組織での開発手法に注目</title>
       <description>Daily Brief（4〜6分）｜テーマ: OpenAIが旅行AIのOdessiaを買収、エージェント組織での開発手法に注目</description>
       <pubDate>Wed, 11 Nov 2026 09:09:40 +0900</pubDate>
