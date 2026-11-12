@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜Nectarがクリエイター選定AIエージェントを発表、MCP連携も計画</title>
+      <description>Daily Brief（4〜6分）｜テーマ: Nectarがクリエイター選定AIエージェントを発表、MCP連携も計画</description>
+      <pubDate>Fri, 13 Nov 2026 04:18:59 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261113_041859.mp3" length="1856396" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261113_041859.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:09</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜0.8Bの超小型エージェントBotPsy、端末内ツール実行の学習法</title>
       <description>Daily Brief（4〜6分）｜テーマ: 0.8Bの超小型エージェントBotPsy、端末内ツール実行の学習法</description>
       <pubDate>Thu, 12 Nov 2026 04:18:56 +0900</pubDate>
