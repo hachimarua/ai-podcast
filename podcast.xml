@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜Google、1パスで高速判定するGemini Decisions APIを発表</title>
+      <description>Daily Brief（4〜6分）｜テーマ: Google、1パスで高速判定するGemini Decisions APIを発表</description>
+      <pubDate>Sat, 14 Nov 2026 04:19:21 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261114_041921.mp3" length="2041940" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261114_041921.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:43</itunes:duration>
+    </item>
+    <item>
       <title>Daily Brief｜Nectarがクリエイター選定AIエージェントを発表、MCP連携も計画</title>
       <description>Daily Brief（4〜6分）｜テーマ: Nectarがクリエイター選定AIエージェントを発表、MCP連携も計画</description>
       <pubDate>Fri, 13 Nov 2026 04:18:59 +0900</pubDate>
