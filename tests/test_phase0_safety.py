@@ -167,6 +167,9 @@ class WorkflowGuardTests(unittest.TestCase):
             workflow.count('GEMINI_AUDIO_QA_MODEL: "gemini-3.8-flash"'),
             3,
         )
+        self.assertIn("--pause-config config/auto_generation.json", workflow)
+        pause_cfg = json.loads(Path("config/auto_generation.json").read_text(encoding="utf-8"))
+        self.assertIsInstance(pause_cfg.get("paused"), bool)
 
 
 class PromptBoundaryTests(unittest.TestCase):
@@ -1534,6 +1537,96 @@ class AntigravityNotifierTests(unittest.TestCase):
             ),
             34200,
         )
+
+    def test_paused_auto_generation_skips_missing_notification_and_rechecks(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp) / "workspace"
+            (workspace / ".git").mkdir(parents=True)
+            (workspace / "config").mkdir(parents=True)
+            (workspace / "config" / "auto_generation.json").write_text(
+                json.dumps({"paused": True, "reason": "一時休止"}),
+                encoding="utf-8",
+            )
+            state_path = Path(tmp) / "state" / "notifier.json"
+            native_calls = []
+            with (
+                patch.object(
+                    antigravity_review_notifier,
+                    "fetch_latest_manifest",
+                    return_value=None,
+                ),
+                patch.object(
+                    antigravity_review_notifier,
+                    "_run",
+                    side_effect=antigravity_review_notifier.NotifierError("no git"),
+                ) as agentapi,
+            ):
+                created = antigravity_review_notifier.notify_daily_report(
+                    workspace,
+                    state_path,
+                    report_date="2026-07-16",
+                    native_notifier=lambda title, message: native_calls.append((title, message)),
+                )
+
+            self.assertEqual(created, 0)
+            self.assertEqual(native_calls, [])
+            agentapi.assert_called_once()
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+            self.assertEqual(state["daily_reports"]["paused:2026-07-16"]["verdict"], "休止中")
+            self.assertTrue(state["daily_reports"]["paused:2026-07-16"]["paused"])
+            self.assertFalse(
+                antigravity_sidecar_runner.same_day_audit_is_unsettled(
+                    state_path,
+                    datetime(2026, 7, 16, 12, 0).astimezone(),
+                )
+            )
+
+    def test_paused_auto_generation_still_audits_when_episode_exists(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp) / "workspace"
+            (workspace / ".git").mkdir(parents=True)
+            (workspace / "config").mkdir(parents=True)
+            (workspace / "config" / "auto_generation.json").write_text(
+                json.dumps({"paused": True, "reason": "一時休止"}),
+                encoding="utf-8",
+            )
+            state_path = Path(tmp) / "state" / "notifier.json"
+            manifest = self.sample_manifest()
+            with (
+                patch.object(
+                    antigravity_review_notifier,
+                    "fetch_latest_manifest",
+                    return_value=manifest,
+                ),
+                patch.object(
+                    antigravity_review_notifier,
+                    "fetch_pending_proposals",
+                    return_value=[],
+                ),
+                patch.object(
+                    antigravity_review_notifier,
+                    "check_feed_delivery",
+                    return_value={"status": "reachable", "episode_present": True},
+                ),
+                patch.object(
+                    antigravity_review_notifier,
+                    "check_workflow_health",
+                    return_value={"status": "reachable", "needed_recovery": False},
+                ),
+                patch.object(
+                    antigravity_review_notifier,
+                    "_run",
+                    return_value="conversation-id",
+                ) as agentapi,
+            ):
+                created = antigravity_review_notifier.notify_daily_report(
+                    workspace,
+                    state_path,
+                    report_date="2026-07-16",
+                )
+
+            self.assertEqual(created, 1)
+            agentapi.assert_called_once()
 
 
 class ReviewDecisionTests(unittest.TestCase):

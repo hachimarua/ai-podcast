@@ -18,6 +18,7 @@ from typing import Callable
 PENDING_PREFIX = "quality_reports/pending/"
 EVALUATION_PREFIX = "quality_reports/evaluations/"
 MANIFEST_PREFIX = "episode_manifests/"
+PAUSE_CONFIG_PATH = "config/auto_generation.json"
 DEFAULT_FEED_URL = "https://hachimarua.github.io/ai-podcast/podcast.xml"
 DEFAULT_RUNS_URL_BASE = (
     "https://api.github.com/repos/hachimarua/ai-podcast/actions/workflows/"
@@ -212,6 +213,42 @@ def _load_episode_manifest(raw: str) -> dict | None:
     if manifest.get("episode_id") and manifest.get("broadcast_date"):
         return manifest
     return None
+
+
+def _load_pause_config_json(raw: str) -> dict | None:
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(data, dict):
+        return None
+    return {
+        "paused": bool(data.get("paused", False)),
+        "paused_at": data.get("paused_at"),
+        "reason": data.get("reason"),
+    }
+
+
+def fetch_auto_generation_pause_state(workspace: Path) -> dict:
+    """Read auto-generation pause config, preferring origin/main with local fallback."""
+    local_path = workspace / PAUSE_CONFIG_PATH
+    local_state = None
+    if local_path.is_file():
+        try:
+            local_state = _load_pause_config_json(local_path.read_text(encoding="utf-8"))
+        except OSError:
+            local_state = None
+    try:
+        raw = _run(
+            ["git", "show", f"origin/main:{PAUSE_CONFIG_PATH}"],
+            cwd=workspace,
+        )
+        remote_state = _load_pause_config_json(raw)
+        if remote_state is not None:
+            return remote_state
+    except NotifierError:
+        pass
+    return local_state or {"paused": False}
 
 
 def _dedupe_proposals(proposals: list[dict]) -> list[dict]:
@@ -718,6 +755,22 @@ def notify_daily_report(
         manifest = fetch_latest_manifest(workspace, require_origin_for=today)
         manifest = enrich_manifest_with_evaluation(manifest, workspace)
         is_current = bool(manifest and manifest.get("broadcast_date") == today)
+        if not is_current:
+            pause_state = fetch_auto_generation_pause_state(workspace)
+            if pause_state.get("paused"):
+                pause_key = f"paused:{today}"
+                if pause_key not in state["daily_reports"]:
+                    now_iso = datetime.now(timezone.utc).isoformat()
+                    state["daily_reports"][pause_key] = {
+                        "report_date": today,
+                        "checked_at": now_iso,
+                        "notified_at": now_iso,
+                        "verdict": "休止中",
+                        "paused": True,
+                        "reason": str(pause_state.get("reason") or "")[:200],
+                    }
+                    save_state_atomic(state_path, state)
+                return 0
         report_key = manifest["episode_id"] if is_current else f"missing:{today}"
         delivery = (
             check_feed_delivery(manifest.get("episode_id")) if is_current else None

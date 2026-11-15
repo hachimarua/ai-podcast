@@ -180,6 +180,50 @@ class TestIdempotency(unittest.TestCase):
         self.assertIn("skip=false", content)
         self.assertIn("target_date=2026-08-28", content)
 
+    def test_cli_output_skips_when_paused(self):
+        output_file = self.base_dir / "github_output.txt"
+        pause_config = self.base_dir / "auto_generation.json"
+        pause_config.write_text(
+            json.dumps({"paused": True, "reason": "listen backlog"}),
+            encoding="utf-8",
+        )
+
+        code = idempotency.main([
+            "--manifests-dir", str(self.manifests_dir),
+            "--episodes-dir", str(self.episodes_dir),
+            "--feed-path", str(self.feed_file),
+            "--date", "2026-08-28",
+            "--pause-config", str(pause_config),
+            "--github-output", str(output_file),
+        ])
+        self.assertEqual(code, 0)
+        content = output_file.read_text(encoding="utf-8")
+        self.assertIn("skip=true", content)
+        self.assertIn("paused=true", content)
+        self.assertIn("target_date=2026-08-28", content)
+
+    def test_cli_output_proceeds_when_unpaused_or_missing(self):
+        pause_config = self.base_dir / "auto_generation.json"
+        pause_config.write_text(json.dumps({"paused": False}), encoding="utf-8")
+
+        for label, cfg_path in (
+            ("unpaused", pause_config),
+            ("missing", self.base_dir / "missing.json"),
+        ):
+            with self.subTest(label):
+                output_file = self.base_dir / f"github_output_{label}.txt"
+                code = idempotency.main([
+                    "--manifests-dir", str(self.manifests_dir),
+                    "--episodes-dir", str(self.episodes_dir),
+                    "--feed-path", str(self.feed_file),
+                    "--date", "2026-08-28",
+                    "--pause-config", str(cfg_path),
+                    "--github-output", str(output_file),
+                ])
+                self.assertEqual(code, 0)
+                content = output_file.read_text(encoding="utf-8")
+                self.assertIn("skip=false", content)
+
 
 if __name__ == "__main__":
     unittest.main()
