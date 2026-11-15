@@ -10,6 +10,15 @@
     <itunes:category text="Technology"/>
     <itunes:image href="https://hachimarua.github.io/ai-podcast/cover.png"/>
     <item>
+      <title>Daily Brief｜NVIDIAジェンスン・フアン氏辞任と企業セキュリティの死角</title>
+      <description>Daily Brief（4〜6分）｜テーマ: NVIDIAジェンスン・フアン氏辞任と企業セキュリティの死角</description>
+      <pubDate>Mon, 16 Nov 2026 04:19:15 +0900</pubDate>
+      <enclosure url="https://hachimarua.github.io/ai-podcast/episodes/podcast_20261116_041915.mp3" length="2112404" type="audio/mpeg"/>
+      <guid isPermaLink="false">podcast_20261116_041915.mp3</guid>
+      <itunes:author>Antigravity Agent</itunes:author>
+      <itunes:duration>04:47</itunes:duration>
+    </item>
+    <item>
       <title>AI実装ラボ｜AIの「前提見落とし」を測るXYBenchと相次ぐ撤退から学ぶ生存条件</title>
       <description>AI実装ラボ（5〜10分）｜テーマ: AIの「前提見落とし」を測るXYBenchと相次ぐ撤退から学ぶ生存条件</description>
       <pubDate>Sun, 15 Nov 2026 04:18:39 +0900</pubDate>
