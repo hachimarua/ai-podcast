@@ -1,10 +1,11 @@
 name: Generate Daily AI Podcast
 
 on:
-  schedule:
-    # バックアップ定期実行: 毎朝 日本時間 4:27 (UTC 19:27)
-    # Primary は Cloudflare Worker Cron (04:17 JST)
-    - cron: '27 19 * * *'
+  # 一時休止中: 明示的な再開指示まで定時実行を停止（再開時はコメント解除＋config/auto_generation.jsonのpausedをfalseへ）
+  # schedule:
+  #   # バックアップ定期実行: 毎朝 日本時間 4:27 (UTC 19:27)
+  #   # Primary は Cloudflare Worker Cron (04:17 JST)
+  #   - cron: '27 19 * * *'
   workflow_dispatch: # 手動実行用
     inputs:
       force:
@@ -82,7 +83,7 @@ jobs:
       id: check_idempotency
       if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.force != true && inputs.bootstrap_only != true && inputs.qa_existing_only != true && inputs.phase10_trial != true && inputs.weekly_lab_trial != true) }}
       run: |
-        python idempotency.py --github-output "$GITHUB_OUTPUT"
+        python idempotency.py --pause-config config/auto_generation.json --github-output "$GITHUB_OUTPUT"
 
     - name: Bootstrap recent episode history once
       if: steps.check_idempotency.outputs.skip != 'true'

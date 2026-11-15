@@ -11,6 +11,27 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 JST = ZoneInfo("Asia/Tokyo")
+DEFAULT_PAUSE_CONFIG_PATH = Path("config/auto_generation.json")
+
+
+def load_auto_generation_pause_state(
+    config_path: Path | str = DEFAULT_PAUSE_CONFIG_PATH,
+) -> dict:
+    """Return pause configuration; defaults to unpaused when absent or unreadable."""
+    path = Path(config_path)
+    if not path.is_file():
+        return {"paused": False}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {"paused": False}
+    if not isinstance(data, dict):
+        return {"paused": False}
+    return {
+        "paused": bool(data.get("paused", False)),
+        "paused_at": data.get("paused_at"),
+        "reason": data.get("reason"),
+    }
 
 
 def get_jst_today_date() -> str:
@@ -106,9 +127,30 @@ def main(argv: list[str] | None = None) -> int:
         default=os.environ.get("GITHUB_OUTPUT"),
         help="Path to GITHUB_OUTPUT file for GitHub Actions",
     )
+    parser.add_argument(
+        "--pause-config",
+        default=None,
+        help="Optional path to auto-generation pause config JSON",
+    )
 
     args = parser.parse_args(argv)
     target_date = args.date or get_jst_today_date()
+
+    if args.pause_config:
+        pause_state = load_auto_generation_pause_state(args.pause_config)
+        if pause_state.get("paused"):
+            reason = pause_state.get("reason") or "paused by config"
+            print(f"[Auto-Generation Paused] Skipping automatic generation ({reason}).")
+            if args.github_output:
+                try:
+                    with open(args.github_output, "a", encoding="utf-8") as f:
+                        f.write("skip=true\n")
+                        f.write("paused=true\n")
+                        f.write(f"target_date={target_date}\n")
+                except OSError as e:
+                    print(f"[Warning] Failed to write to GITHUB_OUTPUT: {e}", file=sys.stderr)
+            return 0
+
     already_published = is_today_episode_published(
         manifests_dir=args.manifests_dir,
         target_date=target_date,

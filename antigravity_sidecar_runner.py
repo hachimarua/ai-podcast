@@ -76,8 +76,13 @@ def run_checks(workspace: Path) -> None:
     except Exception as exc:
         print(f"Obsidian intake deferred safely: {type(exc).__name__}", flush=True)
     try:
-        count = notify_daily_report(workspace, default_state_path())
-        print(f"Daily audit report check complete: {count} created", flush=True)
+        state_path = default_state_path()
+        count = notify_daily_report(workspace, state_path)
+        latest = latest_same_day_report(state_path, datetime.now().astimezone())
+        if count == 0 and latest and latest.get("verdict") == "休止中":
+            print("Daily audit report skipped: auto-generation paused", flush=True)
+        else:
+            print(f"Daily audit report check complete: {count} created", flush=True)
     except NotifierError as exc:
         print(f"Daily audit report check deferred: {exc}", flush=True)
     except Exception as exc:
@@ -104,11 +109,11 @@ def latest_same_day_report(state_path: Path, now: datetime) -> dict | None:
         if not isinstance(prior, dict):
             continue
         report_date = prior.get("report_date") or (
-            key.split(":", 1)[1] if key.startswith("missing:") else None
+            key.split(":", 1)[1] if ":" in key else None
         )
         if report_date != today:
             continue
-        stamp = str(prior.get("notified_at") or "")
+        stamp = str(prior.get("notified_at") or prior.get("checked_at") or "")
         if latest is None or stamp >= latest[0]:
             latest = (stamp, prior)
     return latest[1] if latest else None
